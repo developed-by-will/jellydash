@@ -1,0 +1,316 @@
+@import url('https://cdn.jsdelivr.net/gh/lscambo13/ElegantFin@main/Theme/ElegantFin-jellyfin-theme-build-latest-minified.css');
+
+/* General Styles */
+.loginDisclaimer {
+  width: 100%;
+}
+
+.backgroundContainer.withBackdrop {
+  opacity: 0;
+}
+
+.updatePasswordForm {
+  display: none;
+}
+
+.standalonePage {
+  padding-top: 0 !important;
+}
+
+/* Login Page Styles */
+#loginPage h1 {
+  display: none;
+  font-weight: 700;
+  font-size: 0;
+  margin: 32px 0 21.44px !important;
+  text-align: left;
+}
+
+#loginPage h1::after {
+  content: 'Sign In';
+  font-size: 32px;
+}
+
+#loginPage {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.5)),
+    url('/Branding/Splashscreen?format=jpg&foregroundLayer=20.0') center / 100% fixed;
+  animation: zoomEffect 30s ease-in-out infinite alternate;
+  z-index: 2;
+  margin-top: 0 !important;
+  overflow: hidden scroll;
+}
+
+@keyframes zoomEffect {
+  0% {
+    background-size: 100%;
+  }
+  100% {
+    background-size: 150%;
+  }
+}
+
+/* Login Form Styles */
+.manualLoginForm,
+.visualLoginForm {
+  width: 100%;
+}
+
+.visualLoginForm {
+  position: relative;
+  overflow: hidden;
+}
+
+.manualLoginForm::before,
+.visualLoginForm::before {
+  display: none;
+}
+
+#loginPage .inputContainer {
+  margin: 1.8em 0;
+  background: #333;
+  border-radius: var(--rounding);
+  height: 4em;
+  position: relative;
+}
+
+#loginPage .inputContainer:focus,
+#loginPage .inputContainer:focus-within {
+  background: #454545;
+}
+
+#loginPage .emby-input {
+  height: 100%;
+  border: none !important;
+  background: transparent !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none !important;
+  padding: 4% !important;
+  font-size: 1.1em;
+}
+
+#loginPage .inputLabel {
+  position: absolute;
+  top: 50%;
+  left: 4%;
+  transform: translateY(-50%);
+  font-size: 1.5em;
+  font-weight: 300;
+  transition: 0.2s ease;
+  color: #8c8c8c;
+}
+
+#loginPage .inputLabel.inputLabelFocused,
+#loginPage .inputLabel:not(.inputLabel-float) {
+  font-size: 0.8em;
+  left: 4%;
+  top: 4%;
+  transform: none;
+}
+
+/* Users Section */
+#divUsers {
+  flex-flow: revert;
+  overflow: scroll visible;
+  justify-content: flex-start;
+}
+
+/* Header Styles */
+.skinHeader.semiTransparent.noHeaderRight {
+  background: transparent !important;
+}
+
+body:has(#loginPage:not(.hide)) .skinHeader {
+  display: none !important;
+}
+
+body:not(:has(#loginPage:not(.hide))) .skinHeader {
+  display: flex !important;
+}
+
+/* Section Title Styles */
+.section1 .sectionTitle {
+  visibility: hidden;
+  position: relative;
+}
+
+.section1 .sectionTitle::after {
+  content: '';
+  visibility: visible;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+/* Login Disclaimer Styles */
+.loginDisclaimer .itemsContainer {
+  justify-content: center;
+}
+
+.loginDisclaimer .cardImageContainer button {
+  background-color: var(--btnMiniPlayColor) !important;
+  color: white;
+  border: var(--defaultLighterBorder);
+  border-color: var(--btnPlayBorderColor);
+  font-size: 75%;
+}
+
+.loginDisclaimer .cardImageContainer button:hover {
+  color: white;
+}
+
+#loginPage .padded-left.padded-right.padded-bottom-page img {
+  margin-top: -60px;
+  width: 270px;
+}
+
+.readOnlyContent {
+  margin-top: -25px !important;
+}
+
+/* Responsive Styles */
+#loginPage .padded-left.padded-right.padded-bottom-page {
+  max-width: 54em;
+  width: 100%;
+}
+
+.loginDisclaimerContainer {
+  margin-top: 0 !important;
+}
+
+.latest-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.latest-container h2 {
+  margin: 0;
+}
+
+.cardBox {
+  margin: 0.3em !important;
+}
+
+.latest-container .cardBox-bottompadded {
+  margin-bottom: 0 !important;
+}
+
+.cardOverlayContainer {
+  backdrop-filter: none !important;
+}
+
+.cardImageContainer {
+  transform: scale(1) !important;
+}
+
+/* Carousel Container */
+.carousel {
+  display: flex;
+  position: relative;
+  padding: 10px 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 5%,
+    black 95%,
+    transparent 100%
+  );
+  anchor-name: --carousel;
+  overscroll-behavior-x: contain;
+  > li {
+    scroll-snap-align: center;
+  }
+
+  &::scroll-button(*) {
+    all: unset; /* Reset any default styles */
+  }
+
+  &::scroll-button(left) {
+    content: '⬅';
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    position: relative;
+    width: 100%;
+    font-size: 20px;
+    display: flex;
+    justify-content: flex-end;
+    z-index: 2;
+    bottom: 310px;
+    right: 30px;
+  }
+
+  &::scroll-button(right) {
+    content: '⮕';
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    position: relative;
+    width: 100%;
+    font-size: 20px;
+    display: flex;
+    justify-content: flex-end;
+    z-index: 1;
+    bottom: 337px;
+    right: 0px;
+  }
+}
+
+/* Hide scrollbar on Chrome/Safari */
+.itemsContainer::-webkit-scrollbar {
+  display: none;
+}
+
+/* Carousel Items */
+.carousel-item {
+  scroll-snap-align: start;
+  flex: 0 0 auto;
+  width: calc(20% - 12px); /* Show ~5 items at a time (desktop) */
+  min-width: 150px; /* Minimum size for mobile */
+  transition: transform 0.2s;
+}
+
+.carousel-item:hover {
+  transform: scale(1.05);
+  z-index: 1;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+  .carousel-item {
+    width: calc(25% - 12px);
+  } /* 4 items */
+}
+@media (max-width: 768px) {
+  .carousel-item {
+    width: calc(33.33% - 12px);
+  } /* 3 items */
+  #loginPage {
+    padding: 0;
+  }
+  #loginPage .padded-left.padded-right.padded-bottom-page {
+    border-radius: 0 !important;
+    margin-top: -45px !important;
+    padding: 45px 15px !important;
+  }
+  .page {
+    padding-bottom: 0 !important;
+  }
+}
+@media (max-width: 700px) {
+  #shows-title {
+    margin-top: 15px;
+  }
+}
+@media (max-width: 480px) {
+  .carousel-item {
+    width: calc(50% - 12px);
+  } /* 2 items */
+}
