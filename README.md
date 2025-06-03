@@ -74,63 +74,158 @@ npm run dev
 
 ---
 
-## 🐣 **First steps**
+## 🔐 **Authentication First**
 
-### 401 Unauthorized
+⚠️ **Troubleshooting** → Getting `401 Unauthorized`?  
+**Run this first to get your access token:**
 
-1. If you get this error when trying to make a call, that means you need to refresh the headers. All you need to do is call the **AUTH_BY_NAME** endpoint (you must provide your credentials on the payload).
+```http
+POST /users/authenticate-by-name
+Payload: {"Username": "YourAdmin", "Pw": "YourPassword"}
+```
 
-### Add carousels for latest Movies and TV Show in the Login Page
+✅ **Success**: Saves `SERVER_TOKEN` automatically for future calls.
 
-1. Call **LOGIN_PAGE**. That's it! Now you have two fully working carousels on your login page. All the files for this are located at `app/login-page`, change them as you see fit 😊.
+---
 
-### Import libraries
+## ✨ **Key Features Setup**
 
-1. Call **Libraries/SYNC** to import your libraries. This will write all your libraries ID's and names in the `db/libraries/standard` file.
+### 🖼️ **1. Dynamic Login Page Carousels**
 
-### Make one library Admin only
+```http
+PATCH /login-page
+```
 
-1. Grab the ID and Name of the library from the `db/libraries/standard` file.
-2. Call **ADD_LIBRARY_TO_PACKAGE** with the updated payload (use ADMIN as the package). Repeat the process for each library.
-3. Call **Libraries/SYNC** again to remove the Admin libraries.
 
-### Add library to a Package
+✅ **What it does**:
 
-1. Grab the ID and Name of the library from the `db/libraries/standard` file.
-2. Call **ADD_LIBRARY_TO_PACKAGE** with the updated payload. The available packages are STANDARD, CHILDREN, PREMIUM, you can modify these to your use case.
-3. Call **Libraries/SYNC** to apply changes.
+- Adds carousels for _Latest Movies_ and _TV Shows_ to the Login Page
+    
+- Files: `app/login-page/` (customize styles easily!)
 
-### Change the order of the libraries in the Home
+---
 
-1. Call **Libraries/All** to get the list of libraries, you will need it for the next call.
-2. Re-arrange the order as you want users to see the libraries in the Home.
-3. Open **Users/STEP 2 - UPDATE_CONFIGS**, paste the list as the value for `OrderedViews` and make the call.
+### 📚 **2. Library Management**
 
-### Hide "Latest from…" section for some libraries
+#### 🔄 **Import Libraries**
 
-1.  Call **Libraries/LIBRARY_OUT_OF_HOME** with the library's name on the payload.
-2.  Call **Users/STEP 2 - UPDATE_CONFIGS**. You must provide a complete `OrderedViews` list.
+```http
+GET /libraries/all?info=compact
+```
 
-### Add a new blocked tag for the CHILDREN package
+📁 **Output**: Saves to `db/libraries/standard`
 
-1.  Call **NEW_BLOCKED_TAG** with the tag on the payload. This endpoint will automatically sync the blocked tags for all users with CHILDREN Package.
+#### 🔒 **Restrict Library Access (Admin-Only)**
 
-### Update Cast & Crew pictures
+```http
+POST /add-to-package
+Payload: {"id": "lib123", "name": "4K Movies", "package": "ADMIN"}
+```
 
-1.  Call **CAST_CREW_PICTURES** and wait 😊. The first time you call this endpint it might take a while depending on the number of missing pictures you may have. The good news is that this endpoint keeps track of people's IDs so it can skip on next calls.
 
-### Updating content dates for Movies, TV Shows and Episodes
+⚠️ **Warning**: Call `GET /libraries/sync` after to apply changes.
 
-1.  Call the desire endpoint inside of the **Update Create Dates** and wait 😊. This endpoint also keeps track of the IDs so it can skip on next calls.
+#### 🏠 **Reorder Home Screen Libraries**
 
-### Create a new user and assign a Package
+1. Fetch current order:
+    
+```http
+GET /libraries/all
+```
+    
+2. Update globally:
+    
+```http
+POST /users/update-configs
+Payload: {"OrderedViews": ["id1->Movies", "id2->TV Shows"]}
+```
 
-1.  Open **Users/STEP 1 - CREAT_USER**, update the payload with the username and the Package name (STANDARD, CHILDREN, PREMIUM). This endpoint automatically creates and returns a new secure password.
 
-#### <u>Be careful with the `OrderedViews` list, this will update the libraries ordering view for all users</u>
+⚠️ **Affects all users!**
 
-2. Call **STEP 2 - UPDATE_CONFIGS** to apply the configs for this newly account and all others.
-3. Call **STEP 3 - UPDATE_DISPLAY_PREFERENCES** to apply the Display Preferences for this newly account and all others.
+---
+
+### 🛡️ **3. Content Filtering**
+
+#### 🚫 **Block Tags (e.g., for Kids)**
+
+```http
+POST /manage/blocked-tags
+Payload: {"tag": "violence"}
+```
+
+
+✅ **Auto-syncs** to all users with `CHILDREN` package.
+
+---
+
+### 🎭 **4. Media Enhancements**
+
+#### 📸 **Fix Missing Cast & Crew Photos**
+
+```http
+PATCH /persons?userId=USER_ID
+```
+
+⏳ **First run**: May take time (processes all missing images).  
+✅ **Optimized**: Skips processed IDs in future runs.
+
+#### 📅 **Update Content Dates**
+
+```http
+PATCH /items/update-date-created?IncludeItemTypes=Movie
+```
+
+
+**Also available**: Replace `Movie` with `Series` or `Episode`.
+
+---
+
+### 👥 **5. User Management**
+
+#### ✨ **Create New User**
+
+```http
+POST /users/new
+Payload: {"username": "Bob", "package": "PREMIUM"}
+```
+
+
+🔑 **Returns**: Auto-generated secure password.
+
+#### ⚙️ **Apply Default Settings**
+
+1. **Configs**:
+    
+```http
+POST /users/update-configs
+```
+    
+2. **Display Preferences**:
+    
+```http
+POST /users/update-display-prefs
+```
+    
+
+---
+
+## ⚠️ **Critical Notes**
+
+- **`OrderedViews` changes apply globally** → Double-check before saving!
+    
+- **Packages**: `STANDARD` | `CHILDREN` | `PREMIUM` | `ADMIN` (edit in `config/packages.json`).
+    
+- **First-run delays**: Media updates may take time (later calls are faster).
+    
+
+---
+
+## 🎨 **Pro Tips**
+
+1. **Customize packages**: Edit `config/packages.json`
+    
+2. **Style login carousels**: Modify `app/login-page/styles.css`
 
 ---
 
