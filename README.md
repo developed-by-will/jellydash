@@ -96,11 +96,9 @@ Payload: {"Username": "YourAdmin", "Pw": "YourPassword"}
 PATCH /login-page
 ```
 
-
 ✅ **What it does**:
 
-- Adds carousels for _Latest Movies_ and _TV Shows_ to the Login Page
-    
+- Adds carousels for *Latest Movies* and *TV Shows* to the Login Page
 - Files: `app/login-page/` (customize styles easily!)
 
 ---
@@ -122,26 +120,43 @@ POST /add-to-package
 Payload: {"id": "lib123", "name": "4K Movies", "package": "ADMIN"}
 ```
 
-
 ⚠️ **Warning**: Call `GET /libraries/sync` after to apply changes.
 
 #### 🏠 **Reorder Home Screen Libraries**
 
 1. Fetch current order:
-    
+
 ```http
 GET /libraries/all
 ```
-    
+
 2. Update globally:
-    
+
 ```http
 POST /users/update-configs
 Payload: {"OrderedViews": ["id1->Movies", "id2->TV Shows"]}
 ```
 
-
 ⚠️ **Affects all users!**
+
+#### 🔄 **Force Jellyfin to add/update a library with new paths**
+
+When changing library paths to new ones, Jellyfin sometimes might still keep the old ones. This can create all kind of issues like content duplication that won't work when trying to playblack.
+
+```http
+PATCH /force-new-library-paths/?name={libraryName}
+```
+
+Payload example
+
+```json
+{
+  "PreferredMetadataLanguage": "pt",
+  "MetadataCountryCode": "PT",
+  "AllowEmbeddedSubtitles": "AllowNone",
+  "PathInfos": ["A:\\Movies\\MovieGenre", "A:\\Movies\\MovieGenreTwo"]
+}
+```
 
 ---
 
@@ -153,7 +168,6 @@ Payload: {"OrderedViews": ["id1->Movies", "id2->TV Shows"]}
 POST /manage/blocked-tags
 Payload: {"tag": "violence"}
 ```
-
 
 ✅ **Auto-syncs** to all users with `CHILDREN` package.
 
@@ -176,7 +190,6 @@ PATCH /persons?userId=USER_ID
 PATCH /items/update-date-created?IncludeItemTypes=Movie
 ```
 
-
 **Also available**: Replace `Movie` with `Series` or `Episode`.
 
 ---
@@ -190,41 +203,35 @@ POST /users/new
 Payload: {"username": "Bob", "package": "PREMIUM"}
 ```
 
-
 🔑 **Returns**: Auto-generated secure password.
 
 #### ⚙️ **Apply Default Settings**
 
 1. **Configs**:
-    
+
 ```http
 POST /users/update-configs
 ```
-    
+
 2. **Display Preferences**:
-    
+
 ```http
 POST /users/update-display-prefs
 ```
-    
 
 ---
 
 ## ⚠️ **Critical Notes**
 
 - **`OrderedViews` changes apply globally** → Double-check before saving!
-    
 - **Packages**: `STANDARD` | `CHILDREN` | `PREMIUM` | `ADMIN` (edit in `config/packages.json`).
-    
 - **First-run delays**: Media updates may take time (later calls are faster).
-    
 
 ---
 
 ## 🎨 **Pro Tips**
 
 1. **Customize packages**: Edit `config/packages.json`
-    
 2. **Style login carousels**: Modify `app/login-page/styles.css`
 
 ---
