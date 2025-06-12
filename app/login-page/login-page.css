@@ -175,6 +175,57 @@ body:not(:has(#loginPage:not(.hide))) .skinHeader {
   width: 100%;
 }
 
+/* Pricing Table Styles */
+.itemsContainer.padded-left.padded-right.padded-right-withalphapicker {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.pricing-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 !important;
+  border-radius: 10px !important;
+  overflow: hidden;
+  border: 1px solid #444;
+  text-align: center;
+}
+
+.pricing-table th,
+.pricing-table td {
+  padding: 10px;
+  border: 1px solid #444;
+  border-top: none;
+}
+
+.pricing-table th:first-child {
+  border-left: none;
+}
+
+.pricing-table th:last-child {
+  border-right: none;
+  border-top-right-radius: 10px;
+}
+
+.pricing-table tr:last-child td:first-child {
+  border-bottom-left-radius: 10px;
+}
+
+.pricing-table tr:last-child td:last-child {
+  border-bottom-right-radius: 10px;
+}
+
+.pricing-table button {
+  border-radius: 5px;
+  border: none;
+  width: 100%;
+}
+
+.pricing-table a {
+  width: 100%;
+  display: block;
+}
+
 .loginDisclaimerContainer {
   margin-top: 0 !important;
 }

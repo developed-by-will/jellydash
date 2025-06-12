@@ -5,12 +5,13 @@ import path from 'path';
 import { response } from './types';
 
 export async function PATCH(request: NextRequest) {
-    const body = await request.json();
-    const { userId } = body;
+  const body = await request.json();
+  const { userId } = body;
 
   const cardTemplatePath = path.join(process.cwd(), 'app/login-page/card.html');
   const loginPageHtmlPath = path.join(process.cwd(), 'app/login-page/login-page.html');
   const loginPageCssPath = path.join(process.cwd(), 'app/login-page/login-page.css');
+  const loginPriceTablePath = path.join(process.cwd(), 'app/login-page/price-table.html');
 
   const cardTemplate = fs.readFileSync(cardTemplatePath, 'utf-8');
   const loginPageCss = fs.readFileSync(loginPageCssPath, 'utf-8');
@@ -50,7 +51,11 @@ export async function PATCH(request: NextRequest) {
         .replace(/{{id}}/g, show.Id)
         .replace(/{{poster}}/g, show.ImageTags?.Primary ?? '');
     }
-    
+
+    // Add the price table
+    const priceTable = fs.readFileSync(loginPriceTablePath, 'utf-8');
+    loginPageHtml += priceTable;
+
     loginPageHtml = loginPageHtml
       .replace(/{{movies}}/g, moviesHtml)
       .replace(/{{shows}}/g, showsHtml);
