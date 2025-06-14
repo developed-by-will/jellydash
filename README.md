@@ -108,7 +108,7 @@ PATCH /login-page
 #### 🔄 **Import Libraries**
 
 ```http
-GET /libraries/all?info=compact
+PATCH /libraries/update-libraries
 ```
 
 📁 **Output**: Saves to `db/libraries/standard`
@@ -165,7 +165,7 @@ Payload example
 #### 🚫 **Block Tags (e.g., for Kids)**
 
 ```http
-POST /manage/blocked-tags
+POST /blocked-tags
 Payload: {"tag": "violence"}
 ```
 
