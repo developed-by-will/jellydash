@@ -1,9 +1,10 @@
 import { catchError, fetchApi } from '@/app/api/helpers';
+import { LoginPayload, LoginResponse } from '@/app/types';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { Username, Pw } = await request.json();
+    const { Username, Pw }: LoginPayload = await request.json();
     const endpoint = '/Users/authenticatebyname';
 
     const authResponse = await fetchApi(endpoint, request, {
@@ -19,7 +20,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { AccessToken, SessionInfo } = await authResponse.json();
+    const { AccessToken, SessionInfo }: LoginResponse = await authResponse.json();
 
     return NextResponse.json(
       {
