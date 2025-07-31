@@ -1,9 +1,9 @@
+import { commonOpenGraph, commonSEO } from '@/app/commonSEO';
 import { Metadata } from 'next';
-import Login from './(pages)/login/page';
-import { commonOpenGraph, commonSEO } from './commonSEO';
+import Component from '.';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const title = 'Jellydash';
+  const title = 'Jellydash - Login';
 
   return {
     title,
@@ -15,6 +15,6 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function Index() {
-  return <Login />;
+export default async function Index() {
+  return <Component />;
 }
