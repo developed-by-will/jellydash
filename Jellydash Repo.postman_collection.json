@@ -1,0 +1,1041 @@
+{
+	"info": {
+		"_postman_id": "72029921-5958-4d4d-92a2-1f45be3acff4",
+		"name": "Jellydash Repo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44217487",
+		"_collection_link": "https://wilsongomes-9718325.postman.co/workspace/Wilson-Gomes's-Workspace~2cd0946d-ae89-4d10-88cd-c201bcb6e784/collection/44217487-72029921-5958-4d4d-92a2-1f45be3acff4?action=share&source=collection_link&creator=44217487"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "ALL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "SERVER_TOKEN",
+								"value": "{{SERVER_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{API_URL}}/users/all",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"users",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "STEP 1 - CREAT_USER",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "SERVER_TOKEN",
+								"value": "{{SERVER_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"Test\",\r\n    \"package\": \"STANDARD\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_URL}}/users/new",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"users",
+								"new"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "STEP 2 - UPDATE_CONFIGS",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "SERVER_TOKEN",
+								"value": "{{SERVER_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"OrderedViews\": [\r\n        \"11111111111111111111111111111111->Featured\",\r\n        \"11111111111111111111111111111111->Movies\",\r\n        \"11111111111111111111111111111111->Shows\"\r\n],\r\n\"SubtitleLanguagePreference\": \"por\" \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_URL}}/users/update-configs",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"users",
+								"update-configs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "STEP 3 - UPDATE_DISPLAY_PREFERENCES",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "SERVER_TOKEN",
+								"value": "{{SERVER_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"SortBy\": \"AirTime\",\r\n    \"CustomPrefs\": {\r\n        \"homesection0\": \"resume\",\r\n        \"homesection1\": \"smalllibrarytiles\",\r\n        \"homesection2\": \"nextup\",\r\n        \"homesection3\": \"latestmedia\",\r\n        \"homesection4\": \"none\",\r\n        \"homesection5\": \"none\",\r\n        \"homesection6\": \"none\",\r\n        \"homesection7\": \"none\",\r\n        \"homesection8\": \"none\",\r\n        \"homesection9\": \"none\",\r\n        \"homesection10\": \"none\"\r\n    },\r\n    \"ScrollDirection\": \"Horizontal\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_URL}}/users/update-display-prefs",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"users",
+								"update-display-prefs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BY_ID",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "SERVER_TOKEN",
+								"value": "{{SERVER_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_URL}}/users/by-id?userId=1111111111111111111111111111111111111111",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"users",
+								"by-id"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1111111111111111111111111111111111111111"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "USER",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "SERVER_TOKEN",
+								"value": "{{SERVER_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userId\": \"1111111111111111111111111111111111111111\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_URL}}/users/remove",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"users",
+								"remove"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Update Create Dates",
+			"item": [
+				{
+					"name": "MOVIES_DATES",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "SERVER_TOKEN",
+								"value": "{{SERVER_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{API_URL}}/items/update-date-created?IncludeItemTypes=Movie&force=false",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"items",
+								"update-date-created"
+							],
+							"query": [
+								{
+									"key": "IncludeItemTypes",
+									"value": "Movie",
+									"description": "\"AggregateFolder\" \"Audio\" \"AudioBook\" \"BasePluginFolder\" \"Book\" \"BoxSet\" \"Channel\" \"ChannelFolderItem\" \"CollectionFolder\" \"Episode\" \"Folder\" \"Genre\" \"ManualPlaylistsFolder\" \"Movie\" \"LiveTvChannel\" \"LiveTvProgram\" \"MusicAlbum\" \"MusicArtist\" \"MusicGenre\" \"MusicVideo\" \"Person\" \"Photo\" \"PhotoAlbum\" \"Playlist\" \"PlaylistsFolder\" \"Program\" \"Recording\" \"Season\" \"Series\" \"Studio\" \"Trailer\" \"TvChannel\" \"TvProgram\" \"UserRootFolder\" \"UserView\" \"Video\" \"Year\""
+								},
+								{
+									"key": "force",
+									"value": "false"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SERIES_DATES",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "SERVER_TOKEN",
+								"value": "{{SERVER_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{API_URL}}/items/update-date-created?IncludeItemTypes=Series&force=false",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"items",
+								"update-date-created"
+							],
+							"query": [
+								{
+									"key": "IncludeItemTypes",
+									"value": "Series",
+									"description": "\"AggregateFolder\" \"Audio\" \"AudioBook\" \"BasePluginFolder\" \"Book\" \"BoxSet\" \"Channel\" \"ChannelFolderItem\" \"CollectionFolder\" \"Episode\" \"Folder\" \"Genre\" \"ManualPlaylistsFolder\" \"Movie\" \"LiveTvChannel\" \"LiveTvProgram\" \"MusicAlbum\" \"MusicArtist\" \"MusicGenre\" \"MusicVideo\" \"Person\" \"Photo\" \"PhotoAlbum\" \"Playlist\" \"PlaylistsFolder\" \"Program\" \"Recording\" \"Season\" \"Series\" \"Studio\" \"Trailer\" \"TvChannel\" \"TvProgram\" \"UserRootFolder\" \"UserView\" \"Video\" \"Year\""
+								},
+								{
+									"key": "force",
+									"value": "false"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EPISODES_DATES",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "SERVER_TOKEN",
+								"value": "{{SERVER_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{API_URL}}/items/update-date-created?IncludeItemTypes=Episode&force=false",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"items",
+								"update-date-created"
+							],
+							"query": [
+								{
+									"key": "IncludeItemTypes",
+									"value": "Episode",
+									"description": "\"AggregateFolder\" \"Audio\" \"AudioBook\" \"BasePluginFolder\" \"Book\" \"BoxSet\" \"Channel\" \"ChannelFolderItem\" \"CollectionFolder\" \"Episode\" \"Folder\" \"Genre\" \"ManualPlaylistsFolder\" \"Movie\" \"LiveTvChannel\" \"LiveTvProgram\" \"MusicAlbum\" \"MusicArtist\" \"MusicGenre\" \"MusicVideo\" \"Person\" \"Photo\" \"PhotoAlbum\" \"Playlist\" \"PlaylistsFolder\" \"Program\" \"Recording\" \"Season\" \"Series\" \"Studio\" \"Trailer\" \"TvChannel\" \"TvProgram\" \"UserRootFolder\" \"UserView\" \"Video\" \"Year\""
+								},
+								{
+									"key": "force",
+									"value": "false"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Libraries",
+			"item": [
+				{
+					"name": "ALL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "SERVER_TOKEN",
+								"value": "{{SERVER_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{API_URL}}/libraries/all?info=compact",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"libraries",
+								"all"
+							],
+							"query": [
+								{
+									"key": "info",
+									"value": "compact"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SYNC_LIBRARIES",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "SERVER_TOKEN",
+								"value": "{{SERVER_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{API_URL}}/libraries/update-libraries",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"libraries",
+								"update-libraries"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EXCLUDED_FROM_HOME",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "SERVER_TOKEN",
+								"value": "{{SERVER_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{API_URL}}/libraries/excluded",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"libraries",
+								"excluded"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "LIBRARY_OUT_OF_HOME",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "SERVER_TOKEN",
+								"value": "{{SERVER_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"library\": \"Music\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{API_URL}}/libraries/exclude-library-from-home",
+							"host": [
+								"{{API_URL}}"
+							],
+							"path": [
+								"libraries",
+								"exclude-library-from-home"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ADD_LIBRARY_TO_PACKAGE",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "SERVER_TOKEN",
+						"value": "{{SERVER_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": \"1111111111111111111111111111111111111111\",\r\n    \"name\": \"Animation\",\r\n    \"package\": \"CHILDREN\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{API_URL}}/add-to-package",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"add-to-package"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CAST_CREW_PICTURES",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "SERVER_TOKEN",
+						"value": "{{SERVER_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{API_URL}}/persons/?userId={{USER_ADMIN_ID}}&force=false",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"persons",
+						""
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "{{USER_ADMIN_ID}}"
+						},
+						{
+							"key": "force",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AUTH_BY_NAME",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if(pm.response.code === 200) {\r",
+							"    const res = pm.response.json();\r",
+							"    console.log(res)\r",
+							"    pm.environment.set(\"SERVER_TOKEN\", res.AccessToken);\r",
+							"    pm.environment.set(\"SERVER_DEVICE_ID\", res.SessionInfo.DeviceId);\r",
+							"    pm.environment.set(\"USER_ADMIN_ID\", res.SessionInfo.UserId);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"Username\": \"Admin\",\r\n  \"Pw\": \"Admin\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{API_URL}}/users/authenticate-by-name",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"users",
+						"authenticate-by-name"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LOGIN_PAGE",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "SERVER_TOKEN",
+						"value": "{{SERVER_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userId\": \"{{USER_ADMIN_ID}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{API_URL}}/login-page",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"login-page"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "NEW_BLOCKED_TAG",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "SERVER_TOKEN",
+						"value": "{{SERVER_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"tag\": \"poison\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{API_URL}}/blocked-tags",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"blocked-tags"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "API_URL",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "SERVER_TOKEN",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "SERVER_DEVICE_ID",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

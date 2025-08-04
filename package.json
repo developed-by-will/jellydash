@@ -1,39 +1,49 @@
 {
-  "name": "homeflix-dashboard",
-  "version": "0.1.0",
+  "name": "jellydash",
+  "version": "1.0.0",
   "private": true,
-  "engine": "22.8.0",
+  "engine": "22.16.0",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
-    "@types/ssh2": "^1.15.4",
+    "@hookform/resolvers": "^5.2.1",
+    "@radix-ui/react-label": "^2.1.7",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-toast": "^1.2.14",
+    "@tanstack/query-async-storage-persister": "^5.83.1",
+    "@tanstack/react-query": "^5.84.1",
+    "@tanstack/react-query-persist-client": "^5.84.1",
+    "brace-expansion": ">=4.0.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.473.0",
-    "next": "14.2.16",
+    "next": "^15.3.3",
+    "next-themes": "^0.4.6",
     "react": "^18",
     "react-dom": "^18",
-    "ssh2": "^1.16.0",
+    "react-hook-form": "^7.62.0",
+    "react-icons": "^5.5.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
-    "uuid": "^11.1.0",
-    "brace-expansion": ">=4.0.1"
+    "turbopack": "^0.0.1",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/uuid": "^10.0.0",
+    "brace-expansion": ">=4.0.1",
     "eslint": "^8",
-    "eslint-config-next": "14.2.16",
+    "eslint-config-next": "^15.3.3",
     "postcss": "^8",
     "prettier-plugin-organize-imports": "^4.1.0",
-    "tailwindcss": "^3.4.1",
+    "tailwindcss": "^3.4.17",
     "typescript": "^5",
-    "brace-expansion": ">=4.0.1"
+    "zod": "^4.0.14"
   }
 }

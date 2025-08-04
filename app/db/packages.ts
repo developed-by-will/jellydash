@@ -40,7 +40,7 @@ export const basePolicies = {
   EnableAllChannels: true,
   EnableAllFolders: false,
   InvalidLoginAttemptCount: 0,
-  LoginAttemptsBeforeLockout: -1,
+  LoginAttemptsBeforeLockout: 3,
   EnablePublicSharing: true,
   BlockedMediaFolders: null,
   BlockedChannels: null,
@@ -87,7 +87,6 @@ export const PACKAGES = {
     MaxActiveSessions: 2,
     SyncPlayAccess: 'None',
     EnableContentDownloading: false,
-    LoginAttemptsBeforeLockout: 3,
     BlockedTags: [],
     EnabledFolders: getLibraries(libraries.standard)
   },
@@ -98,7 +97,6 @@ export const PACKAGES = {
     MaxParentalRating: 13,
     EnabledFolders: getLibraries(libraries.children),
     MaxActiveSessions: 2,
-    LoginAttemptsBeforeLockout: 3,
     EnableContentDownloading: false,
     SyncPlayAccess: 'None'
   },
@@ -106,7 +104,6 @@ export const PACKAGES = {
     ...basePolicies,
     IsDisabled: false,
     MaxActiveSessions: 2,
-    LoginAttemptsBeforeLockout: 3,
     EnableContentDownloading: true,
     SyncPlayAccess: 'CreateAndJoinGroups',
     BlockedTags: [],
@@ -115,7 +112,6 @@ export const PACKAGES = {
   ADMIN: {
     ...basePolicies,
     IsDisabled: false,
-    LoginAttemptsBeforeLockout: 3,
     EnableContentDownloading: true,
     SyncPlayAccess: 'CreateAndJoinGroups',
     BlockedTags: [],
