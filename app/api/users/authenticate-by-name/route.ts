@@ -1,10 +1,11 @@
+import { LoginPayloadType } from '@/app/(pages)/login/formValidations';
+import { LoginResponseTypeExtended } from '@/app/@types';
 import { catchError, fetchApi } from '@/app/api/helpers';
-import { LoginPayload, LoginResponse } from '@/app/types';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { Username, Pw }: LoginPayload = await request.json();
+    const { Username, Pw }: LoginPayloadType = await request.json();
     const endpoint = '/Users/authenticatebyname';
 
     const authResponse = await fetchApi(endpoint, request, {
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { AccessToken, SessionInfo }: LoginResponse = await authResponse.json();
+    const { AccessToken, SessionInfo }: LoginResponseTypeExtended = await authResponse.json();
 
     return NextResponse.json(
       {

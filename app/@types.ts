@@ -1,10 +1,6 @@
-export type LoginPayload = {
-  Username: string;
-  Pw: string;
-};
+import { LoginResponseType } from './(pages)/login/formValidations';
 
-export type LoginResponse = {
-  AccessToken: string;
+export type LoginResponseTypeExtended = LoginResponseType & {
   SessionInfo: {
     PlayState: {
       CanSeek: boolean;
