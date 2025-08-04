@@ -1,7 +1,15 @@
 import { BsDiscord, BsEnvelopeFill, BsFacebook, BsGithub, BsGoogle } from 'react-icons/bs';
+import { SiJellyfin } from 'react-icons/si';
 
 // List of providers
-export type ProvidersEnum = 'google' | 'github' | 'discord' | 'facebook' | 'email' | 'custom';
+export type ProvidersEnum =
+  | 'google'
+  | 'github'
+  | 'discord'
+  | 'facebook'
+  | 'email'
+  | 'custom'
+  | 'jellyfin';
 
 // Exclude 'custom' from the list because it is handled separately
 export const providerDetails: Record<
@@ -32,5 +40,10 @@ export const providerDetails: Record<
     label: 'Sign in with Email',
     icon: <BsEnvelopeFill />,
     background: 'bg-emerald-600'
+  },
+  jellyfin: {
+    label: 'Sign in with Jellyfin',
+    icon: <SiJellyfin />,
+    background: 'bg-indigo-600'
   }
 };

@@ -1,5 +1,6 @@
 'use client';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -9,37 +10,52 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
+import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Loader2Icon } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import Image, { StaticImageData } from 'next/image';
 import { ReactNode } from 'react';
+import { Control } from 'react-hook-form';
 import { IconType } from 'react-icons/lib';
 import { providerDetails, ProvidersEnum } from './providerDetails';
 
 // Check if one of the providers is 'custom'
 // If it is then customLabel & customBtnColor are required
-export type LoginPage01Type = {
+type BaseLoginProps = {
   backgroundImage?: string | StaticImageData;
   companyLogo?: string | StaticImageData | JSX.Element;
   companyLogoAlternative?: string | StaticImageData | JSX.Element;
   title?: string | JSX.Element;
   description?: string | JSX.Element;
-  providers: ProvidersEnum[];
-  handleLogin: Array<() => void>;
+  handleLogin?: Array<() => void>;
   formWidth: number;
-} & {
-  providers: (ProvidersEnum | 'custom')[];
-  customLabel: string;
-  customBtnColor: string;
-  customIcon: IconType | string | JSX.Element;
+  loading?: boolean;
+  control: Control<any>;
 } & (
-    | { companyLogo?: string | StaticImageData | JSX.Element; companyLogoAlt?: string }
-    | {
-        companyLogo?: string | StaticImageData | JSX.Element;
-        companyLogoAlt?: string;
-        companyLogoAlternative?: string | StaticImageData | JSX.Element;
-      }
-  );
+  | { companyLogo?: string | StaticImageData | JSX.Element; companyLogoAlt?: string }
+  | {
+      companyLogo?: string | StaticImageData | JSX.Element;
+      companyLogoAlt?: string;
+      companyLogoAlternative?: string | StaticImageData | JSX.Element;
+    }
+);
+
+type ProvidersRequirement<T extends (ProvidersEnum | 'custom')[]> = 'custom' extends T[number]
+  ? {
+      providers: T;
+      customLabel?: string;
+      customBtnColor?: string;
+      customIcon?: IconType | string | JSX.Element;
+    }
+  : {
+      providers: T;
+      customLabel: never;
+      customBtnColor: never;
+      customIcon: never;
+    };
+
+export type LoginPage01Type = BaseLoginProps & ProvidersRequirement<(ProvidersEnum | 'custom')[]>;
 
 export default function LoginPage01(props: Readonly<LoginPage01Type>) {
   const {
@@ -50,7 +66,9 @@ export default function LoginPage01(props: Readonly<LoginPage01Type>) {
     description,
     providers = [],
     handleLogin = [],
-    formWidth
+    formWidth,
+    loading,
+    control
   } = props;
 
   const { theme, systemTheme } = useTheme();
@@ -65,7 +83,7 @@ export default function LoginPage01(props: Readonly<LoginPage01Type>) {
   const logo = currentTheme === 'dark' ? companyLogoAlternative : companyLogo;
 
   return (
-    <>
+    <div className="flex flex-col">
       {backgroundImage && (
         <Image
           src={backgroundImage}
@@ -78,18 +96,11 @@ export default function LoginPage01(props: Readonly<LoginPage01Type>) {
       )}
 
       <div className="relative z-40 pt-8 flex flex-col items-center px-4 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="pt-20">
-          {logo && (typeof logo === 'string' || 'src' in logo) ? (
-            <Image
-              src={logo}
-              alt={companyLogoAlt ?? 'Company Logo'}
-              width={formWidth}
-              height={100}
-            />
-          ) : (
-            logo
-          )}
-        </div>
+        {logo && (typeof logo === 'string' || 'src' in logo) ? (
+          <Image src={logo} alt={companyLogoAlt ?? 'Company Logo'} width={formWidth} height={100} />
+        ) : (
+          logo
+        )}
       </div>
 
       <div className="relative z-50 mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -98,29 +109,62 @@ export default function LoginPage01(props: Readonly<LoginPage01Type>) {
         >
           <CardHeader className="flex flex-col items-center">
             <CardTitle>
-              {title && (
-                <h2 className="mb-6 -mt-1 text-center text-lg font-bold text-neutral-200">
-                  {title}
-                </h2>
-              )}
+              {title && <h2 className="text-center text-lg font-bold text-neutral-200">{title}</h2>}
             </CardTitle>
             <CardDescription>
-              {description && <div className="text-colors-neutral-700">{description}</div>}
+              {description && <div className="text-white">{description}</div>}
             </CardDescription>
           </CardHeader>
           <CardContent className="w-full">
             <div className="flex flex-col gap-3">
-              <Input
-                id="email"
-                placeholder="Username"
-                className="!bg-gray-700/80 placeholder:text-gray-400 border-gray-500 py-5 text-white"
+              <FormField
+                control={control}
+                name="Username"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="Username"
+                        className="!bg-gray-700/80 placeholder:text-gray-400 border-gray-500 py-5 text-white"
+                        value={field.value || ''}
+                      />
+                    </FormControl>
+                    {fieldState.error && (
+                      <Badge variant="destructive">
+                        <FormMessage className="text-white text-xs">
+                          {fieldState.error.message}
+                        </FormMessage>
+                      </Badge>
+                    )}
+                  </FormItem>
+                )}
               />
 
-              <Input
-                id="password"
-                type="password"
-                placeholder="********"
-                className="!bg-gray-700/80 placeholder:text-gray-400 border-gray-500 py-5 text-white"
+              <FormField
+                control={control}
+                name="Pw"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="password"
+                        placeholder="********"
+                        className="!bg-gray-700/80 placeholder:text-gray-400 border-gray-500 py-5 text-white"
+                        value={field.value || ''}
+                      />
+                    </FormControl>
+
+                    {fieldState.error && (
+                      <Badge variant="destructive">
+                        <FormMessage className="text-white text-xs">
+                          {fieldState.error.message}
+                        </FormMessage>
+                      </Badge>
+                    )}
+                  </FormItem>
+                )}
               />
             </div>
           </CardContent>
@@ -140,15 +184,29 @@ export default function LoginPage01(props: Readonly<LoginPage01Type>) {
                 <Button
                   key={provider}
                   onClick={handleClick}
-                  className={`inline-flex items-center justify-center font-medium rounded-md focus:outline-none transition ease-in-out duration-150 cursor-pointer disabled:opacity-50 whitespace-nowrap text-white border border-indigo-500 bg-indigo-600 bg-opacity-80 hover:bg-opacity-100 hover:border-indigo-500 focus:border-indigo-700 focus:ring-indigo active:bg-opacity-100 active:border-indigo-700 px-4 py-2 text-sm button-md mt-2 w-full shadow-sm ${background}`}
+                  disabled={loading}
+                  className={`
+                    inline-flex items-center justify-center 
+                    font-medium rounded-md focus:outline-none 
+                    transition-all duration-200 ease-linear
+                    cursor-pointer disabled:opacity-50 
+                    whitespace-nowrap 
+                    px-4 py-2 text-sm mt-2 w-full shadow-sm
+                    ${customBtnColor && `bg-${customBtnColor}`}
+                    ${!customBtnColor && `${background}`}
+                    hover:bg-${background}
+                    transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
+                    transform hover:scale-[0.98] active:scale-[0.99]
+                  `}
                 >
                   {icon as ReactNode} {label}
+                  {loading && <Loader2Icon className="animate-spin ml-2" />}
                 </Button>
               );
             })}
           </CardFooter>
         </Card>
       </div>
-    </>
+    </div>
   );
 }
