@@ -1,8 +1,16 @@
 import { catchError, fetchApi } from '@/app/api/helpers';
 import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
+import path from 'path';
 
 const PROCESSED_PERSONS_FILE = 'app/db/faceless';
+
+const ensureDirectoryExists = (filePath: string) => {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
 
 // Helper function to read processed persons from file
 function readProcessedPersons(): Set<string> {
@@ -25,9 +33,11 @@ function readProcessedPersons(): Set<string> {
 // Helper function to write processed persons to file
 function writeProcessedPerson(personId: string) {
   try {
+    ensureDirectoryExists(PROCESSED_PERSONS_FILE);
     fs.appendFileSync(PROCESSED_PERSONS_FILE, `${personId}\n`);
   } catch (error) {
     console.error('Error writing to processed persons file:', error);
+    throw error;
   }
 }
 

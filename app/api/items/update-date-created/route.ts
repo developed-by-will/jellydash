@@ -2,8 +2,16 @@ import { catchError, fetchApi } from '@/app/api/helpers';
 import { JellyfinResponse } from '@/app/api/types';
 import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
+import path from 'path';
 
 const PROCESSED_ITEMS_FILE = 'app/db';
+
+const ensureDirectoryExists = (filePath: string) => {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
 
 // Helper function to read items from a file
 function readProcessedItems(itemType: string): Set<string> {
@@ -28,9 +36,11 @@ function readProcessedItems(itemType: string): Set<string> {
 function writeProcessedItem(itemType: string, itemId: string) {
   try {
     const filePath = `${PROCESSED_ITEMS_FILE}/${itemType.toLowerCase()}-dates`;
+    ensureDirectoryExists(filePath);
     fs.appendFileSync(filePath, `${itemId}\n`);
   } catch (error) {
     console.error(`Error writing to processed ${itemId}:`, error);
+    throw error; // Re-throw to be caught by the outer catch
   }
 }
 

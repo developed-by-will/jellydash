@@ -1,6 +1,7 @@
 import { catchError, fetchApi } from '@/app/api/helpers';
 import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
+import path from 'path';
 import { User } from '../types';
 
 export async function POST(request: NextRequest) {
@@ -9,6 +10,12 @@ export async function POST(request: NextRequest) {
     const { tag } = body;
 
     const file = 'app/db/blocked-tags';
+
+    // Ensure directory exists
+    const dir = path.dirname(file);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
 
     // Check if tag already exists
     if (fs.existsSync(file)) {
