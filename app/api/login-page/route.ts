@@ -8,54 +8,57 @@ export async function PATCH(request: NextRequest) {
   const body = await request.json();
   const { userId } = body;
 
-  const cardTemplatePath = path.join(process.cwd(), 'app/login-page/card.html');
-  const loginPageHtmlPath = path.join(process.cwd(), 'app/login-page/login-page.html');
-  const loginPageCssPath = path.join(process.cwd(), 'app/login-page/login-page.css');
-  const loginPriceTablePath = path.join(process.cwd(), 'app/login-page/price-table.html');
+  const paths = {
+    premiumCard: path.join(process.cwd(), 'app/login-page/premium-card.html'),
+    openSourceCard: path.join(process.cwd(), 'app/login-page/open-source-card.html'),
+    loginPage: path.join(process.cwd(), 'app/login-page/login-page.html'),
+    loginCss: path.join(process.cwd(), 'app/login-page/login-page.css'),
+    priceTable: path.join(process.cwd(), 'app/login-page/price-table.html')
+  };
+
+  // Determine which card template to use
+  const cardTemplatePath = fs.existsSync(paths.premiumCard)
+    ? paths.premiumCard
+    : paths.openSourceCard;
 
   const cardTemplate = fs.readFileSync(cardTemplatePath, 'utf-8');
-  const loginPageCss = fs.readFileSync(loginPageCssPath, 'utf-8');
-  let loginPageHtml = fs.readFileSync(loginPageHtmlPath, 'utf-8');
+  const loginPageCss = fs.readFileSync(paths.loginCss, 'utf-8');
+  let loginPageHtml = fs.readFileSync(paths.loginPage, 'utf-8');
 
   try {
-    const getMovies = await fetchApi(
-      `/Users/${userId}/Items?SortBy=PremiereDate%2CSortName%2CProductionYear&SortOrder=Descending&IncludeItemTypes=Movie&Recursive=true&Fields=PrimaryImageAspectRatio%2CMediaSourceCount&ImageTypeLimit=1&EnableImageTypes=Primary%2CBackdrop%2CBanner%2CThumb&StartIndex=0&ParentId=af92f2d68eea947c7f9df41836afb987&Limit=10`,
-      request,
-      { method: 'GET', requiresAuth: true }
-    );
+    const [moviesRes, showsRes] = await Promise.all([
+      fetchApi(
+        `/Users/${userId}/Items?SortBy=PremiereDate%2CSortName%2CProductionYear&SortOrder=Descending&IncludeItemTypes=Movie&Recursive=true&Fields=PrimaryImageAspectRatio%2CMediaSourceCount&ImageTypeLimit=1&EnableImageTypes=Primary%2CBackdrop%2CBanner%2CThumb&StartIndex=0&ParentId=af92f2d68eea947c7f9df41836afb987&Limit=10`,
+        request,
+        { method: 'GET', requiresAuth: true }
+      ),
+      fetchApi(
+        `/Users/${userId}/Items?SortBy=PremiereDate%2CSortName&SortOrder=Descending&IncludeItemTypes=Series&Recursive=true&Fields=PrimaryImageAspectRatio&ImageTypeLimit=1&EnableImageTypes=Primary%2CBackdrop%2CBanner%2CThumb&StartIndex=0&Limit=10&ParentId=d565273fd114d77bdf349a2896867069`,
+        request,
+        { method: 'GET', requiresAuth: true }
+      )
+    ]);
 
-    const getShows = await fetchApi(
-      `/Users/${userId}/Items?SortBy=PremiereDate%2CSortName&SortOrder=Descending&IncludeItemTypes=Series&Recursive=true&Fields=PrimaryImageAspectRatio&ImageTypeLimit=1&EnableImageTypes=Primary%2CBackdrop%2CBanner%2CThumb&StartIndex=0&Limit=10&ParentId=d565273fd114d77bdf349a2896867069`,
-      request,
-      { method: 'GET', requiresAuth: true }
-    );
+    const latestMovies: response = await moviesRes.json();
+    const latestShows: response = await showsRes.json();
 
-    const latestMovies: response = await getMovies.json();
-    const latestShows: response = await getShows.json();
+    const generateCards = (items: any[]) =>
+      items
+        .map((item) =>
+          cardTemplate
+            .replace(/{{name}}/g, item.Name)
+            .replace(/{{premiereDate}}/g, item.PremiereDate?.split('T')[0] ?? 'Unknown')
+            .replace(/{{id}}/g, item.Id)
+            .replace(/{{poster}}/g, item.ImageTags?.Primary ?? '')
+        )
+        .join('');
 
-    let moviesHtml = '';
-    let showsHtml = '';
+    const moviesHtml = generateCards(latestMovies.Items);
+    const showsHtml = generateCards(latestShows.Items);
 
-    for (const movie of latestMovies.Items) {
-      moviesHtml += cardTemplate
-        .replace(/{{name}}/g, movie.Name)
-        .replace(/{{premiereDate}}/g, movie.PremiereDate?.split('T')[0] ?? 'Unknown')
-        .replace(/{{id}}/g, movie.Id)
-        .replace(/{{poster}}/g, movie.ImageTags?.Primary ?? '');
-    }
-
-    for (const show of latestShows.Items) {
-      showsHtml += cardTemplate
-        .replace(/{{name}}/g, show.Name)
-        .replace(/{{premiereDate}}/g, show.PremiereDate?.split('T')[0] ?? 'Unknown')
-        .replace(/{{id}}/g, show.Id)
-        .replace(/{{poster}}/g, show.ImageTags?.Primary ?? '');
-    }
-
-    // Add the price table if exists
-    const priceTable = fs.readFileSync(loginPriceTablePath, 'utf-8');
-
-    if (fs.readFileSync(loginPriceTablePath, 'utf-8')) {
+    // Add price table if it exists
+    if (fs.existsSync(paths.priceTable)) {
+      const priceTable = fs.readFileSync(paths.priceTable, 'utf-8');
       loginPageHtml += priceTable;
     }
 
