@@ -51,7 +51,7 @@ export default function Login() {
       console.log('Error:', result?.error);
       setIsLoading(false);
     } else {
-      redirect('/jd-admin/dashboard-01');
+      redirect('/jd-admin/dashboard');
     }
   };
 

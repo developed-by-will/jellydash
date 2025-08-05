@@ -1,0 +1,27 @@
+import { LucideIcon } from 'lucide-react';
+import { content } from './content';
+import { libraries } from './libraries';
+import { roles } from './roles';
+import { server } from './server';
+import { users } from './users';
+
+type NavSubItem = {
+  title: string;
+  url: string;
+  icon?: React.ReactNode;
+  items?: {
+    title: string;
+    url: string;
+    icon?: React.ReactNode;
+  }[];
+};
+
+type NavItem = {
+  title: string;
+  url: string;
+  icon?: LucideIcon;
+  isActive?: boolean;
+  items?: NavSubItem[];
+};
+
+export const items: NavItem[] = [users, server, content, libraries, roles];
