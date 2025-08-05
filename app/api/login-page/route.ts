@@ -52,9 +52,12 @@ export async function PATCH(request: NextRequest) {
         .replace(/{{poster}}/g, show.ImageTags?.Primary ?? '');
     }
 
-    // Add the price table
+    // Add the price table if exists
     const priceTable = fs.readFileSync(loginPriceTablePath, 'utf-8');
-    loginPageHtml += priceTable;
+
+    if (fs.readFileSync(loginPriceTablePath, 'utf-8')) {
+      loginPageHtml += priceTable;
+    }
 
     loginPageHtml = loginPageHtml
       .replace(/{{movies}}/g, moviesHtml)

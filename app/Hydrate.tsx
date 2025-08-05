@@ -3,6 +3,7 @@
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 import { QueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { SessionProvider } from 'next-auth/react';
 import { StrictMode, useEffect, useState } from 'react';
 
 export default function Hydrate({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -32,7 +33,7 @@ export default function Hydrate({ children }: Readonly<{ children: React.ReactNo
             })
           }}
         >
-          {children}
+          <SessionProvider>{children}</SessionProvider>
         </PersistQueryClientProvider>
       )}
     </StrictMode>

@@ -38,3 +38,4 @@ next-env.d.ts
 .env
 
 app/db
+app/login-page/price-table.html
