@@ -15,7 +15,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <Image src="/logo-horizontal.webp" alt="Logo" width={208} height={96} />
+        <Image
+          src="/logo-horizontal.webp"
+          alt="Jellydash Logo Horizontal"
+          width={208}
+          height={96}
+        />
       </SidebarHeader>
       <SidebarContent>
         <NavMain />
