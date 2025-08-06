@@ -6,7 +6,7 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (token && pathname === '/') {
-    return NextResponse.redirect(new URL('/jd-admin/dashboard', req.url));
+    return NextResponse.redirect(new URL('/jd-admin', req.url));
   }
 
   if (!token && pathname.startsWith('/jd-admin')) {
