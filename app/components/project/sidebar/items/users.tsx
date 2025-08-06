@@ -1,4 +1,6 @@
-import { UserCog, UserRoundPen, UserRoundPlus, UserRoundX, Users } from 'lucide-react';
+import { UserCog, UserRoundPlus, Users } from 'lucide-react';
+
+const baseUrl = '/users';
 
 export const users = {
   title: 'User Management',
@@ -6,9 +8,7 @@ export const users = {
   icon: UserCog,
   isActive: true,
   items: [
-    { title: 'Users', url: '#', icon: <Users /> },
-    { title: 'Create', url: '#', icon: <UserRoundPlus /> },
-    { title: 'Update', url: '#', icon: <UserRoundPen /> },
-    { title: 'Remove', url: '#', icon: <UserRoundX /> }
+    { title: 'Users', url: baseUrl, icon: <Users /> },
+    { title: 'Create', url: baseUrl + '/create', icon: <UserRoundPlus /> }
   ]
 };

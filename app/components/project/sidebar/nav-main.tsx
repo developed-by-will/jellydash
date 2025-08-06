@@ -9,7 +9,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import {
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -19,6 +18,7 @@ import {
   useSidebar
 } from '@/components/ui/sidebar';
 import { ChevronRight, MoreHorizontal } from 'lucide-react';
+import Link from 'next/link';
 import { items } from './items';
 
 export function NavMain() {
@@ -26,8 +26,7 @@ export function NavMain() {
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Management</SidebarGroupLabel>
-      <SidebarMenu>
+      <SidebarMenu className="mt-4">
         {items.map((item) => (
           <Collapsible
             key={item.title}
@@ -38,10 +37,19 @@ export function NavMain() {
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton tooltip={item.title}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
-                  {item.items && (
-                    <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                  {item.items ? (
+                    <>
+                      {item.icon && <item.icon />}
+                      <span>{item.title}</span>
+                      {item.items && (
+                        <ChevronRight className="ml-auto transition-transform duration-100 group-data-[state=open]/collapsible:rotate-45" />
+                      )}
+                    </>
+                  ) : (
+                    <Link href={`/jd-admin/${item.url}`} className="flex gap-2">
+                      {item.icon && <item.icon className="w-4 h-4" />}
+                      <span>{item.title}</span>
+                    </Link>
                   )}
                 </SidebarMenuButton>
               </CollapsibleTrigger>
@@ -62,19 +70,22 @@ export function NavMain() {
                                   <MoreHorizontal className="ml-auto h-4 w-4" />
                                 </SidebarMenuSubButton>
                               </DropdownMenuTrigger>
+
                               <DropdownMenuContent
                                 className="w-48 rounded-lg"
                                 side={isMobile ? 'bottom' : 'right'}
                                 align={isMobile ? 'end' : 'start'}
                               >
                                 {subItem.items.map((dropdownItem) => (
-                                  <DropdownMenuItem
+                                  <Link
+                                    href={`/jd-admin/${dropdownItem.url}`}
                                     key={dropdownItem.title}
-                                    className="gap-2 cursor-pointer"
                                   >
-                                    {dropdownItem.icon}
-                                    <span>{dropdownItem.title}</span>
-                                  </DropdownMenuItem>
+                                    <DropdownMenuItem className="gap-2 cursor-pointer">
+                                      {dropdownItem.icon}
+                                      <span>{dropdownItem.title}</span>
+                                    </DropdownMenuItem>
+                                  </Link>
                                 ))}
                               </DropdownMenuContent>
                             </DropdownMenu>
@@ -85,10 +96,10 @@ export function NavMain() {
                       return (
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton asChild>
-                            <a href={subItem.url}>
+                            <Link href={`/jd-admin/${subItem.url}`}>
                               {subItem.icon}
                               <span>{subItem.title}</span>
-                            </a>
+                            </Link>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
                       );

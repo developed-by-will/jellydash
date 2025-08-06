@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 
 const classes = 'text-muted-foreground';
+const baseUrl = '/content-management';
 
 export const content = {
   title: 'Content Management',
@@ -17,12 +18,12 @@ export const content = {
   items: [
     {
       title: 'Sync Crew & Cast',
-      url: '#',
+      url: baseUrl + '/sync-crew-and-cast',
       icon: <PersonStanding className={classes} />
     },
     {
       title: 'Sync Login Page',
-      url: '#',
+      url: baseUrl + '/sync-login-page',
       icon: <LayoutTemplate className={classes} />
     },
 
@@ -33,17 +34,17 @@ export const content = {
       items: [
         {
           title: 'Movies',
-          url: '#',
+          url: baseUrl + '/sync-creation-dates',
           icon: <Popcorn className={classes} />
         },
         {
           title: 'Shows',
-          url: '#',
+          url: baseUrl + '/sync-creation-dates',
           icon: <Drama className={classes} />
         },
         {
           title: 'Episodes',
-          url: '#',
+          url: baseUrl + '/sync-creation-dates',
           icon: <MonitorPlay className={classes} />
         }
       ]

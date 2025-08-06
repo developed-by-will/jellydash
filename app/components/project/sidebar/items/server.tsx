@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 
 const classes = 'text-muted-foreground';
+const baseUrl = '/manage-server';
 
 export const server = {
   title: 'Manage Server',
@@ -17,12 +18,12 @@ export const server = {
   items: [
     {
       title: 'Subtitle Language',
-      url: '#',
+      url: baseUrl + '/default-subtitle-language',
       icon: <Languages className={classes} />
     },
     {
       title: 'Force New Library Paths',
-      url: '#',
+      url: baseUrl + '/force-new-library-paths',
       icon: <BicepsFlexed className={classes} />
     },
 
@@ -33,17 +34,17 @@ export const server = {
       items: [
         {
           title: 'Library Order',
-          url: '#',
+          url: baseUrl + '/homepage-settings',
           icon: <ArrowDownNarrowWide className={classes} />
         },
         {
           title: 'Content Order',
-          url: '#',
+          url: baseUrl + '/homepage-settings',
           icon: <CalendarArrowDown className={classes} />
         },
         {
           title: 'Display Preferences',
-          url: '#',
+          url: baseUrl + '/homepage-settings',
           icon: <MonitorDown className={classes} />
         }
       ]
