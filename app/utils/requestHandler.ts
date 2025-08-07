@@ -1,4 +1,4 @@
-export async function POST<TPayload, TResponse>(
+export async function ANONYMOUS_POST<TPayload, TResponse>(
   url: string,
   payload: TPayload
 ): Promise<TResponse> {
