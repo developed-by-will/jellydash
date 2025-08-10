@@ -15,14 +15,19 @@ export async function GET(request: NextRequest) {
 
     if (users.length > 0) {
       return NextResponse.json(
-        users.map((user: User) => ({
-          Name: user.Name,
-          Id: user.Id,
-          IsDisabled: user.Policy.IsDisabled,
-          Policy: {
-            BlockedTags: user.Policy.BlockedTags
-          }
-        })),
+        users.map(
+          (user: User) =>
+            ({
+              Name: user.Name,
+              Id: user.Id,
+              Policy: {
+                BlockedTags: user.Policy.BlockedTags,
+                IsDisabled: user.Policy.IsDisabled
+              },
+              LastActivityDate: user.LastActivityDate,
+              LastLoginDate: user.LastLoginDate
+            }) as User
+        ),
         { status: 200 }
       );
     }
