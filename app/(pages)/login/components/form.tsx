@@ -195,7 +195,6 @@ export default function LoginPage01(props: Readonly<LoginPage01Type>) {
                     ${customBtnColor && `bg-${customBtnColor}`}
                     ${!customBtnColor && `${background}`}
                     hover:bg-${background}
-                    transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
                     transform hover:scale-[0.98] active:scale-[0.99]
                   `}
                 >

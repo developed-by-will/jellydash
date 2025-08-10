@@ -1,26 +1,12 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
+import { User } from '@/app/api/types';
+import useQueryHandler from '@/hooks/useQueryHandler';
 
 export default function Users() {
-  const { data: session } = useSession();
-
-  const { isError, error, data, isLoading } = useQuery({
-    queryKey: ['get-all-users'],
-    queryFn: async () => {
-      const res = await fetch('/api/users/all', {
-        headers: {
-          SERVER_TOKEN: `${session?.user?.jellyfinToken}`
-        }
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to fetch users');
-      }
-
-      return res.json();
-    }
+  const { data, isLoading, isError, error } = useQueryHandler<User>({
+    queryKey: 'users-all',
+    endpoint: 'users/all'
   });
 
   if (isLoading) {
@@ -30,6 +16,10 @@ export default function Users() {
   if (isError) {
     console.error(error);
     return <div>Error loading users: {error.message}</div>;
+  }
+
+  if (data) {
+    console.log(data);
   }
 
   return (
