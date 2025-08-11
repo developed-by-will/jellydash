@@ -158,7 +158,6 @@ export async function PATCH(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Endpoint error:', error);
     return catchError(error);
   }
 }

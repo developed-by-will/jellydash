@@ -1,4 +1,4 @@
-import { fetchApi } from '@/app/api/helpers';
+import { catchError, fetchApi } from '@/app/api/helpers';
 import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
@@ -80,7 +80,6 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ latestMovies, latestShows }, { status: 200 });
   } catch (error) {
-    console.error('Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return catchError(error);
   }
 }

@@ -1,4 +1,4 @@
-import { fetchApi, generatePassword } from '@/app/api/helpers';
+import { catchError, fetchApi, generatePassword } from '@/app/api/helpers';
 import { User } from '@/app/api/types';
 import { PackageName, PACKAGES } from '@/app/db/packages';
 import { NextRequest, NextResponse } from 'next/server';
@@ -98,7 +98,6 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error in user creation:', error);
-    return NextResponse.json({ message: `Internal server error` }, { status: 500 });
+    return catchError(error);
   }
 }

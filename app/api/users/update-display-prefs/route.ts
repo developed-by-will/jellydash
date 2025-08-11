@@ -89,7 +89,6 @@ export async function updateUserDisplayPreferences(request: NextRequest, userId?
       { status: 200 }
     );
   } catch (error) {
-    console.error('Endpoint error:', error);
     return catchError(error);
   }
 }
