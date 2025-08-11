@@ -28,7 +28,15 @@ import { DataTableViewOptions } from './components/view-options';
 import { DataTableProps } from './types';
 
 export function DataTable<TData, TValue>(props: Readonly<DataTableProps<TData, TValue>>) {
-  const { columns, data, loading, pagination, filterInput, visibilityToggle } = props;
+  const {
+    columns,
+    data,
+    loading,
+    pagination,
+    filterInput,
+    visibilityToggle,
+    loadingSkeletonHeight
+  } = props;
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -56,12 +64,15 @@ export function DataTable<TData, TValue>(props: Readonly<DataTableProps<TData, T
     onGlobalFilterChange: setGlobalFilter
   });
 
-  if (loading)
+  if (loading) {
+    const heightClass = loadingSkeletonHeight ? `h-[${loadingSkeletonHeight}px]` : 'h-96';
+
     return (
       <div className="p-4">
-        <Skeleton className="h-96 w-full" />
+        <Skeleton className={`${heightClass} w-full`} />
       </div>
     );
+  }
 
   return (
     <div className="flex flex-col overflow-hidden border m-4 p-4 gap-4">

@@ -23,4 +23,5 @@ export type DataTableProps<TData, TValue> = {
   pagination?: boolean;
   filterInput?: boolean;
   visibilityToggle?: boolean;
+  loadingSkeletonHeight?: number;
 };
