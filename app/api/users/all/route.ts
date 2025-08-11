@@ -13,6 +13,12 @@ export async function GET(request: NextRequest) {
 
     const users: User[] = await getUsers.json();
 
+    // Order by Last Activity Date
+    users.sort(
+      (a: User, b: User) =>
+        new Date(b.LastActivityDate).getTime() - new Date(a.LastActivityDate).getTime()
+    );
+
     if (users.length > 0) {
       return NextResponse.json(
         users.map(
