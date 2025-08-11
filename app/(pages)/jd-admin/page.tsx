@@ -1,6 +1,6 @@
 import { commonOpenGraph, commonSEO } from '@/app/commonSEO';
 import { Metadata } from 'next';
-import Component from '.';
+import Dashboard from './layout';
 
 export async function generateMetadata(): Promise<Metadata> {
   const title = 'Jellydash - Dashboard';
@@ -15,6 +15,6 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function Index() {
-  return <Component />;
+export default async function Index(children: React.ReactNode) {
+  return <Dashboard>{children}</Dashboard>;
 }

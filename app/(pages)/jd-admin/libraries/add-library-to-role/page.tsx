@@ -1,6 +1,6 @@
 import { commonOpenGraph, commonSEO } from '@/app/commonSEO';
 import { Metadata } from 'next';
-import Component from '.';
+import Page from '.';
 
 export async function generateMetadata(): Promise<Metadata> {
   const title = 'Jellydash - Add Library to Role';
@@ -16,5 +16,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Index() {
-  return <Component />;
+  return <Page />;
 }
