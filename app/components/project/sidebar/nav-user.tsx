@@ -21,9 +21,9 @@ import { signOut, useSession } from 'next-auth/react';
 
 export function NavUser() {
   const { data: session } = useSession();
+  const { isMobile } = useSidebar();
 
   if (!session?.user?.SessionInfo) return null;
-  const { isMobile } = useSidebar();
 
   const SessionInfo = session.user.SessionInfo;
   const user = {
