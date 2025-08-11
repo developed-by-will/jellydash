@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
 import { libraries } from '../db/packages';
-import { DEVICE_ID, SERVER_URL } from './constants';
+import { DEVICE_ID, REQUEST_LOGS, SERVER_URL } from './constants';
 import { ApiConfig, Library } from './types';
 
 export function catchError(error: unknown): NextResponse {
@@ -42,7 +42,8 @@ export async function fetchApi(
     }
 
     const requestEndpoint = SERVER_URL + endpoint;
-    //console.log(requestEndpoint, fetchOptions);
+
+    REQUEST_LOGS === 'true' && console.log(requestEndpoint, fetchOptions);
 
     return await fetch(requestEndpoint, fetchOptions);
   } catch (error) {
