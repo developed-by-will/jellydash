@@ -19,7 +19,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           src="/logo-horizontal.webp"
           alt="Jellydash Logo Horizontal"
           width={208}
-          height={96}
+          height={43.88}
         />
       </SidebarHeader>
       <SidebarContent>
