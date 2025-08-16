@@ -129,3 +129,8 @@ export type LibraryItem = {
 };
 
 export type ApiConfig = GetConfig | PostConfig | DeleteConfig;
+
+export type CreateUserResponseType = {
+  User: User;
+  Pw?: string;
+};

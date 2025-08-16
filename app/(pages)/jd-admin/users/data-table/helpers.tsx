@@ -1,4 +1,3 @@
-import { AUTENTICATED_POST } from '@/app/utils/requestHandler';
 import { Badge } from '@/components/ui/badge';
 
 export const success = 'bg-emerald-600 hover:bg-emerald-700 text-sm';
@@ -45,9 +44,3 @@ export const formatDate = (dateString: string) => {
     return dateString;
   }
 };
-
-export async function userStatusHandler(Id: string, IsDisabled: boolean, token: string) {
-  await AUTENTICATED_POST(`/api/users/update-status`, { Id, IsDisabled }, token);
-
-  window.location.reload();
-}

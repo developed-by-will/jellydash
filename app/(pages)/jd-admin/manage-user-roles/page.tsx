@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import Page from '.';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const title = 'Jellydash - Manage User Roles';
+  const title = 'Jellydash - Manage User Packages';
 
   return {
     title,

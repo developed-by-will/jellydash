@@ -1,13 +1,13 @@
 import { catchError, fetchApi, generatePassword } from '@/app/api/helpers';
-import { User } from '@/app/api/types';
+import { CreateUserResponseType, User } from '@/app/api/types';
 import { PackageName, PACKAGES } from '@/app/db/packages';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { username, password } = body;
-    const Package: PackageName = body.package;
+    const { Username, Pw } = body;
+    const Package: PackageName = body.Package;
 
     // Check if package exists
     if (!PACKAGES[Package]) {
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     });
     const users: User[] = await getUsersResponse.json();
 
-    if (users.some((user: User) => user.Name === username)) {
+    if (users.some((user: User) => user.Name === Username)) {
       return NextResponse.json({ message: `User already exists` }, { status: 400 });
     }
 
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       requiresAuth: true,
       body: {
-        Name: username
+        Name: Username
       }
     });
 
@@ -49,14 +49,14 @@ export async function POST(request: NextRequest) {
       requiresAuth: true
     });
     const updatedUsers: User[] = await getNewUserResponse.json();
-    const newUser = updatedUsers.find((user: User) => user.Name === username);
+    const newUser = updatedUsers.find((user: User) => user.Name === Username);
 
     if (!newUser) {
       return NextResponse.json({ message: `Could not find newly created user` }, { status: 400 });
     }
 
     // Update user's policies
-    const policies: User = {
+    const userInfo: User = {
       ...newUser,
       ...PACKAGES[Package]
     };
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     const policyUpdate = await fetchApi(`/Users/${newUser.Id}/Policy`, request, {
       method: 'POST',
       requiresAuth: true,
-      body: JSON.stringify(policies)
+      body: JSON.stringify(userInfo)
     });
 
     if (!policyUpdate.ok) {
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Set password
-    const newPassword = password ?? generatePassword();
+    const newPassword = Pw ?? generatePassword();
     const passwordUpdate = await fetchApi(`/Users/${newUser.Id}/Password`, request, {
       method: 'POST',
       requiresAuth: true,
@@ -86,17 +86,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: `Error setting password` }, { status: 400 });
     }
 
-    return NextResponse.json(
-      {
-        details: {
-          username: newUser.Name,
-          userId: newUser.Id,
-          password: newPassword,
-          policies
-        }
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({ User: userInfo, Pw: newPassword } as CreateUserResponseType, {
+      status: 200
+    });
   } catch (error) {
     return catchError(error);
   }

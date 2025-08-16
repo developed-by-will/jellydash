@@ -6,7 +6,7 @@ import useQueryHandler from '@/hooks/useQueryHandler';
 import { columns } from './data-table/columns';
 
 export default function UsersPage() {
-  const { data, isError, error, isPending } = useQueryHandler<User>({
+  const { data, isError, error, isPending, isFetching } = useQueryHandler<User>({
     queryKey: 'users-all',
     endpoint: 'users/all'
   });
@@ -20,7 +20,7 @@ export default function UsersPage() {
     <DataTable
       columns={columns}
       data={data || []}
-      loading={isPending}
+      loading={isPending || isFetching}
       pagination
       filterInput
       visibilityToggle
