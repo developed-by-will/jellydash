@@ -1,3 +1,11 @@
+const responseHandler = async <TResponse>(response: Response): Promise<TResponse> => {
+  const data = await response.json();
+
+  if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+  return data as TResponse;
+};
+
 export async function ANONYMOUS_POST<TPayload, TResponse>(
   url: string,
   payload: TPayload
@@ -10,11 +18,22 @@ export async function ANONYMOUS_POST<TPayload, TResponse>(
     body: JSON.stringify(payload)
   });
 
-  const data = await response.json();
+  return responseHandler(response);
+}
 
-  if (!response.ok) {
-    throw new Error(data?.Message || `HTTP error! Status: ${response.status}`);
-  }
+export async function AUTENTICATED_POST<TPayload, TResponse>(
+  url: string,
+  payload: TPayload,
+  token: string
+): Promise<TResponse> {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      server_token: token
+    },
+    body: JSON.stringify(payload)
+  });
 
-  return data as TResponse;
+  return responseHandler(response);
 }

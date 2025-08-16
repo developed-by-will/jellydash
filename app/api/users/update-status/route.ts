@@ -5,21 +5,17 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { UserName, IsDisabled } = body;
+    const { Id, IsDisabled } = body;
 
-    // Check if user already exists
     const getUsersResponse = await fetchApi('/Users', request, {
       method: 'GET',
       requiresAuth: true
     });
     const users: User[] = await getUsersResponse.json();
 
-    if (!users.some((user: User) => user.Name === UserName.toString())) {
-      return NextResponse.json({ message: `User does not exists` }, { status: 400 });
-    }
+    if (!users.length) throw new Error('Failed to fetch users');
 
-    // Update account status
-    const user = users.find((user: User) => user.Name === UserName.toString());
+    const user = users.find((u) => u.Id === Id.toString());
     const userDetailsResponse = await fetchApi(`/Users/${user?.Id}/Policy`, request, {
       method: 'POST',
       requiresAuth: true,
@@ -29,16 +25,9 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    if (!userDetailsResponse.ok) {
-      throw new Error('Failed to fetch user details');
-    }
+    if (!userDetailsResponse.ok) throw new Error('Failed to update user');
 
-    return NextResponse.json(
-      {
-        message: `User was ${IsDisabled ? 'disabled' : 'enabled'}`
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: `User was ${IsDisabled ? 'disabled' : 'enabled'}` });
   } catch (error) {
     return catchError(error);
   }
