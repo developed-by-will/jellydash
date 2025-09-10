@@ -4,11 +4,11 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function DELETE(request: NextRequest) {
   try {
     const body = await request.json();
-    const { userId } = body;
+    const { Id } = body;
 
-    const endpoint = `/Users/${userId}`;
+    const endpoint = `/Users/${Id}`;
 
-    if (!userId) {
+    if (!Id) {
       return NextResponse.json({ message: 'User ID is required' }, { status: 400 });
     }
 
