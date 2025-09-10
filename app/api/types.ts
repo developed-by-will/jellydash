@@ -102,6 +102,12 @@ export type JellyfinResponse = {
 
 export type CustomPreferences = {
   SortBy: string;
+  RememberSorting: boolean;
+  RememberIndexing: boolean;
+  SortOrder: string;
+  Client: string;
+  PrimaryImageHeight: number;
+  PrimaryImageWidth: number;
   CustomPrefs: {
     homesection0: string;
     homesection1: string;
@@ -114,8 +120,16 @@ export type CustomPreferences = {
     homesection8: string;
     homesection9: string;
     homesection10: string;
+    chromecastVersion: string;
+    skipForwardLength: string;
+    skipBackLength: string;
+    enableNextVideoInfoOverlay: string;
+    tvhome: string | null;
+    dashboardTheme: string | null;
   };
   ScrollDirection: string;
+  ShowBackdrop: boolean;
+  ShowSidebar: boolean;
 };
 
 export type Library = {
@@ -133,4 +147,27 @@ export type ApiConfig = GetConfig | PostConfig | DeleteConfig;
 export type CreateUserResponseType = {
   User: User;
   Pw?: string;
+};
+
+export type UsersUpdateConfigsPayloadType = {
+  OrderedViews: string[];
+  SubtitleLanguagePreference: string;
+};
+
+export type UpdateDisplayPrefsPayloadType = {
+  SortBy: string;
+  CustomPrefs: {
+    homesection0: string;
+    homesection1: string;
+    homesection2: string;
+    homesection3: string;
+    homesection4: string;
+    homesection5: string;
+    homesection6: string;
+    homesection7: string;
+    homesection8: string;
+    homesection9: string;
+    homesection10: string;
+  };
+  ScrollDirection: string;
 };

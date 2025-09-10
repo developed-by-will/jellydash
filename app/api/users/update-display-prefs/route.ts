@@ -3,96 +3,62 @@ import { CustomPreferences } from '@/app/api/types';
 import { getLibraries, libraries } from '@/app/db/packages';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function updateUserDisplayPreferences(request: NextRequest, userId?: string) {
+export async function updateUserDisplayPreferences(
+  displayPreferences: CustomPreferences,
+  request: NextRequest
+) {
   try {
     const endpoint = '/DisplayPreferences/usersettings';
-    const displayPreferences: CustomPreferences = await request.json();
+    const libraryIds = getLibraries(libraries.standard)
+      .map((id) => id.trim())
+      .filter(Boolean);
 
-    // Add library-specific preferences
-    getLibraries(libraries.standard).forEach((libraryId) => {
-      const cleanId = libraryId.trim();
-      if (!cleanId) return;
-
-      (displayPreferences.CustomPrefs as any)[`${cleanId}-series`] =
-        '{"SortBy":"PremiereDate,SortName","SortOrder":"Descending"}';
-      (displayPreferences.CustomPrefs as any)[`${cleanId}-movies`] =
-        '{"SortBy":"PremiereDate,SortName,ProductionYear","SortOrder":"Descending"}';
-      (displayPreferences.CustomPrefs as any)[`${cleanId}-Folder-sortorder`] = 'Descending';
-      (displayPreferences.CustomPrefs as any)[`${cleanId}-Folder-sortby`] =
-        'ProductionYear,PremiereDate,SortName';
-    });
-
-    if (userId) {
-      await fetchApi(`${endpoint}?userId=${userId}&client=emby`, request, {
-        method: 'POST',
-        requiresAuth: true,
-        body: JSON.stringify(displayPreferences)
-      });
-
-      return NextResponse.json({ status: 200 });
-    }
-
-    // Get all users
+    // Fetch all users
     const usersResponse = await fetchApi('/Users', request, {
       method: 'GET',
       requiresAuth: true
     });
     const users = await usersResponse.json();
 
-    if (!Array.isArray(users) || users.length === 0) {
-      return NextResponse.json({ message: 'No users found' }, { status: 404 });
-    }
-
-    // Process users sequentially
-    const results: Array<{
-      userId: string;
-      username: string;
-      success: boolean;
-      status?: number;
-      error?: string;
-    }> = [];
-
+    // Loop through each user and apply preferences
     for (const user of users) {
-      try {
-        const response = await fetchApi(`${endpoint}?userId=${user.Id}&client=emby`, request, {
-          method: 'POST',
-          requiresAuth: true,
-          body: JSON.stringify(displayPreferences)
-        });
+      const customPrefs: Record<string, any> = { ...displayPreferences.CustomPrefs };
 
-        results.push({
-          userId: user.Id,
-          username: user.Name,
-          success: response.ok,
-          status: response.status
-        });
-
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        results.push({
-          userId: user.Id,
-          username: user.Name,
-          success: false,
-          error: errorMessage
-        });
+      for (const libId of libraryIds) {
+        customPrefs[`items-${libId}-Folder-sortby`] = 'ProductionYear,PremiereDate,SortName';
+        customPrefs[`items-${libId}-Folder-sortorder`] = 'Descending';
       }
+
+      const cleanDisplayPreferences = {
+        ...displayPreferences,
+        CustomPrefs: customPrefs
+      };
+      await fetchApi(`${endpoint}?userId=${user.Id}&client=emby`, request, {
+        method: 'POST',
+        requiresAuth: true,
+        body: JSON.stringify(cleanDisplayPreferences)
+      });
     }
 
-    return NextResponse.json(
-      {
-        message: 'Display preferences update completed',
-        totalUsers: users.length,
-        processedUsers: results.length,
-        results
-      },
-      { status: 200 }
-    );
+    return { ok: true, message: 'Preferences updated for all users' };
   } catch (error) {
     return catchError(error);
   }
 }
 
 export async function POST(request: NextRequest) {
-  return updateUserDisplayPreferences(request);
+  try {
+    const body = await request.json();
+    const { displayPreferences } = body;
+
+    const response = await updateUserDisplayPreferences(displayPreferences, request);
+
+    return NextResponse.json(response, { status: 200 });
+  } catch (error: any) {
+    console.error('Error updating display preferences:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to update display preferences' },
+      { status: 500 }
+    );
+  }
 }

@@ -1,12 +1,15 @@
+import { CreateUserPayloadType } from '@/app/(pages)/jd-admin/users/create/formValidations';
 import { catchError, fetchApi, generatePassword } from '@/app/api/helpers';
 import { CreateUserResponseType, User } from '@/app/api/types';
 import { PackageName, PACKAGES } from '@/app/db/packages';
 import { NextRequest, NextResponse } from 'next/server';
+import { defaultDisplayPrefs } from '../../constants';
+import { updateUserDisplayPreferences } from '../update-display-prefs/route';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { Username, Pw } = body;
+    const { Username, Pw } = body as CreateUserPayloadType;
     const Package: PackageName = body.Package;
 
     // Check if package exists
@@ -16,7 +19,8 @@ export async function POST(request: NextRequest) {
 
     const endpoints = {
       create: '/Users/New',
-      userList: '/Users'
+      userList: '/Users',
+      remove: `/Users`
     };
 
     // Check if user already exists
@@ -72,7 +76,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Set password
-    const newPassword = Pw ?? generatePassword();
+    const newPassword = Pw?.length ? Pw : generatePassword();
     const passwordUpdate = await fetchApi(`/Users/${newUser.Id}/Password`, request, {
       method: 'POST',
       requiresAuth: true,
@@ -84,6 +88,17 @@ export async function POST(request: NextRequest) {
 
     if (!passwordUpdate.ok) {
       return NextResponse.json({ message: `Error setting password` }, { status: 400 });
+    }
+
+    const displayPrefsUpdate = await updateUserDisplayPreferences(defaultDisplayPrefs, request);
+
+    if (!displayPrefsUpdate.ok) {
+      await fetchApi(endpoints.remove + `/${newUser.Id}`, request, {
+        method: 'DELETE',
+        requiresAuth: true
+      });
+
+      return NextResponse.json({ message: `Error updating display preferences` }, { status: 400 });
     }
 
     return NextResponse.json({ User: userInfo, Pw: newPassword } as CreateUserResponseType, {
