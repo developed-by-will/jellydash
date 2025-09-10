@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
 import { libraries } from '../db/packages';
-import { DEVICE_ID, REQUEST_LOGS, SERVER_URL } from './constants';
+import { DEBUG_JELLYFIN_ENDPOINT, DEVICE_ID, REQUEST_LOGS, SERVER_URL } from './constants';
 import { ApiConfig, Library } from './types';
 
 export function catchError(error: unknown): NextResponse {
@@ -43,7 +43,9 @@ export async function fetchApi(
 
     const requestEndpoint = SERVER_URL + endpoint;
 
-    REQUEST_LOGS === 'true' && console.log(requestEndpoint, fetchOptions);
+    if (REQUEST_LOGS === 'true' && endpoint.includes(DEBUG_JELLYFIN_ENDPOINT)) {
+      console.log(requestEndpoint, fetchOptions);
+    }
 
     return await fetch(requestEndpoint, fetchOptions);
   } catch (error) {
