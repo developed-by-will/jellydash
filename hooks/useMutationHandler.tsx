@@ -33,10 +33,10 @@ export default function useMutationHandler<TPayload, TResponse>(
       };
 
       if (requiresAuth) {
-        if (!session?.user?.jellyfinToken) {
+        if (!session?.user?.JellyfinSession?.AccessToken) {
           throw new Error('Authentication required but no token available');
         }
-        headers['SERVER_TOKEN'] = session.user.jellyfinToken;
+        headers['ACCESS_TOKEN'] = session.user.JellyfinSession?.AccessToken;
       }
 
       const res = await fetch(`/api/${endpoint}`, {

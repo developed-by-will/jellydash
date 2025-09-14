@@ -1,6 +1,77 @@
-import { LoginResponseType } from './(pages)/login/formValidations';
-
-export type LoginResponseTypeExtended = LoginResponseType & {
+export interface AuthenticateByNameResponse {
+  User: {
+    Name: string;
+    ServerId: string;
+    Id: string;
+    PrimaryImageTag: string;
+    HasPassword: boolean;
+    HasConfiguredPassword: boolean;
+    HasConfiguredEasyPassword: boolean;
+    EnableAutoLogin: boolean;
+    LastLoginDate: string;
+    LastActivityDate: string;
+    Configuration: {
+      PlayDefaultAudioTrack: boolean;
+      SubtitleLanguagePreference: string;
+      DisplayMissingEpisodes: boolean;
+      GroupedFolders: string[];
+      SubtitleMode: string;
+      DisplayCollectionsView: boolean;
+      EnableLocalPassword: boolean;
+      OrderedViews: string[];
+      LatestItemsExcludes: string[];
+      MyMediaExcludes: string[];
+      HidePlayedInLatest: boolean;
+      RememberAudioSelections: boolean;
+      RememberSubtitleSelections: boolean;
+      EnableNextEpisodeAutoPlay: boolean;
+      CastReceiverId: string;
+    };
+    Policy: {
+      IsAdministrator: boolean;
+      IsHidden: boolean;
+      EnableCollectionManagement: boolean;
+      EnableSubtitleManagement: boolean;
+      EnableLyricManagement: boolean;
+      IsDisabled: boolean;
+      BlockedTags: string[];
+      AllowedTags: string[];
+      EnableUserPreferenceAccess: boolean;
+      AccessSchedules: any[];
+      BlockUnratedItems: any[];
+      EnableRemoteControlOfOtherUsers: boolean;
+      EnableSharedDeviceControl: boolean;
+      EnableRemoteAccess: boolean;
+      EnableLiveTvManagement: boolean;
+      EnableLiveTvAccess: boolean;
+      EnableMediaPlayback: boolean;
+      EnableAudioPlaybackTranscoding: boolean;
+      EnableVideoPlaybackTranscoding: boolean;
+      EnablePlaybackRemuxing: boolean;
+      ForceRemoteSourceTranscoding: boolean;
+      EnableContentDeletion: boolean;
+      EnableContentDeletionFromFolders: string[];
+      EnableContentDownloading: boolean;
+      EnableSyncTranscoding: boolean;
+      EnableMediaConversion: boolean;
+      EnabledDevices: string[];
+      EnableAllDevices: boolean;
+      EnabledChannels: string[];
+      EnableAllChannels: boolean;
+      EnabledFolders: string[];
+      EnableAllFolders: boolean;
+      InvalidLoginAttemptCount: number;
+      LoginAttemptsBeforeLockout: number;
+      MaxActiveSessions: number;
+      EnablePublicSharing: boolean;
+      BlockedMediaFolders: string[];
+      BlockedChannels: string[];
+      RemoteClientBitrateLimit: number;
+      AuthenticationProviderId: string;
+      PasswordResetProviderId: string;
+      SyncPlayAccess: string;
+    };
+  };
   SessionInfo: {
     PlayState: {
       CanSeek: boolean;
@@ -37,5 +108,6 @@ export type LoginResponseTypeExtended = LoginResponseType & {
     UserPrimaryImageTag: string;
     SupportedCommands: string[];
   };
-  message: string;
-};
+  AccessToken: string;
+  ServerId: string;
+}

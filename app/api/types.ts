@@ -80,6 +80,7 @@ type PostConfig = {
   method: 'POST';
   body: any;
   requiresAuth?: boolean;
+  accessToken?: string;
 };
 
 type DeleteConfig = {
@@ -100,7 +101,7 @@ export type JellyfinResponse = {
   Items: JellyfinItem[];
 };
 
-export type CustomPreferences = {
+export type CustomPreferencesBase = {
   SortBy: string;
   RememberSorting: boolean;
   RememberIndexing: boolean;
@@ -109,17 +110,17 @@ export type CustomPreferences = {
   PrimaryImageHeight: number;
   PrimaryImageWidth: number;
   CustomPrefs: {
-    homesection0: string;
-    homesection1: string;
-    homesection2: string;
-    homesection3: string;
-    homesection4: string;
-    homesection5: string;
-    homesection6: string;
-    homesection7: string;
-    homesection8: string;
-    homesection9: string;
-    homesection10: string;
+    homesection0?: string;
+    homesection1?: string;
+    homesection2?: string;
+    homesection3?: string;
+    homesection4?: string;
+    homesection5?: string;
+    homesection6?: string;
+    homesection7?: string;
+    homesection8?: string;
+    homesection9?: string;
+    homesection10?: string;
     chromecastVersion: string;
     skipForwardLength: string;
     skipBackLength: string;
@@ -130,6 +131,19 @@ export type CustomPreferences = {
   ScrollDirection: string;
   ShowBackdrop: boolean;
   ShowSidebar: boolean;
+};
+
+export type CustomPreferencesAndroidTV = CustomPreferencesBase & {
+  Id?: string;
+  CustomPrefs: {
+    FilterFavoritesOnly?: string | null;
+    FilterUnwatchedOnly?: string | null;
+    SortBy: string;
+    SortOrder: string;
+    GridDirection: string;
+    PosterSize: string;
+    SmartScreen: string;
+  };
 };
 
 export type Library = {

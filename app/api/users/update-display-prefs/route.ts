@@ -1,14 +1,22 @@
 import { catchError, fetchApi } from '@/app/api/helpers';
-import { CustomPreferences } from '@/app/api/types';
+import { CustomPreferencesBase } from '@/app/api/types';
 import { getLibraries, libraries } from '@/app/db/packages';
+import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { authOptions } from '../../auth/[...nextauth]/route';
+import { tvDisplayPrefs } from '../../constants';
 
 export async function updateUserDisplayPreferences(
-  displayPreferences: CustomPreferences,
+  displayPreferences: CustomPreferencesBase,
   request: NextRequest
 ) {
   try {
-    const endpoint = '/DisplayPreferences/usersettings';
+    const session = await getServerSession(authOptions);
+
+    const endpoints = {
+      mobile: '/DisplayPreferences/usersettings',
+      tv: '/DisplayPreferences'
+    };
     const libraryIds = getLibraries(libraries.standard)
       .map((id) => id.trim())
       .filter(Boolean);
@@ -20,7 +28,7 @@ export async function updateUserDisplayPreferences(
     });
     const users = await usersResponse.json();
 
-    // Loop through each user and apply preferences
+    // Loop through each user and apply preferences for mobile version
     for (const user of users) {
       const customPrefs: Record<string, any> = { ...displayPreferences.CustomPrefs };
 
@@ -33,10 +41,30 @@ export async function updateUserDisplayPreferences(
         ...displayPreferences,
         CustomPrefs: customPrefs
       };
-      await fetchApi(`${endpoint}?userId=${user.Id}&client=emby`, request, {
+      await fetchApi(`${endpoints.mobile}?userId=${user.Id}&client=emby`, request, {
         method: 'POST',
         requiresAuth: true,
         body: JSON.stringify(cleanDisplayPreferences)
+      });
+    }
+
+    // Loop through each library and apply TV preferences
+    const viewsResponse = await fetchApi(`/UserViews?includeHidden=false`, request, {
+      method: 'GET',
+      requiresAuth: true
+    });
+    const viewsData = await viewsResponse.json();
+
+    // Filter only valid display preferences IDs
+    const displayPrefsIds = viewsData.Items.map((lib: any) => lib.UserData?.Key).filter(Boolean);
+
+    for (const libGuid of displayPrefsIds) {
+      await fetchApi(`/DisplayPreferences/${libGuid}?client=jellyfin-androidtv`, request, {
+        method: 'POST',
+        requiresAuth: false,
+        accessToken: session?.user.JellyfinSession?.AccessToken,
+        headersOverride: { deviceId: session?.user.JellyfinSession?.SessionInfo.DeviceId },
+        body: tvDisplayPrefs
       });
     }
 

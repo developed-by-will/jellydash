@@ -23,9 +23,9 @@ export function NavUser() {
   const { data: session } = useSession();
   const { isMobile } = useSidebar();
 
-  if (!session?.user?.SessionInfo) return null;
+  if (!session?.user?.JellyfinSession?.AccessToken) return null;
 
-  const SessionInfo = session.user.SessionInfo;
+  const SessionInfo = session.user.JellyfinSession.SessionInfo;
   const user = {
     username: SessionInfo.UserName,
     deviceName: SessionInfo.DeviceName

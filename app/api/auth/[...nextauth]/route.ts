@@ -1,6 +1,5 @@
-// app/api/auth/[...nextauth]/route.ts
 import { LoginPayloadType } from '@/app/(pages)/login/formValidations';
-import { LoginResponseTypeExtended } from '@/app/@types';
+import { AuthenticateByNameResponse } from '@/app/@types';
 import { ANONYMOUS_POST } from '@/app/utils/requestHandler';
 import NextAuth, { NextAuthOptions, User } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
@@ -12,7 +11,7 @@ if (!process.env.NEXTAUTH_SECRET || !process.env.NEXTAUTH_URL) {
 const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET;
 const NEXTAUTH_URL = process.env.NEXTAUTH_URL;
 
-const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   secret: NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt'
@@ -31,7 +30,7 @@ const authOptions: NextAuthOptions = {
             return null;
           }
 
-          const response = await ANONYMOUS_POST<LoginPayloadType, LoginResponseTypeExtended>(
+          const authResponse = await ANONYMOUS_POST<LoginPayloadType, AuthenticateByNameResponse>(
             `${NEXTAUTH_URL}/api/users/authenticate-by-name`,
             {
               Username: credentials.username,
@@ -40,8 +39,7 @@ const authOptions: NextAuthOptions = {
           );
 
           return {
-            jellyfinToken: response.AccessToken,
-            SessionInfo: response.SessionInfo
+            JellyfinSession: authResponse
           } as User;
         } catch (error) {
           console.error('Authentication failed:', error);
@@ -53,14 +51,12 @@ const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.jellyfinToken = user.jellyfinToken;
-        token.SessionInfo = user.SessionInfo;
+        token.JellyfinSession = user.JellyfinSession;
       }
       return token;
     },
     async session({ session, token }) {
-      session.user.jellyfinToken = token.jellyfinToken;
-      session.user.SessionInfo = token.SessionInfo;
+      session.user.JellyfinSession = token.JellyfinSession;
       return session;
     }
   },

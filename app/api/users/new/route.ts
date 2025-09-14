@@ -3,7 +3,7 @@ import { catchError, fetchApi, generatePassword } from '@/app/api/helpers';
 import { CreateUserResponseType, User } from '@/app/api/types';
 import { PackageName, PACKAGES } from '@/app/db/packages';
 import { NextRequest, NextResponse } from 'next/server';
-import { defaultDisplayPrefs } from '../../constants';
+import { mobileDisplayPrefs } from '../../constants';
 import { updateUserDisplayPreferences } from '../update-display-prefs/route';
 
 export async function POST(request: NextRequest) {
@@ -90,9 +90,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: `Error setting password` }, { status: 400 });
     }
 
-    const displayPrefsUpdate = await updateUserDisplayPreferences(defaultDisplayPrefs, request);
+    const prefsUpdate = await updateUserDisplayPreferences(mobileDisplayPrefs, request);
 
-    if (!displayPrefsUpdate.ok) {
+    if (!prefsUpdate.ok) {
       await fetchApi(endpoints.remove + `/${newUser.Id}`, request, {
         method: 'DELETE',
         requiresAuth: true

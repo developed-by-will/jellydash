@@ -1,27 +1,20 @@
 'use client';
 
-import { CreateUserResponseType } from '@/app/api/types';
-import { toast } from '@/components/breeze-ui/toast/hooks/use-toast';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+  CreateUserResponseType,
+  UpdateDisplayPrefsPayloadType,
+  UsersUpdateConfigsPayloadType
+} from '@/app/api/types';
+import { toast } from '@/components/breeze-ui/toast/hooks/use-toast';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form } from '@/components/ui/form';
 import useMutationHandler from '@/hooks/useMutationHandler';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import UsersPage from '..';
+import FormFields from './components/formFields';
+import FormFooter from './components/formFooter';
 import { CreateUserPayloadType, formValidationRules } from './formValidations';
 
 const defaultValues = {
@@ -31,6 +24,9 @@ const defaultValues = {
 };
 
 export default function CreateUser() {
+  const [isPending, setIsPending] = useState(false);
+  const [password, setPassword] = useState('');
+
   const form = useForm<CreateUserPayloadType>({
     resolver: zodResolver(formValidationRules),
     mode: 'onChange',
@@ -41,22 +37,99 @@ export default function CreateUser() {
 
   const createUser = useMutationHandler<CreateUserPayloadType, CreateUserResponseType>({
     mutationKey: 'users-new',
-    endpoint: 'users/new',
+    endpoint: 'users/new'
+    //invalidateQueryKeys: ['users-all']
+  });
+
+  const updateUserConfigs = useMutationHandler<UsersUpdateConfigsPayloadType, Response>({
+    mutationKey: 'users-update-configs',
+    endpoint: 'users/update-configs'
+  });
+
+  const updateDisplayPrefs = useMutationHandler<UpdateDisplayPrefsPayloadType, Response>({
+    mutationKey: 'users-display-prefs',
+    endpoint: 'users/update-display-prefs',
     invalidateQueryKeys: ['users-all']
   });
 
   useEffect(() => {
+    if (createUser.isPending) setIsPending(true);
+  }, [createUser.isPending]);
+
+  useEffect(() => {
+    if (createUser.isError) setIsPending(false);
     if (createUser.isSuccess) {
+      updateUserConfigs.mutate({
+        OrderedViews: [
+          '23055d604501c80c14c4039a7be70681->Destaques',
+          'af92f2d68eea947c7f9df41836afb987->Filmes',
+          'd565273fd114d77bdf349a2896867069->Séries',
+          '1018a0db3df0561dc2e48ba8dbfbafb9->Séries PT',
+          '3f1cdfa851070dc04e40b43ec5927636->Animação',
+          'a3c1924c44cd056b3dbb7f61d0c57db9->Documentários',
+          '565359d57d7119229df3b615bd177ba2->Animação Adulta',
+          'ca0de50d2c11073f53df7c82dc3fe2a4->Animes',
+          '6853e7ebc0e86f0ff3ecbbfa33afae5b->Ação e Aventura',
+          '75f08b7187c9bd46db075cb4ca8b53cf->Comédia',
+          '41bb2f6972b4bba3c88dbdee508e1ce0->Crime',
+          '907db89c0f1154dd7be54e924be3b123->Drama',
+          'c7e03f936c79e44852c6d4feee9fd1e8->Família',
+          '1de99dfa495bb752dbd1a2652769177c->Fantasia',
+          'c2c1004a870c68ed2094095ba829122f->Ficção Científica',
+          '584cdd118eceee4fa94237ecf0df282a->Horror e Terror',
+          'ac832d81c9b55382be5f58bb06131636->Mistério e Thriller',
+          '4d97b71b4da03b37ee3dc8fee0d7782d->Musicais',
+          '252844775c6daf18b3278b50ef25e344->Romance',
+          '9bec90d4afd070984ee68c273324e9a1->Sobrenatural',
+          '2b68116379a3285ff75282f3924d8e11->Super-Heróis',
+          '7e64e319657a9516ec78490da03edccb->Music',
+          'a4a7d3c943f3cdc73001448f67aa3235->TixaMusic'
+        ],
+        SubtitleLanguagePreference: 'por'
+      });
+    }
+  }, [createUser.isSuccess, createUser.isError]);
+
+  useEffect(() => {
+    if (updateUserConfigs.isSuccess) {
+      updateDisplayPrefs.mutate({
+        SortBy: 'AirTime',
+        CustomPrefs: {
+          homesection0: 'resume',
+          homesection1: 'smalllibrarytiles',
+          homesection2: 'nextup',
+          homesection3: 'latestmedia',
+          homesection4: 'none',
+          homesection5: 'none',
+          homesection6: 'none',
+          homesection7: 'none',
+          homesection8: 'none',
+          homesection9: 'none',
+          homesection10: 'none'
+        },
+        ScrollDirection: 'Horizontal'
+      });
+    }
+  }, [updateUserConfigs.isSuccess]);
+
+  useEffect(() => {
+    if (!updateDisplayPrefs.isPending || updateDisplayPrefs.isSuccess) setIsPending(false);
+    if (updateDisplayPrefs.isSuccess) {
       toast({
         title: 'User created successfully',
         description: 'Users table has been updated',
         variant: 'success',
         duration: 5000
       });
-
       form.reset({ ...defaultValues });
     }
-  }, [createUser.isSuccess]);
+  }, [updateDisplayPrefs.isSuccess, updateDisplayPrefs.isPending]);
+
+  useEffect(() => {
+    if (createUser.isSuccess && createUser.data?.Pw) {
+      setPassword(createUser.data.Pw);
+    }
+  }, [createUser.isSuccess, createUser.data?.Pw]);
 
   return (
     <Card className="flex flex-col xl:flex-row w-full">
@@ -65,120 +138,24 @@ export default function CreateUser() {
           <CardTitle>Create a new user</CardTitle>
           <CardDescription>Quickly create a new user and select it's package</CardDescription>
         </CardHeader>
+
         <Form {...form}>
           <form
-            onSubmit={handleSubmit((formData) => createUser.mutate(formData))}
+            onSubmit={handleSubmit((formData) => {
+              createUser.mutate(formData);
+            })}
             className="flex flex-col flex-auto bg-info rounded-2xl gap-4 max-w-sm mx-auto"
           >
-            <FormField
+            <FormFields control={control} isPending={isPending} />
+
+            <FormFooter
+              isPending={isPending}
+              Pw={password}
               control={control}
-              name="Username"
-              disabled={createUser.isPending}
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormControl>
-                    <Label htmlFor="Username">
-                      Username <span className="text-red-500">*</span>
-                      <Input {...field} placeholder="Username" className="py-5" id="Username" />
-                    </Label>
-                  </FormControl>
-                  {fieldState.error && (
-                    <Badge variant="destructive">
-                      <FormMessage className="text-white text-xs">
-                        {fieldState.error.message}
-                      </FormMessage>
-                    </Badge>
-                  )}
-                </FormItem>
-              )}
+              isError={createUser.isError}
+              errorMessage={`${createUser.error?.message}`}
+              isSuccess={createUser.isSuccess}
             />
-
-            <FormField
-              control={control}
-              name="Pw"
-              disabled={createUser.isPending}
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormControl>
-                    <Label htmlFor="Pw">
-                      Password
-                      <Input
-                        {...field}
-                        type="password"
-                        id="Pw"
-                        placeholder="********"
-                        className="py-5"
-                      />
-                    </Label>
-                  </FormControl>
-                  {fieldState.error && (
-                    <Badge variant="destructive">
-                      <FormMessage className="text-white text-xs">
-                        {fieldState.error.message}
-                      </FormMessage>
-                    </Badge>
-                  )}
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={control}
-              name="Package"
-              disabled={createUser.isPending}
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormControl>
-                    <Label htmlFor="Package">
-                      Package <span className="text-red-500">*</span>
-                      <Select onValueChange={field.onChange} value={field.value || ''}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a package" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel>Packages</SelectLabel>
-                            <SelectItem value="STANDARD" className="cursor-pointer">
-                              Standard
-                            </SelectItem>
-                            <SelectItem value="CHILDREN" className="cursor-pointer">
-                              Children
-                            </SelectItem>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </Label>
-                  </FormControl>
-                  {fieldState.error && (
-                    <Badge variant="destructive">
-                      <FormMessage className="text-white text-xs">
-                        {fieldState.error.message}
-                      </FormMessage>
-                    </Badge>
-                  )}
-                </FormItem>
-              )}
-            />
-
-            <Button type="submit" disabled={createUser.isPending}>
-              {createUser.isPending ? 'Creating...' : 'Create'}
-            </Button>
-
-            {createUser.isError && <Badge variant="destructive">{createUser.error.message}</Badge>}
-
-            <div className="text-center text-sm">
-              If you don't provide a password, the user will be created with a random one.
-            </div>
-
-            {createUser.isSuccess && createUser.data?.Pw && (
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => navigator.clipboard.writeText(`${createUser.data.Pw}`)}
-              >
-                Copy Password
-              </Button>
-            )}
           </form>
         </Form>
       </div>

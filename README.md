@@ -84,7 +84,7 @@ POST /users/authenticate-by-name
 Payload: {"Username": "YourAdmin", "Pw": "YourPassword"}
 ```
 
-✅ **Success**: Saves `SERVER_TOKEN` automatically for future calls.
+✅ **Success**: Saves `ACCESS_TOKEN` automatically for future calls.
 
 ---
 
