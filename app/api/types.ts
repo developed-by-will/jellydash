@@ -195,3 +195,20 @@ type RemoteImageType = {
 export type RemoteImagesType = {
   Images: RemoteImageType[];
 };
+
+type SearchItemType = {
+  Id: string;
+  Name: string;
+  ImageTags: {
+    Primary: string;
+  };
+  ImageBlurHashes: {
+    Primary: {
+      [key: string]: string;
+    };
+  };
+};
+
+export type SearchItemsType = {
+  Items: SearchItemType[];
+};
