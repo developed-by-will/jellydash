@@ -185,3 +185,13 @@ export type UpdateDisplayPrefsPayloadType = {
   };
   ScrollDirection: string;
 };
+
+type RemoteImageType = {
+  Url: string;
+  Height: number;
+  Width: number;
+};
+
+export type RemoteImagesType = {
+  Images: RemoteImageType[];
+};
