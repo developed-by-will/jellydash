@@ -3,7 +3,10 @@ import {
   Drama,
   ImagePlay,
   LayoutTemplate,
+  MessageCircleReply,
+  MessageSquareShare,
   MonitorPlay,
+  NotepadTextDashed,
   PersonStanding,
   Popcorn
 } from 'lucide-react';
@@ -26,7 +29,6 @@ export const content = {
       url: baseUrl + '/sync-login-page',
       icon: <LayoutTemplate className={classes} />
     },
-
     {
       title: 'Sync Creation Dates',
       url: '#',
@@ -46,6 +48,23 @@ export const content = {
           title: 'Episodes',
           url: baseUrl + '/sync-creation-dates',
           icon: <MonitorPlay className={classes} />
+        }
+      ]
+    },
+    {
+      title: 'Social Post',
+      url: '#',
+      icon: <MessageSquareShare className={classes} />,
+      items: [
+        {
+          title: 'Generate Post',
+          url: baseUrl + '/create-social-post',
+          icon: <MessageCircleReply className={classes} />
+        },
+        {
+          title: 'Set template',
+          url: baseUrl + '/set-social-template',
+          icon: <NotepadTextDashed className={classes} />
         }
       ]
     }
