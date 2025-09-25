@@ -40,3 +40,4 @@ next-env.d.ts
 app/db
 app/login-page/price-table.html
 app/login-page/premium-card.html
+public/social-post-template.png
