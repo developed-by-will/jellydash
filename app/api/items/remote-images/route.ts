@@ -5,6 +5,11 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(request: NextRequest) {
   try {
     const itemId = request.nextUrl.searchParams.get('itemId');
+
+    if (!itemId) {
+      return NextResponse.json({ message: 'Item ID is required' }, { status: 400 });
+    }
+
     const endpoint = `/Items/${itemId}/RemoteImages?type=Primary&startIndex=0&limit=30&IncludeAllLanguages=false`;
 
     // Get remote images of the content
