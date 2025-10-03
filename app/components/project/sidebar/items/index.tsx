@@ -9,19 +9,22 @@ type NavSubItem = {
   title: string;
   url: string;
   icon?: React.ReactNode;
+  canAccess?: boolean;
   items?: {
+    canAccess?: boolean;
     title: string;
     url: string;
     icon?: React.ReactNode;
   }[];
 };
 
-type NavItem = {
+export type NavItem = {
   title: string;
   url: string;
   icon?: LucideIcon;
   isActive?: boolean;
   items?: NavSubItem[];
+  canAccess?: boolean;
 };
 
 export const items: NavItem[] = [users, server, content, libraries, roles];

@@ -17,9 +17,51 @@ import {
   SidebarMenuSubItem,
   useSidebar
 } from '@/components/ui/sidebar';
-import { ChevronRight, MoreHorizontal } from 'lucide-react';
+import { ChevronRight, Lock, MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
+import React from 'react';
 import { items } from './items';
+
+// Helper function to render icons properly - NO DEFAULT SIZE
+const renderIcon = (icon: any) => {
+  if (!icon) return null;
+
+  // If it's already a JSX element (like <PersonStanding />) - keep as is
+  if (React.isValidElement(icon)) {
+    return icon;
+  }
+
+  // If it's a React component (like ImagePlay) - render without forcing size
+  if (typeof icon === 'function') {
+    const IconComponent = icon;
+    return <IconComponent />;
+  }
+
+  return null;
+};
+
+// Helper component for conditional links
+const ConditionalLink = ({ item, isSubItem = false }: { item: any; isSubItem?: boolean }) => {
+  const canAccess = item.canAccess !== false;
+  const className = `flex gap-2 items-center w-full ${isSubItem ? 'px-2 py-1' : ''} ${!canAccess ? 'opacity-50 cursor-not-allowed' : ''}`;
+
+  if (!canAccess) {
+    return (
+      <div className={className}>
+        {renderIcon(item.icon)}
+        <span>{item.title}</span>
+        <Lock className="w-3 h-3 ml-auto" />
+      </div>
+    );
+  }
+
+  return (
+    <Link href={`/jd-admin/${item.url}`} className={className}>
+      {renderIcon(item.icon)}
+      <span>{item.title}</span>
+    </Link>
+  );
+};
 
 export function NavMain() {
   const { isMobile } = useSidebar();
@@ -39,17 +81,14 @@ export function NavMain() {
                 <SidebarMenuButton tooltip={item.title}>
                   {item.items ? (
                     <>
-                      {item.icon && <item.icon />}
+                      {renderIcon(item.icon)}
                       <span>{item.title}</span>
                       {item.items && (
                         <ChevronRight className="ml-auto transition-transform duration-100 group-data-[state=open]/collapsible:rotate-45" />
                       )}
                     </>
                   ) : (
-                    <Link href={`/jd-admin/${item.url}`} className="flex gap-2">
-                      {item.icon && <item.icon className="w-4 h-4" />}
-                      <span>{item.title}</span>
-                    </Link>
+                    <ConditionalLink item={item} />
                   )}
                 </SidebarMenuButton>
               </CollapsibleTrigger>
@@ -60,47 +99,67 @@ export function NavMain() {
                     {item.items.map((subItem) => {
                       if (subItem.items) {
                         // Dropdown
+                        const canAccessDropdown = subItem.canAccess !== false;
                         return (
                           <SidebarMenuSubItem key={subItem.title}>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <SidebarMenuSubButton className="w-full">
-                                  {subItem.icon}
+                                <SidebarMenuSubButton
+                                  className={`w-full cursor-pointer ${!canAccessDropdown ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                  {renderIcon(subItem.icon)}
                                   <span>{subItem.title}</span>
-                                  <MoreHorizontal className="ml-auto h-4 w-4" />
+                                  {!canAccessDropdown ? (
+                                    <Lock className="ml-auto h-4 w-4" />
+                                  ) : (
+                                    <MoreHorizontal className="ml-auto h-4 w-4 cursor-pointer" />
+                                  )}
                                 </SidebarMenuSubButton>
                               </DropdownMenuTrigger>
 
-                              <DropdownMenuContent
-                                className="w-48 rounded-lg"
-                                side={isMobile ? 'bottom' : 'right'}
-                                align={isMobile ? 'end' : 'start'}
-                              >
-                                {subItem.items.map((dropdownItem) => (
-                                  <Link
-                                    href={`/jd-admin/${dropdownItem.url}`}
-                                    key={dropdownItem.title}
-                                  >
-                                    <DropdownMenuItem className="gap-2 cursor-pointer">
-                                      {dropdownItem.icon}
-                                      <span>{dropdownItem.title}</span>
-                                    </DropdownMenuItem>
-                                  </Link>
-                                ))}
-                              </DropdownMenuContent>
+                              {canAccessDropdown && (
+                                <DropdownMenuContent
+                                  className="w-48 rounded-lg"
+                                  side={isMobile ? 'bottom' : 'right'}
+                                  align={isMobile ? 'end' : 'start'}
+                                >
+                                  {subItem.items.map((dropdownItem) => {
+                                    const canAccessDropdownItem = dropdownItem.canAccess !== false;
+                                    return (
+                                      <DropdownMenuItem
+                                        key={dropdownItem.title}
+                                        className={`gap-2 ${canAccessDropdownItem ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`}
+                                        onSelect={(e) => {
+                                          if (!canAccessDropdownItem) {
+                                            e.preventDefault();
+                                          }
+                                        }}
+                                      >
+                                        <ConditionalLink item={dropdownItem} isSubItem />
+                                      </DropdownMenuItem>
+                                    );
+                                  })}
+                                </DropdownMenuContent>
+                              )}
                             </DropdownMenu>
                           </SidebarMenuSubItem>
                         );
                       }
                       // Regular sub-item
+                      const canAccessSubItem = subItem.canAccess !== false;
                       return (
                         <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild>
-                            <Link href={`/jd-admin/${subItem.url}`}>
-                              {subItem.icon}
-                              <span>{subItem.title}</span>
-                            </Link>
-                          </SidebarMenuSubButton>
+                          {canAccessSubItem ? (
+                            <SidebarMenuSubButton asChild>
+                              <ConditionalLink item={subItem} isSubItem />
+                            </SidebarMenuSubButton>
+                          ) : (
+                            <div
+                              className={`flex items-center w-full px-2 py-1 text-sm rounded-md ${!canAccessSubItem ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                              <ConditionalLink item={subItem} isSubItem />
+                            </div>
+                          )}
                         </SidebarMenuSubItem>
                       );
                     })}

@@ -12,17 +12,20 @@ export const libraries = {
     {
       title: 'Sync',
       url: baseUrl + '/sync',
-      icon: <BookDown className={classes} />
+      icon: <BookDown className={classes} />,
+      canAccess: false
     },
     {
       title: 'Exclude from Home',
       url: '/exclude-from-home',
-      icon: <BookX className={classes} />
+      icon: <BookX className={classes} />,
+      canAccess: false
     },
     {
       title: 'Add Library to Role',
       url: '/add-library-to-role',
-      icon: <BookX className={classes} />
+      icon: <BookX className={classes} />,
+      canAccess: false
     }
   ]
 };

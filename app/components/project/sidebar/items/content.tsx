@@ -10,29 +10,34 @@ import {
   PersonStanding,
   Popcorn
 } from 'lucide-react';
+import { NavItem } from '.';
 
 const classes = 'text-muted-foreground';
 const baseUrl = '/content-management';
 
-export const content = {
+export const content: NavItem = {
   title: 'Content Management',
   url: '#',
   icon: ImagePlay,
+  canAccess: false,
   items: [
     {
       title: 'Sync Crew & Cast',
       url: baseUrl + '/sync-crew-and-cast',
-      icon: <PersonStanding className={classes} />
+      icon: <PersonStanding className={classes} />,
+      canAccess: false
     },
     {
       title: 'Sync Login Page',
       url: baseUrl + '/sync-login-page',
-      icon: <LayoutTemplate className={classes} />
+      icon: <LayoutTemplate className={classes} />,
+      canAccess: false
     },
     {
       title: 'Sync Creation Dates',
       url: '#',
       icon: <CalendarSync className={classes} />,
+      canAccess: false,
       items: [
         {
           title: 'Movies',
@@ -63,7 +68,7 @@ export const content = {
         },
         {
           title: 'Set template',
-          url: baseUrl + '/set-social-template',
+          url: baseUrl + '/set-social-post-template',
           icon: <NotepadTextDashed className={classes} />
         }
       ]
