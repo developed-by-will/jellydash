@@ -196,7 +196,7 @@ export type RemoteImagesType = {
   Images: RemoteImageType[];
 };
 
-type SearchItemType = {
+export type SearchItemType = {
   Id: string;
   Name: string;
   ImageTags: {
@@ -211,4 +211,8 @@ type SearchItemType = {
 
 export type SearchItemsType = {
   Items: SearchItemType[];
+};
+
+export type PosterType = SearchItemType & {
+  Src: string;
 };

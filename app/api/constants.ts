@@ -1,6 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 import { CustomPreferencesAndroidTV, CustomPreferencesBase } from './types';
 
+const PROTOCOL = process.env.NEXT_PUBLIC_IMAGE_PROTOCOL as string;
+const HOSTNAME = process.env.NEXT_PUBLIC_IMAGE_HOSTNAME as string;
+
 export const DEVICE_ID = uuidv4();
 export const SERVER_URL = process.env.SERVER_URL as string;
 export const REQUEST_LOGS = process.env.REQUEST_LOGS as string;
@@ -8,6 +11,7 @@ export const API_URL = process.env.API_URL as string;
 export const DEBUG_JELLYFIN_ENDPOINT = process.env.DEBUG_JELLYFIN_ENDPOINT as string;
 export const JELLYFIN_MOBILE_VERSION = process.env.JELLYFIN_MOBILE_VERSION as string;
 export const JELLYFIN_TV_VERSION = process.env.JELLYFIN_TV_VERSION as string;
+export const BASE_URL = `${PROTOCOL}://${HOSTNAME}`;
 
 export const mobileDisplayPrefs: CustomPreferencesBase = {
   SortBy: 'SortName',

@@ -58,7 +58,7 @@ export const content = {
       items: [
         {
           title: 'Generate Post',
-          url: baseUrl + '/create-social-post',
+          url: baseUrl + '/generate-social-post',
           icon: <MessageCircleReply className={classes} />
         },
         {

@@ -5,13 +5,14 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(request: NextRequest) {
   try {
     const userId = request.nextUrl.searchParams.get('userId');
+    const searchTerm = request.nextUrl.searchParams.get('searchTerm');
 
     if (!userId) {
       return NextResponse.json({ message: 'Unauthorized request' }, { status: 403 });
     }
 
     //Get movie posters
-    const moviesEndpoint = `/Items?userId=${userId}&limit=100&recursive=true&searchTerm=alie&fields=PrimaryImageAspectRatio&fields=CanDelete&fields=MediaSourceCount&includeItemTypes=Movie&imageTypeLimit=1&enableTotalRecordCount=false`;
+    const moviesEndpoint = `/Items?userId=${userId}&limit=100&recursive=true&searchTerm=${searchTerm}&fields=PrimaryImageAspectRatio&fields=CanDelete&fields=MediaSourceCount&includeItemTypes=Movie&imageTypeLimit=1&enableTotalRecordCount=false`;
 
     const getMoviePosters = await fetchApi(moviesEndpoint, request, {
       method: 'GET',
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
     const posters: SearchItemsType = await getMoviePosters.json();
 
     //Get show posters
-    const showsEndpoint = `/Items?userId=${userId}&limit=100&recursive=true&searchTerm=alie&fields=PrimaryImageAspectRatio&fields=CanDelete&fields=MediaSourceCount&includeItemTypes=Series&imageTypeLimit=1&enableTotalRecordCount=false`;
+    const showsEndpoint = `/Items?userId=${userId}&limit=100&recursive=true&searchTerm=${searchTerm}&fields=PrimaryImageAspectRatio&fields=CanDelete&fields=MediaSourceCount&includeItemTypes=Series&imageTypeLimit=1&enableTotalRecordCount=false`;
 
     const getShowsPosters = await fetchApi(showsEndpoint, request, {
       method: 'GET',
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
         Name: item.Name,
         Poster: posterId,
         BlurHash: item.ImageBlurHashes.Primary[posterId],
-        Src: `Items/${item.Id}/Images/Primary?fillHeight=380&fillWidth=253&quality=96`
+        Src: `Items/${item.Id}/Images/Primary`
       };
     });
 
