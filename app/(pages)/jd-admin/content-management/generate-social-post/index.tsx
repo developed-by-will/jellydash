@@ -52,7 +52,7 @@ export default function GenerateSocialPost() {
 
   return (
     <div className="flex flex-col lg:flex-row gap-5">
-      <Card className="flex-none lg:w-1/3 p-5">
+      <Card className="flex-none order-2 lg:order-1 lg:w-1/3 p-5" id="preview">
         <Preview
           text={text}
           setText={setText}
@@ -62,7 +62,7 @@ export default function GenerateSocialPost() {
         />
       </Card>
 
-      <Card className="flex-1 p-5">
+      <Card className="flex-1 order-1 lg:order-2 p-5">
         <div className="flex gap-5 flex-col lg:flex-row items-center justify-end">
           <Form {...form}>
             <form

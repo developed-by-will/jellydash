@@ -51,13 +51,14 @@ export default function Preview(props: Readonly<Props>) {
         </Select>
       </CardHeader>
 
-      <div className={`relative w-full max-w-xs mx-auto aspect-[${previewWrapper.aspectRatio}]`}>
+      {/* Use static class directly */}
+      <div className={`relative w-full max-w-xs mx-auto ${previewWrapper.aspectRatio}`}>
         {selectedItem ? (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="relative w-full h-full">
-              {/* Poster scaled down */}
+              {/* Poster scaled down - use static classes */}
               <div
-                className={`w-[${preview.width}] h-[${preview.height}] mt-7 mx-auto scale-${preview.scale} relative`}
+                className={`${preview.width} ${preview.height} mt-7 mx-auto ${preview.scale} relative`}
               >
                 <Image
                   src={getHighResImageUrl()}
@@ -92,7 +93,7 @@ export default function Preview(props: Readonly<Props>) {
         {customText.hasCustomText && (
           <div className="absolute inset-0 pointer-events-none flex justify-center">
             <h1
-              className={`${aristaFont.className} text-white ${customText.fontSize} drop-shadow-lg ${customText.position.mt} absolute top-[2%]`}
+              className={`${aristaFont.className} ${customText.color} ${customText.fontSize} drop-shadow-lg ${customText.position.mt} absolute top-[2%] ${customText.align}`}
             >
               {text}
             </h1>

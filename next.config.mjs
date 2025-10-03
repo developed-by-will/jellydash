@@ -7,7 +7,8 @@ const nextConfig = {
         hostname: process.env.NEXT_PUBLIC_IMAGE_HOSTNAME
       }
     ]
-  }
+  },
+  allowedDevOrigins: [process.env.NEXT_PUBLIC_ALLOWED_DEV_ORIGIN]
 };
 
 export default nextConfig;

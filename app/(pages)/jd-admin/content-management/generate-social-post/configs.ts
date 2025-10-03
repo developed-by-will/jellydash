@@ -1,31 +1,13 @@
+import { aristaFont } from '@/app/Hydrate';
+
 export const previewWrapper = {
-  aspectRatio: '1440/2160'
+  aspectRatio: 'aspect-[1440/2160]'
 };
 
 export const preview = {
-  width: '92%',
-  height: '92%',
-  scale: '90'
-};
-
-export const output = {
-  template: {
-    width: '1440px',
-    height: '2160px'
-  },
-  poster: {
-    width: 1183,
-    height: 1775,
-    position: {
-      left: '50%',
-      top: '51.5%'
-    },
-    transform: 'translate(-50%, -50%)'
-  },
-  output: {
-    width: 1440,
-    height: 2160
-  }
+  width: 'w-[92%]',
+  height: 'h-[92%]',
+  scale: 'scale-90'
 };
 
 type CustomTextType = {
@@ -42,7 +24,7 @@ type CustomTextType = {
 
 export const customText: CustomTextType = {
   hasCustomText: true,
-  fontSize: '70px',
+  fontSize: '16px',
   position: {
     mt: 'mt-[11.5%]',
     ms: 'ms-[0%]',
@@ -67,3 +49,41 @@ export const texts = [
     value: 'Novo Episódio'
   }
 ];
+
+export const canvasStyle = {
+  width: '1440px',
+  height: '2160px',
+  background: 'black',
+  position: 'relative' as const
+};
+
+export const posterStyle = {
+  position: 'absolute' as const,
+  left: '50%',
+  top: '51.5%',
+  transform: 'translate(-50%, -50%)',
+  width: '1183px',
+  height: '1775px',
+  objectFit: 'cover' as const
+};
+
+export const templateStyle = {
+  position: 'absolute' as const,
+  top: 0,
+  left: 0,
+  width: '1440px',
+  height: '2160px'
+};
+
+export const textStyle = {
+  position: 'absolute' as const,
+  top: '7.7%',
+  left: '-1%',
+  width: '100%',
+  color: 'white',
+  fontSize: '70px',
+  textAlign: 'center' as const,
+  fontFamily: aristaFont.style.fontFamily,
+  textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+  padding: '0 20px'
+};
