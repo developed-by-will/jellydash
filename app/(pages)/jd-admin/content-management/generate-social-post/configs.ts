@@ -47,6 +47,22 @@ export const texts = [
   {
     text: 'Novo Episódio',
     value: 'Novo Episódio'
+  },
+  {
+    text: 'Final Temporada',
+    value: 'Final Temporada'
+  },
+  {
+    text: 'Fim da Série',
+    value: 'Fim da Série'
+  },
+  {
+    text: 'Grande Estreia',
+    value: 'Grande Estreia'
+  },
+  {
+    text: 'Nova Temporada',
+    value: 'Nova Temporada'
   }
 ];
 
