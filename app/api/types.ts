@@ -89,16 +89,33 @@ type DeleteConfig = {
   requiresAuth?: boolean;
 };
 
+export type JellyfinMediaStream = {
+  Codec: string;
+  Type: 'Video' | 'Audio' | 'Subtitle';
+  Width: number;
+  Height: number;
+};
+
+export type JellyfinMediaSource = {
+  Container: string;
+  MediaStreams?: JellyfinMediaStream[];
+  Path: string;
+};
+
 type JellyfinItem = {
   Name: string;
   Id: string;
   ServerId: string;
   PremiereDate: string;
   Type: string;
+  MediaSources?: JellyfinMediaSource[];
+  MediaStreams?: JellyfinMediaStream[];
 };
 
 export type JellyfinResponse = {
   Items: JellyfinItem[];
+  TotalRecordCount: number;
+  StartIndex?: number;
 };
 
 export type CustomPreferencesBase = {
@@ -216,3 +233,12 @@ export type SearchItemsType = {
 export type PosterType = SearchItemType & {
   Src: string;
 };
+
+type ConversionState = {
+  ffmpeg: any;
+  tempOutputPath: string;
+  percent: number;
+  startTime: number;
+};
+
+export const runningConversions = new Map<string, ConversionState>();
