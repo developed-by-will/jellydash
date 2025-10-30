@@ -1,3 +1,4 @@
+import { PACKAGES } from '@/app/db/packages';
 import { Badge } from '@/components/ui/badge';
 import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -19,6 +20,13 @@ type Props = {
 
 export default function FormFields(props: Readonly<Props>) {
   const { control, isPending } = props;
+
+  const PACKAGE_LABELS: Record<keyof typeof PACKAGES, string> = {
+    STANDARD: 'Standard',
+    CHILDREN: 'Children',
+    PREMIUM: 'Premium',
+    ADMIN: 'Admin'
+  };
 
   return (
     <>
@@ -84,12 +92,11 @@ export default function FormFields(props: Readonly<Props>) {
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Packages</SelectLabel>
-                      <SelectItem value="STANDARD" className="cursor-pointer">
-                        Standard
-                      </SelectItem>
-                      <SelectItem value="CHILDREN" className="cursor-pointer">
-                        Children
-                      </SelectItem>
+                      {Object.entries(PACKAGE_LABELS).map(([key, label]) => (
+                        <SelectItem key={key} value={key} className="cursor-pointer">
+                          {label}
+                        </SelectItem>
+                      ))}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
