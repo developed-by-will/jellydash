@@ -63,6 +63,10 @@ export const texts = [
   {
     text: 'Nova Temporada',
     value: 'Nova Temporada'
+  },
+  {
+    text: 'Exclusivo',
+    value: 'Exclusivo'
   }
 ];
 
