@@ -1,4 +1,4 @@
-import { catchError, fetchApi } from '@/app/api/helpers';
+import { catchError, requestApi } from '@/app/api/helpers';
 import { SearchItemsType } from '@/app/api/types';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -11,20 +11,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: 'Unauthorized request' }, { status: 403 });
     }
 
-    //Get movie posters
-    const moviesEndpoint = `/Items?userId=${userId}&limit=100&recursive=true&searchTerm=${searchTerm}&fields=PrimaryImageAspectRatio&fields=CanDelete&fields=MediaSourceCount&includeItemTypes=Movie&imageTypeLimit=1&enableTotalRecordCount=false`;
+    // Get movie posters
+    const moviesEndpoint = `/Items?userId=${userId}&limit=100&recursive=true&searchTerm=${searchTerm}&fields=PrimaryImageAspectRatio,CanDelete,MediaSourceCount&includeItemTypes=Movie&imageTypeLimit=1&enableTotalRecordCount=false`;
 
-    const getMoviePosters = await fetchApi(moviesEndpoint, request, {
+    const getMoviePosters = await requestApi(moviesEndpoint, request, {
       method: 'GET',
       requiresAuth: true
     });
 
+    if (!getMoviePosters.ok) {
+      const errText = await getMoviePosters.text();
+      throw new Error(`Failed to fetch movie posters: ${errText}`);
+    }
+
     const posters: SearchItemsType = await getMoviePosters.json();
 
-    //Get show posters
-    const showsEndpoint = `/Items?userId=${userId}&limit=100&recursive=true&searchTerm=${searchTerm}&fields=PrimaryImageAspectRatio&fields=CanDelete&fields=MediaSourceCount&includeItemTypes=Series&imageTypeLimit=1&enableTotalRecordCount=false`;
+    // Get show posters
+    const showsEndpoint = `/Items?userId=${userId}&limit=100&recursive=true&searchTerm=${searchTerm}&fields=PrimaryImageAspectRatio,CanDelete,MediaSourceCount&includeItemTypes=Series&imageTypeLimit=1&enableTotalRecordCount=false`;
 
-    const getShowsPosters = await fetchApi(showsEndpoint, request, {
+    const getShowsPosters = await requestApi(showsEndpoint, request, {
       method: 'GET',
       requiresAuth: true
     });
@@ -38,14 +43,19 @@ export async function GET(request: NextRequest) {
       return {
         Id: item.Id,
         Name: item.Name,
-        Poster: posterId,
-        BlurHash: item.ImageBlurHashes.Primary[posterId],
-        Src: `Items/${item.Id}/Images/Primary`
+        Poster: posterId ?? null,
+        BlurHash: posterId ? (item.ImageBlurHashes?.Primary?.[posterId] ?? null) : null,
+        Src: posterId ? `Items/${item.Id}/Images/Primary` : null
       };
     });
 
     return NextResponse.json(results, { status: 200 });
   } catch (error) {
-    catchError(error);
+    console.error('Error in /api/items/search:', error);
+    catchError(error); // still keep your helper
+    return NextResponse.json(
+      { message: 'Failed to fetch search results', error: String(error) },
+      { status: 500 }
+    );
   }
 }
