@@ -1,5 +1,5 @@
 import { CreateUserPayloadType } from '@/app/(pages)/jd-admin/users/create/formValidations';
-import { catchError, fetchApi, generatePassword } from '@/app/api/helpers';
+import { catchError, generatePassword, requestApi } from '@/app/api/helpers';
 import { CreateUserResponseType, User } from '@/app/api/types';
 import { PackageName, PACKAGES } from '@/app/db/packages';
 import { NextRequest, NextResponse } from 'next/server';
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Check if user already exists
-    const getUsersResponse = await fetchApi(endpoints.userList, request, {
+    const getUsersResponse = await requestApi(endpoints.userList, request, {
       method: 'GET',
       requiresAuth: true
     });
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create user
-    const createResponse = await fetchApi(endpoints.create, request, {
+    const createResponse = await requestApi(endpoints.create, request, {
       method: 'POST',
       requiresAuth: true,
       body: {
@@ -43,12 +43,20 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    if (createResponse.status === 401) {
+      return NextResponse.json({ message: `Unauthorized` }, { status: 403 });
+    }
+
+    if (createResponse.status === 403) {
+      return NextResponse.json({ message: `Forbidden` }, { status: 403 });
+    }
+
     if (!createResponse.ok) {
       return NextResponse.json({ message: `Error creating user` }, { status: 400 });
     }
 
     // Get the newly created user by name (more reliable than checking LastActivityDate)
-    const getNewUserResponse = await fetchApi(endpoints.userList, request, {
+    const getNewUserResponse = await requestApi(endpoints.userList, request, {
       method: 'GET',
       requiresAuth: true
     });
@@ -65,7 +73,7 @@ export async function POST(request: NextRequest) {
       ...PACKAGES[Package]
     };
 
-    const policyUpdate = await fetchApi(`/Users/${newUser.Id}/Policy`, request, {
+    const policyUpdate = await requestApi(`/Users/${newUser.Id}/Policy`, request, {
       method: 'POST',
       requiresAuth: true,
       body: JSON.stringify(userInfo)
@@ -77,7 +85,7 @@ export async function POST(request: NextRequest) {
 
     // Set password
     const newPassword = Pw?.length ? Pw : generatePassword();
-    const passwordUpdate = await fetchApi(`/Users/${newUser.Id}/Password`, request, {
+    const passwordUpdate = await requestApi(`/Users/${newUser.Id}/Password`, request, {
       method: 'POST',
       requiresAuth: true,
       body: {
@@ -93,7 +101,7 @@ export async function POST(request: NextRequest) {
     const prefsUpdate = await updateUserDisplayPreferences(mobileDisplayPrefs, request);
 
     if (!prefsUpdate.ok) {
-      await fetchApi(endpoints.remove + `/${newUser.Id}`, request, {
+      await requestApi(endpoints.remove + `/${newUser.Id}`, request, {
         method: 'DELETE',
         requiresAuth: true
       });
