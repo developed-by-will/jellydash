@@ -17,12 +17,14 @@ export async function POST(req: Request) {
   const uploadDir = path.join(process.cwd(), 'public');
   await mkdir(uploadDir, { recursive: true });
 
-  // Save file
-  const filePath = path.join(uploadDir, file.name);
+  // ✅ Always save as 'social-post-template.png'
+  const fileName = 'social-post-template.png';
+  const filePath = path.join(uploadDir, fileName);
+
   await writeFile(filePath, buffer);
 
   return NextResponse.json({
     success: true,
-    filePath: 'social-post-template.png'
+    filePath: fileName
   });
 }
