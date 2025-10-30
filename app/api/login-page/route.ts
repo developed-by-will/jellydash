@@ -1,4 +1,4 @@
-import { catchError, fetchApi } from '@/app/api/helpers';
+import { catchError, requestApi } from '@/app/api/helpers';
 import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
@@ -27,13 +27,13 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const [moviesRes, showsRes] = await Promise.all([
-      fetchApi(
-        `/Users/${userId}/Items?SortBy=PremiereDate%2CSortName%2CProductionYear&SortOrder=Descending&IncludeItemTypes=Movie&Recursive=true&Fields=PrimaryImageAspectRatio%2CMediaSourceCount&ImageTypeLimit=1&EnableImageTypes=Primary%2CBackdrop%2CBanner%2CThumb&StartIndex=0&ParentId=af92f2d68eea947c7f9df41836afb987&Limit=10`,
+      requestApi(
+        `/Users/${userId}/Items?SortBy=PremiereDate%2CSortName%2CProductionYear&SortOrder=Descending&IncludeItemTypes=Movie&Recursive=true&Fields=PrimaryImageAspectRatio%2CMediaSourceCount&ImageTypeLimit=1&EnableImageTypes=Primary%2CBackdrop%2CBanner%2CThumb&StartIndex=0&Limit=10`,
         request,
         { method: 'GET', requiresAuth: true }
       ),
-      fetchApi(
-        `/Users/${userId}/Items?SortBy=PremiereDate%2CSortName&SortOrder=Descending&IncludeItemTypes=Series&Recursive=true&Fields=PrimaryImageAspectRatio&ImageTypeLimit=1&EnableImageTypes=Primary%2CBackdrop%2CBanner%2CThumb&StartIndex=0&Limit=10&ParentId=d565273fd114d77bdf349a2896867069`,
+      requestApi(
+        `/Users/${userId}/Items?SortBy=PremiereDate%2CSortName&SortOrder=Descending&IncludeItemTypes=Series&Recursive=true&Fields=PrimaryImageAspectRatio&ImageTypeLimit=1&EnableImageTypes=Primary%2CBackdrop%2CBanner%2CThumb&StartIndex=0&Limit=10`,
         request,
         { method: 'GET', requiresAuth: true }
       )
@@ -72,7 +72,7 @@ export async function PATCH(request: NextRequest) {
       SplashscreenEnabled: true
     };
 
-    await fetchApi(`/System/Configuration/branding`, request, {
+    await requestApi(`/System/Configuration/branding`, request, {
       method: 'POST',
       requiresAuth: true,
       body: JSON.stringify(brandingPayload)
