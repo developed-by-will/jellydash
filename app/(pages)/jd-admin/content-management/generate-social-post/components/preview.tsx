@@ -13,8 +13,8 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import template from '@/public/social-post-template.png';
 import Image from 'next/image';
+import { useState } from 'react';
 import { customText, preview, previewWrapper, texts } from '../configs';
 
 type Props = {
@@ -27,6 +27,7 @@ type Props = {
 
 export default function Preview(props: Readonly<Props>) {
   const { setText, text, selectedItem, getHighResImageUrl, handleDownload } = props;
+  const [templateError, setTemplateError] = useState(false);
 
   return (
     <>
@@ -36,7 +37,7 @@ export default function Preview(props: Readonly<Props>) {
 
         <Select onValueChange={setText} value={text}>
           <SelectTrigger>
-            <SelectValue placeholder="Selecione um texto" />
+            <SelectValue placeholder="Select a text" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
@@ -51,12 +52,12 @@ export default function Preview(props: Readonly<Props>) {
         </Select>
       </CardHeader>
 
-      {/* Use static class directly */}
+      {/* Preview container */}
       <div className={`relative w-full max-w-xs mx-auto ${previewWrapper.aspectRatio}`}>
         {selectedItem ? (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="relative w-full h-full">
-              {/* Poster scaled down - use static classes */}
+              {/* Poster image */}
               <div
                 className={`${preview.width} ${preview.height} mt-7 mx-auto ${preview.scale} relative`}
               >
@@ -69,14 +70,21 @@ export default function Preview(props: Readonly<Props>) {
                 />
               </div>
 
-              {/* Template overlay */}
-              <Image
-                src={template}
-                alt="Social post template"
-                fill
-                className="object-cover rounded-lg"
-                unoptimized
-              />
+              {/* Template overlay or fallback */}
+              {templateError ? (
+                <div className="absolute inset-0 flex items-center justify-center bg-red-500/70 text-white font-bold text-center rounded-lg">
+                  Template not found
+                </div>
+              ) : (
+                <Image
+                  src="/social-post-template.png"
+                  alt="Social post template"
+                  fill
+                  className="object-cover rounded-lg"
+                  unoptimized
+                  onError={() => setTemplateError(true)}
+                />
+              )}
             </div>
           </div>
         ) : (

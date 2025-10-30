@@ -1,5 +1,5 @@
 import { PosterType } from '@/app/api/types';
-import template from '@/public/social-post-template.png';
+import { useState } from 'react';
 import { canvasStyle, customText, posterStyle, templateStyle, textStyle } from '../configs';
 
 type Props = {
@@ -11,6 +11,7 @@ type Props = {
 
 export default function HighResPoster(props: Readonly<Props>) {
   const { text, selectedItem, getHighResImageUrl, hiddenPreviewRef } = props;
+  const [templateError, setTemplateError] = useState(false);
 
   return (
     <div
@@ -34,12 +35,30 @@ export default function HighResPoster(props: Readonly<Props>) {
           />
 
           {/* Template Overlay */}
-          <img
-            src={template.src}
-            alt="Social post template"
-            style={templateStyle}
-            crossOrigin="anonymous"
-          />
+          {templateError ? (
+            <div
+              style={{
+                ...templateStyle,
+                backgroundColor: '#f44336',
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '2rem',
+                fontWeight: 'bold'
+              }}
+            >
+              Template not found
+            </div>
+          ) : (
+            <img
+              src="/social-post-template.png"
+              alt="Social post template"
+              style={templateStyle}
+              crossOrigin="anonymous"
+              onError={() => setTemplateError(true)}
+            />
+          )}
 
           {/* Text Overlay */}
           {customText.hasCustomText && <div style={textStyle}>{text}</div>}
