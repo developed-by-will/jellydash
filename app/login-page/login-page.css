@@ -284,14 +284,10 @@ body:not(:has(#loginPage:not(.hide))) .skinHeader {
     cursor: pointer;
     background: transparent;
     border: none;
-    position: relative;
-    width: 100%;
     font-size: 20px;
-    display: flex;
-    justify-content: flex-end;
     z-index: 2;
-    bottom: 310px;
-    right: 30px;
+    width: 50px;
+    margin-bottom: -27px;
   }
 
   &::scroll-button(right) {
@@ -299,14 +295,10 @@ body:not(:has(#loginPage:not(.hide))) .skinHeader {
     cursor: pointer;
     background: transparent;
     border: none;
-    position: relative;
-    width: 100%;
     font-size: 20px;
-    display: flex;
-    justify-content: flex-end;
     z-index: 1;
-    bottom: 337px;
-    right: 0px;
+    width: 50px;
+    margin-left: 50px;
   }
 }
 
