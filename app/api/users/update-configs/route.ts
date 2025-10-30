@@ -1,10 +1,10 @@
 import {
   catchError,
-  fetchApi,
   getExcludedLibraryNames,
   getLibrariesIds,
   getLibraryIdsByName,
-  parseLibraries
+  parseLibraries,
+  requestApi
 } from '@/app/api/helpers';
 import { User } from '@/app/api/types';
 import { libraries } from '@/app/db/packages';
@@ -43,7 +43,7 @@ export async function updateUserConfigurations(request: NextRequest) {
     }
 
     // Get all users
-    const getUsersResponse = await fetchApi('/Users', request, {
+    const getUsersResponse = await requestApi('/Users', request, {
       method: 'GET',
       requiresAuth: true
     });
@@ -62,7 +62,7 @@ export async function updateUserConfigurations(request: NextRequest) {
       users.map(async (user) => {
         try {
           // Get user details to check if they're an admin
-          const userDetailsResponse = await fetchApi(`/Users/${user.Id}`, request, {
+          const userDetailsResponse = await requestApi(`/Users/${user.Id}`, request, {
             method: 'GET',
             requiresAuth: true
           });
@@ -99,7 +99,7 @@ export async function updateUserConfigurations(request: NextRequest) {
             EnableNextEpisodeAutoPlay: true
           };
 
-          const updateResponse = await fetchApi(`/Users/${user.Id}/Configuration`, request, {
+          const updateResponse = await requestApi(`/Users/${user.Id}/Configuration`, request, {
             method: 'POST',
             body: JSON.stringify(userConfiguration),
             requiresAuth: true

@@ -1,4 +1,4 @@
-import { catchError, fetchApi } from '@/app/api/helpers';
+import { catchError, requestApi } from '@/app/api/helpers';
 import { User } from '@/app/api/types';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     const endpoint = '/Users';
 
-    const getUsers = await fetchApi(endpoint, request, {
+    const getUsers = await requestApi(endpoint, request, {
       method: 'GET',
       requiresAuth: true
     });

@@ -1,4 +1,4 @@
-import { catchError, fetchApi } from '@/app/api/helpers';
+import { catchError, requestApi } from '@/app/api/helpers';
 import { CustomPreferencesBase } from '@/app/api/types';
 import { getLibraries, libraries } from '@/app/db/packages';
 import { getServerSession } from 'next-auth';
@@ -22,7 +22,7 @@ export async function updateUserDisplayPreferences(
       .filter(Boolean);
 
     // Fetch all users
-    const usersResponse = await fetchApi('/Users', request, {
+    const usersResponse = await requestApi('/Users', request, {
       method: 'GET',
       requiresAuth: true
     });
@@ -41,7 +41,7 @@ export async function updateUserDisplayPreferences(
         ...displayPreferences,
         CustomPrefs: customPrefs
       };
-      await fetchApi(`${endpoints.mobile}?userId=${user.Id}&client=emby`, request, {
+      await requestApi(`${endpoints.mobile}?userId=${user.Id}&client=emby`, request, {
         method: 'POST',
         requiresAuth: true,
         body: JSON.stringify(cleanDisplayPreferences)
@@ -49,7 +49,7 @@ export async function updateUserDisplayPreferences(
     }
 
     // Loop through each library and apply TV preferences
-    const viewsResponse = await fetchApi(`/UserViews?includeHidden=false`, request, {
+    const viewsResponse = await requestApi(`/UserViews?includeHidden=false`, request, {
       method: 'GET',
       requiresAuth: true
     });
@@ -59,7 +59,7 @@ export async function updateUserDisplayPreferences(
     const displayPrefsIds = viewsData.Items.map((lib: any) => lib.UserData?.Key).filter(Boolean);
 
     for (const libGuid of displayPrefsIds) {
-      await fetchApi(`/DisplayPreferences/${libGuid}?client=jellyfin-androidtv`, request, {
+      await requestApi(`/DisplayPreferences/${libGuid}?client=jellyfin-androidtv`, request, {
         method: 'POST',
         requiresAuth: false,
         accessToken: session?.user.JellyfinSession?.AccessToken,

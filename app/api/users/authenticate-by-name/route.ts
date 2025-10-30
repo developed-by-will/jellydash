@@ -1,6 +1,6 @@
 import { LoginPayloadType } from '@/app/(pages)/login/formValidations';
 import { AuthenticateByNameResponse } from '@/app/@types';
-import { catchError, fetchApi } from '@/app/api/helpers';
+import { catchError, requestApi } from '@/app/api/helpers';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     const { Username, Pw }: LoginPayloadType = await request.json();
     const endpoint = '/Users/AuthenticateByName';
 
-    const authResponse = await fetchApi(endpoint, request, {
+    const authResponse = await requestApi(endpoint, request, {
       method: 'POST',
       body: { Username, Pw },
       requiresAuth: false

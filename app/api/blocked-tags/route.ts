@@ -1,4 +1,4 @@
-import { catchError, fetchApi } from '@/app/api/helpers';
+import { catchError, requestApi } from '@/app/api/helpers';
 import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
@@ -48,7 +48,7 @@ async function UpdateUserTags(file: string, request: NextRequest) {
       const fileContent = fs.readFileSync(file, 'utf-8');
 
       // Get users
-      const getUsers = await fetchApi('/Users', request, {
+      const getUsers = await requestApi('/Users', request, {
         method: 'GET',
         requiresAuth: true
       });
@@ -69,7 +69,7 @@ async function UpdateUserTags(file: string, request: NextRequest) {
         }
 
         // Update user's policy
-        fetchApi(`/Users/${user.Id}/Policy`, request, {
+        requestApi(`/Users/${user.Id}/Policy`, request, {
           method: 'POST',
           requiresAuth: true,
           body: JSON.stringify(newPolicy)

@@ -1,4 +1,4 @@
-import { catchError, fetchApi } from '@/app/api/helpers';
+import { catchError, requestApi } from '@/app/api/helpers';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function DELETE(request: NextRequest) {
@@ -12,7 +12,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ message: 'User ID is required' }, { status: 400 });
     }
 
-    const res = await fetchApi(endpoint, request, {
+    const res = await requestApi(endpoint, request, {
       method: 'DELETE',
       requiresAuth: true
     });

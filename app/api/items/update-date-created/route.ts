@@ -1,4 +1,4 @@
-import { catchError, fetchApi } from '@/app/api/helpers';
+import { catchError, requestApi } from '@/app/api/helpers';
 import { JellyfinResponse } from '@/app/api/types';
 import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
@@ -61,10 +61,14 @@ export async function PATCH(request: NextRequest) {
     const processedItems = readProcessedItems(itemType);
 
     // Get all items
-    const getItems = await fetchApi(`/Items?IncludeItemTypes=${itemType}&Recursive=true`, request, {
-      method: 'GET',
-      requiresAuth: true
-    });
+    const getItems = await requestApi(
+      `/Items?IncludeItemTypes=${itemType}&Recursive=true`,
+      request,
+      {
+        method: 'GET',
+        requiresAuth: true
+      }
+    );
 
     if (!getItems.ok) {
       return NextResponse.json(
@@ -93,7 +97,7 @@ export async function PATCH(request: NextRequest) {
     for (const item of itemsToProcess) {
       try {
         // Get complete item data
-        const itemData = await fetchApi(`/Items/${item.Id}`, request, {
+        const itemData = await requestApi(`/Items/${item.Id}`, request, {
           method: 'GET',
           requiresAuth: true
         });
@@ -108,7 +112,7 @@ export async function PATCH(request: NextRequest) {
 
         // Update DateCreated if needed
         if (fullItemData.DateCreated !== fullItemData.PremiereDate) {
-          await fetchApi(`/Items/${fullItemData.Id}`, request, {
+          await requestApi(`/Items/${fullItemData.Id}`, request, {
             method: 'POST',
             body: JSON.stringify({ ...fullItemData, DateCreated: fullItemData.PremiereDate }),
             requiresAuth: true

@@ -1,4 +1,4 @@
-import { catchError, fetchApi } from '@/app/api/helpers';
+import { catchError, requestApi } from '@/app/api/helpers';
 import { RemoteImagesType } from '@/app/api/types';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const endpoint = `/Items/${itemId}/RemoteImages?type=Primary&startIndex=0&limit=30&IncludeAllLanguages=false`;
 
     // Get remote images of the content
-    const getRemoteImages = await fetchApi(endpoint, request, {
+    const getRemoteImages = await requestApi(endpoint, request, {
       method: 'GET',
       requiresAuth: true
     });

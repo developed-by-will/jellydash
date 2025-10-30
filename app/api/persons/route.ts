@@ -1,4 +1,4 @@
-import { catchError, fetchApi } from '@/app/api/helpers';
+import { catchError, requestApi } from '@/app/api/helpers';
 import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
@@ -50,7 +50,7 @@ export async function PATCH(request: NextRequest) {
     const processedPersons = forceFlag ? new Set<string>() : readProcessedPersons();
 
     // Get all persons
-    const personsResponse = await fetchApi('/Persons', request, {
+    const personsResponse = await requestApi('/Persons', request, {
       method: 'GET',
       requiresAuth: true
     });
@@ -90,7 +90,7 @@ export async function PATCH(request: NextRequest) {
     // Process persons sequentially
     for (const person of personsToProcess) {
       try {
-        const response = await fetchApi(`/Users/${userId}/Items/${person.Id}`, request, {
+        const response = await requestApi(`/Users/${userId}/Items/${person.Id}`, request, {
           method: 'GET',
           requiresAuth: true
         });

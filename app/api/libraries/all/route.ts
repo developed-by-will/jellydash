@@ -1,4 +1,4 @@
-import { catchError, fetchApi } from '@/app/api/helpers';
+import { catchError, requestApi } from '@/app/api/helpers';
 import { LibraryItem } from '@/app/api/types';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     const info = request.nextUrl.searchParams.get('info');
 
-    const getLibraries = await fetchApi('/Library/VirtualFolders', request, {
+    const getLibraries = await requestApi('/Library/VirtualFolders', request, {
       method: 'GET',
       requiresAuth: true
     });

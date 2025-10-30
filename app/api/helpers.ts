@@ -28,7 +28,7 @@ export const getHeaders = (
   };
 };
 
-export async function fetchApi(
+export async function requestApi(
   endpoint: string,
   request: NextRequest,
   config: ApiConfig & {
