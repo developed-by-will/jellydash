@@ -144,19 +144,6 @@ export function getLibraryIdsByName(libraries: Library[], names: string[]): stri
   return libraries.filter((lib) => names.some((name) => lib.name === name)).map((lib) => lib.id);
 }
 
-export function getExcludedLibraryNames(): string[] {
-  try {
-    return fs
-      .readFileSync(libraries.excluded, 'utf-8')
-      .split('\n')
-      .map((name) => name.trim())
-      .filter((name) => name !== '');
-  } catch (error) {
-    console.error('Error reading excluded libraries:', error);
-    return [];
-  }
-}
-
 export function getAdminLibrariesIds(): string[] {
   try {
     return fs

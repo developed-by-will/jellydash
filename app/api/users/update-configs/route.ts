@@ -1,11 +1,4 @@
-import {
-  catchError,
-  getExcludedLibraryNames,
-  getLibrariesIds,
-  getLibraryIdsByName,
-  parseLibraries,
-  requestApi
-} from '@/app/api/helpers';
+import { catchError, getLibrariesIds, parseLibraries, requestApi } from '@/app/api/helpers';
 import { User } from '@/app/api/types';
 import { libraries } from '@/app/db/packages';
 import { NextRequest, NextResponse } from 'next/server';
@@ -75,13 +68,6 @@ export async function updateUserConfigurations(request: NextRequest) {
           const isAdmin = userDetails.Policy.IsAdministrator === true;
 
           // Get appropriate libraries based on admin status
-          const standardLibraries = parseLibraries(libraries.standard);
-          const adminLibraries = isAdmin ? parseLibraries(libraries.admin) : [];
-          const userLibraries = [...standardLibraries, ...adminLibraries];
-
-          const excludedNames = getExcludedLibraryNames();
-          const excludeFromHome = getLibraryIdsByName(userLibraries, excludedNames);
-
           const userConfiguration = {
             PlayDefaultAudioTrack: true,
             SubtitleLanguagePreference: SubtitleLanguagePreference ?? 'eng',
@@ -91,7 +77,6 @@ export async function updateUserConfigurations(request: NextRequest) {
             DisplayCollectionsView: false,
             EnableLocalPassword: false,
             OrderedViews: getLibrariesIds(OrderedViews),
-            LatestItemsExcludes: excludeFromHome,
             MyMediaExcludes: [],
             HidePlayedInLatest: true,
             RememberAudioSelections: true,
