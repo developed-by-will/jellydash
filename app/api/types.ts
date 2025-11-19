@@ -110,6 +110,15 @@ type JellyfinItem = {
   Type: string;
   MediaSources?: JellyfinMediaSource[];
   MediaStreams?: JellyfinMediaStream[];
+  OfficialRating?: string;
+  ImageTags?: {
+    Primary: string;
+  };
+  ImageBlurHashes: {
+    Primary: {
+      [key: string]: string;
+    };
+  };
 };
 
 export type JellyfinResponse = {
