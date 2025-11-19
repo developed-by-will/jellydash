@@ -67,6 +67,10 @@ export const texts = [
   {
     text: 'Exclusivo',
     value: 'Exclusivo'
+  },
+  {
+    text: 'Prepara-te',
+    value: 'Prepara-te'
   }
 ];
 
