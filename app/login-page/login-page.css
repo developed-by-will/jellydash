@@ -47,11 +47,6 @@
 }
 
 /* Login Form Styles */
-.manualLoginForm,
-.visualLoginForm {
-  width: 100%;
-}
-
 .visualLoginForm {
   position: relative;
   overflow: hidden;
@@ -222,10 +217,6 @@ body:not(:has(#loginPage:not(.hide))) .skinHeader {
   display: block;
 }
 
-.loginDisclaimerContainer {
-  margin-top: 0 !important;
-}
-
 .latest-container {
   display: flex;
   flex-direction: column;
@@ -352,4 +343,43 @@ body:not(:has(#loginPage:not(.hide))) .skinHeader {
   .carousel-item {
     width: calc(50% - 12px);
   } /* 2 items */
+}
+
+/* Jellyfin 10.11.x fixes */
+.cardScalable .cardImageContainer {
+  z-index: 10;
+}
+
+.manualLoginForm,
+.visualLoginForm {
+  width: 100%;
+  padding-bottom: 20px;
+}
+
+.homeSectionsContainer {
+  margin-top: 140px;
+}
+
+/* Jellyfin Enhanced tweaks */
+@media (max-width: 768px) {
+  .jellyseerr-card .cardFooter {
+    font-size: 12px;
+  }
+  .jellyseerr-request-button {
+    padding: 20px 40px !important;
+  }
+  .jellyseerr-request-button svg {
+    margin-left: 0px !important;
+  }
+  .homeSectionsContainer {
+    margin-top: 75px;
+  }
+}
+
+.age-rating {
+  color: white !important;
+}
+
+.favorite-button {
+  background-color: var(--textColor);
 }
