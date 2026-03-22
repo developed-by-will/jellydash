@@ -1,8 +1,7 @@
 import { catchError, requestApi } from '@/app/api/helpers';
-import { JellyfinResponse } from '@/app/api/types';
+import { JellyfinItemsResponse } from '@/app/api/types';
 import { NextRequest, NextResponse } from 'next/server';
 
-// eslint-disable-next-line typescript/S3776
 export async function GET(request: NextRequest) {
   try {
     const itemType = request.nextUrl.searchParams.get('IncludeItemTypes');
@@ -42,7 +41,7 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      const data: JellyfinResponse = await getItems.json();
+      const data: JellyfinItemsResponse = await getItems.json();
       const allItems = data.Items;
       totalAvailable = data.TotalRecordCount || totalAvailable;
 

@@ -6,7 +6,7 @@ import useQueryHandler from '@/hooks/useQueryHandler';
 import { columns } from './data-table/columns';
 
 export default function UsersPage() {
-  const { data, isError, error, isPending, isFetching } = useQueryHandler<User>({
+  const { data, isError, error, isPending, isFetching } = useQueryHandler<User[]>({
     queryKey: 'users-all',
     endpoint: 'users/all'
   });

@@ -1,14 +1,14 @@
 import AlertError from '@/components/breeze-ui/alert-error';
 import { Input as ShadcnInput } from '@/components/ui/input';
 import { useEffect, useState } from 'react';
-import { Controller } from 'react-hook-form';
+import { Controller, Path } from 'react-hook-form';
 import { PropsType } from './props';
 
 export const InputFile = <T extends Record<string, any>>(props: PropsType<T>) => {
   const { control, form, label, name, error } = props;
   const [inputKey, setInputKey] = useState(Math.random().toString());
 
-  const formValue = form.watch(name);
+  const formValue = form.watch(name as Path<T>);
 
   useEffect(() => {
     if (!formValue) {
@@ -19,7 +19,7 @@ export const InputFile = <T extends Record<string, any>>(props: PropsType<T>) =>
   return (
     <>
       <Controller
-        name={name}
+        name={name as Path<T>}
         control={control}
         render={({ field }) => {
           return (
@@ -28,7 +28,7 @@ export const InputFile = <T extends Record<string, any>>(props: PropsType<T>) =>
               <ShadcnInput
                 id={label}
                 type="file"
-                name={name}
+                name={name as Path<T>}
                 key={inputKey}
                 className="hover:bg-accent transition-all cursor-pointer"
                 onChange={(e) => {

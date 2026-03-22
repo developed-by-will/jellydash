@@ -4,7 +4,7 @@ import { CreateUserResponseType, User } from '@/app/api/types';
 import { PackageName, PACKAGES } from '@/app/db/packages';
 import { NextRequest, NextResponse } from 'next/server';
 import { mobileDisplayPrefs } from '../../constants';
-import { updateUserDisplayPreferences } from '../update-display-prefs/route';
+import { updateUserDisplayPreferences } from '../helpers';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,7 +12,6 @@ export async function POST(request: NextRequest) {
     const { Username, Pw } = body as CreateUserPayloadType;
     const Package: PackageName = body.Package;
 
-    // Check if package exists
     if (!PACKAGES[Package]) {
       return NextResponse.json({ message: `Package does not exist` }, { status: 400 });
     }
@@ -23,14 +22,14 @@ export async function POST(request: NextRequest) {
       remove: `/Users`
     };
 
-    // Check if user already exists
+    // Check if user exists
     const getUsersResponse = await requestApi(endpoints.userList, request, {
       method: 'GET',
       requiresAuth: true
     });
     const users: User[] = await getUsersResponse.json();
 
-    if (users.some((user: User) => user.Name === Username)) {
+    if (users.some((user) => user.Name === Username)) {
       return NextResponse.json({ message: `User already exists` }, { status: 400 });
     }
 
@@ -38,41 +37,25 @@ export async function POST(request: NextRequest) {
     const createResponse = await requestApi(endpoints.create, request, {
       method: 'POST',
       requiresAuth: true,
-      body: {
-        Name: Username
-      }
+      body: { Name: Username }
     });
-
-    if (createResponse.status === 401) {
-      return NextResponse.json({ message: `Unauthorized` }, { status: 403 });
-    }
-
-    if (createResponse.status === 403) {
-      return NextResponse.json({ message: `Forbidden` }, { status: 403 });
-    }
 
     if (!createResponse.ok) {
       return NextResponse.json({ message: `Error creating user` }, { status: 400 });
     }
 
-    // Get the newly created user by name (more reliable than checking LastActivityDate)
-    const getNewUserResponse = await requestApi(endpoints.userList, request, {
-      method: 'GET',
-      requiresAuth: true
-    });
-    const updatedUsers: User[] = await getNewUserResponse.json();
-    const newUser = updatedUsers.find((user: User) => user.Name === Username);
+    const updatedUsers: User[] = await (
+      await requestApi(endpoints.userList, request, { method: 'GET', requiresAuth: true })
+    ).json();
+    const newUser = updatedUsers.find((u) => u.Name === Username);
 
     if (!newUser) {
       return NextResponse.json({ message: `Could not find newly created user` }, { status: 400 });
     }
 
-    // Update user's policies
-    const userInfo: User = {
-      ...newUser,
-      ...PACKAGES[Package]
-    };
+    const userInfo: User = { ...newUser, ...PACKAGES[Package] };
 
+    // Update policies
     const policyUpdate = await requestApi(`/Users/${newUser.Id}/Policy`, request, {
       method: 'POST',
       requiresAuth: true,
@@ -88,20 +71,19 @@ export async function POST(request: NextRequest) {
     const passwordUpdate = await requestApi(`/Users/${newUser.Id}/Password`, request, {
       method: 'POST',
       requiresAuth: true,
-      body: {
-        CurrentPw: '',
-        NewPw: newPassword
-      }
+      body: { CurrentPw: '', NewPw: newPassword }
     });
 
     if (!passwordUpdate.ok) {
       return NextResponse.json({ message: `Error setting password` }, { status: 400 });
     }
 
+    // ✅ Call the helper function directly
     const prefsUpdate = await updateUserDisplayPreferences(mobileDisplayPrefs, request);
 
     if (!prefsUpdate.ok) {
-      await requestApi(endpoints.remove + `/${newUser.Id}`, request, {
+      // Cleanup if display preferences fail
+      await requestApi(`${endpoints.remove}/${newUser.Id}`, request, {
         method: 'DELETE',
         requiresAuth: true
       });

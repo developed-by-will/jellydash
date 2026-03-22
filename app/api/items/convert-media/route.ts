@@ -1,10 +1,10 @@
-import { spawn } from 'child_process';
+import { exec, spawn } from 'child_process';
 import fs from 'fs';
 import { NextResponse } from 'next/server';
 import path from 'path';
 import { promisify } from 'util';
 
-const execAsync = promisify(require('child_process').exec);
+const execAsync = promisify(exec);
 const FFMPEG_PATH = 'C:\\Program Files\\Jellyfin\\Server\\ffmpeg.exe';
 const FFPROBE_PATH = 'C:\\Program Files\\Jellyfin\\Server\\ffprobe.exe';
 

@@ -16,17 +16,18 @@ import {
 import Image from 'next/image';
 import { useState } from 'react';
 import { customText, preview, previewWrapper, texts } from '../configs';
+import { OfficialRatingPreviewBadge } from './constants';
 
 type Props = {
   setText: (text: string) => void;
   text: string;
   selectedItem: PosterType | null;
   getHighResImageUrl: () => string;
-  handleDownload: () => void;
+  handleShare: (desc: string, overview: boolean) => void;
 };
 
 export default function Preview(props: Readonly<Props>) {
-  const { setText, text, selectedItem, getHighResImageUrl, handleDownload } = props;
+  const { setText, text, selectedItem, getHighResImageUrl, handleShare } = props;
   const [templateError, setTemplateError] = useState(false);
 
   return (
@@ -107,10 +108,25 @@ export default function Preview(props: Readonly<Props>) {
             </h1>
           </div>
         )}
+
+        {selectedItem?.OfficialRating && (
+          <div style={OfficialRatingPreviewBadge}>{selectedItem.OfficialRating}</div>
+        )}
       </div>
 
-      <Button onClick={handleDownload} disabled={!selectedItem} className="mt-4 w-full">
-        Download Image
+      <Button
+        onClick={() => handleShare(text, false)}
+        disabled={!selectedItem}
+        className="mt-4 w-full"
+      >
+        Share without Overview
+      </Button>
+      <Button
+        onClick={() => handleShare(text, true)}
+        disabled={!selectedItem}
+        className="mt-4 w-full"
+      >
+        Share with Overview
       </Button>
     </>
   );

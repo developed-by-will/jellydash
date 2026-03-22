@@ -104,6 +104,11 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) => <>{formatDate(row.getValue('LastActivityDate'))}</>
   },
   {
+    id: 'MaxParentalRating',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Max Parental Rating" />,
+    cell: ({ row }) => row.original.Policy?.MaxParentalRating ?? '—'
+  },
+  {
     id: 'status',
     meta: { justAFlag: true },
     header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,

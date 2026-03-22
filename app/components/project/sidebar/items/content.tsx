@@ -1,4 +1,5 @@
 import {
+  Baby,
   CalendarSync,
   Drama,
   ImagePlay,
@@ -21,6 +22,18 @@ export const content: NavItem = {
   icon: ImagePlay,
   canAccess: false,
   items: [
+    {
+      title: 'Parental Ratings',
+      url: baseUrl + '/parental-ratings',
+      icon: <Baby className={classes} />,
+      canAccess: true
+    },
+    {
+      title: 'Convert Playlist',
+      url: baseUrl + '/convert-playlist',
+      icon: <Baby className={classes} />,
+      canAccess: true
+    },
     {
       title: 'Sync Crew & Cast',
       url: baseUrl + '/sync-crew-and-cast',

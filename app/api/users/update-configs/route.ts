@@ -1,26 +1,30 @@
+// app/api/users/update-configs/route.ts
 import { catchError, getLibrariesIds, parseLibraries, requestApi } from '@/app/api/helpers';
 import { User } from '@/app/api/types';
 import { libraries } from '@/app/db/packages';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function updateUserConfigurations(request: NextRequest) {
+/**
+ * Internal helper function to update user configurations.
+ * Not exported to avoid TypeScript errors with route handler checks.
+ */
+async function updateUserConfigurations(request: NextRequest) {
   try {
     const body = await request.json();
     const { OrderedViews, SubtitleLanguagePreference } = body;
 
-    // Get all standard libraries from the file
+    // Get all standard libraries
     const standardLibraries = parseLibraries(libraries.standard);
 
-    // Convert standard libraries to the same format as OrderedViews ("id->name")
+    // Convert to "id->name" strings for comparison
     const standardLibraryStrings = standardLibraries.map((lib) => `${lib.id}->${lib.name}`);
 
-    // Check if all standard libraries are present in OrderedViews
+    // Find missing libraries
     const missingLibraries = standardLibraryStrings.filter(
       (libString) => !OrderedViews.includes(libString)
     );
 
     if (missingLibraries.length > 0) {
-      // Convert back to objects for the response
       const missingLibraryObjects = missingLibraries.map((libString) => {
         const [id, name] = libString.split('->');
         return { id, name };
@@ -35,7 +39,7 @@ export async function updateUserConfigurations(request: NextRequest) {
       );
     }
 
-    // Get all users
+    // Fetch all users
     const getUsersResponse = await requestApi('/Users', request, {
       method: 'GET',
       requiresAuth: true
@@ -54,20 +58,16 @@ export async function updateUserConfigurations(request: NextRequest) {
     const updateResults = await Promise.all(
       users.map(async (user) => {
         try {
-          // Get user details to check if they're an admin
           const userDetailsResponse = await requestApi(`/Users/${user.Id}`, request, {
             method: 'GET',
             requiresAuth: true
           });
 
-          if (!userDetailsResponse.ok) {
-            throw new Error('Failed to fetch user details');
-          }
+          if (!userDetailsResponse.ok) throw new Error('Failed to fetch user details');
 
           const userDetails = await userDetailsResponse.json();
           const isAdmin = userDetails.Policy.IsAdministrator === true;
 
-          // Get appropriate libraries based on admin status
           const userConfiguration = {
             PlayDefaultAudioTrack: true,
             SubtitleLanguagePreference: SubtitleLanguagePreference ?? 'eng',
@@ -108,13 +108,13 @@ export async function updateUserConfigurations(request: NextRequest) {
       })
     );
 
-    // Count successful updates
-    const successfulUpdates = updateResults.filter((result) => result.success).length;
-    const failedUpdates = updateResults.filter((result) => !result.success);
+    // Summarize results
+    const successfulUpdates = updateResults.filter((r) => r.success).length;
+    const failedUpdates = updateResults.filter((r) => !r.success);
 
     return NextResponse.json(
       {
-        message: `Configuration update completed`,
+        message: 'Configuration update completed',
         details: {
           totalUsers: users.length,
           successfulUpdates,
@@ -134,6 +134,9 @@ export async function updateUserConfigurations(request: NextRequest) {
   }
 }
 
+/**
+ * POST route handler for updating user configurations.
+ */
 export async function POST(request: NextRequest) {
   return updateUserConfigurations(request);
 }

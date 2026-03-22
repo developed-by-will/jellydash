@@ -71,6 +71,18 @@ export const texts = [
   {
     text: 'Prepara-te',
     value: 'Prepara-te'
+  },
+  {
+    text: 'Top ano passado',
+    value: 'Top ano passado'
+  },
+  {
+    text: 'Anime completa',
+    value: 'Anime completa'
+  },
+  {
+    text: 'Nomeado',
+    value: 'Nomeado'
   }
 ];
 

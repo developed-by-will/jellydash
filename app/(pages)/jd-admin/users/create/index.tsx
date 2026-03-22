@@ -8,7 +8,7 @@ import {
 import { toast } from '@/components/breeze-ui/toast/hooks/use-toast';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
-import useMutationHandler from '@/hooks/useMutationHandler';
+import { useMutationHandler } from '@/hooks/useMutationHandler';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -88,6 +88,7 @@ export default function CreateUser() {
         SubtitleLanguagePreference: 'por'
       });
     }
+    // eslint-disable-next-line
   }, [createUser.isSuccess, createUser.isError]);
 
   useEffect(() => {
@@ -110,7 +111,8 @@ export default function CreateUser() {
         ScrollDirection: 'Horizontal'
       });
     }
-  }, [updateUserConfigs.isSuccess]);
+    // eslint-disable-next-line
+  }, [updateUserConfigs]);
 
   useEffect(() => {
     if (!updateDisplayPrefs.isPending || updateDisplayPrefs.isSuccess) setIsPending(false);
@@ -123,6 +125,7 @@ export default function CreateUser() {
       });
       form.reset({ ...defaultValues });
     }
+    // eslint-disable-next-line
   }, [updateDisplayPrefs.isSuccess, updateDisplayPrefs.isPending]);
 
   useEffect(() => {
@@ -136,7 +139,7 @@ export default function CreateUser() {
       <div className="flex flex-col gap-10 p-10">
         <CardHeader className="p-0">
           <CardTitle>Create a new user</CardTitle>
-          <CardDescription>Quickly create a new user and select it's package</CardDescription>
+          <CardDescription>Quickly create a new user and select its package</CardDescription>
         </CardHeader>
 
         <Form {...form}>

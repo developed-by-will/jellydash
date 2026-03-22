@@ -27,8 +27,9 @@ export async function GET(request: NextRequest) {
               Name: user.Name,
               Id: user.Id,
               Policy: {
-                BlockedTags: user.Policy.BlockedTags,
-                IsDisabled: user.Policy.IsDisabled
+                MaxParentalRating: user.Policy.MaxParentalRating,
+                IsDisabled: user.Policy.IsDisabled,
+                EnableLiveTvAccess: user.Policy.EnableLiveTvAccess
               },
               LastActivityDate: user.LastActivityDate,
               LastLoginDate: user.LastLoginDate

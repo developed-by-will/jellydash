@@ -30,44 +30,42 @@ export default function useSocialPost() {
   const getHighResImageUrl = () =>
     `${BASE_URL}/${selectedItem?.Src}?fillHeight=1775&fillWidth=1183&quality=96`;
 
-  const handleDownload = async () => {
-    if (!hiddenPreviewRef.current || !selectedItem) return;
+  const handleCopyTitle = async (desc: string, overview: boolean) => {
+    if (!selectedItem) return;
 
     try {
-      // Ensure the component is fully rendered
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      const canvas = await html2canvas(hiddenPreviewRef.current, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: '#000000',
-        logging: false,
-        onclone: (clonedDoc) => {
-          const images = clonedDoc.querySelectorAll('img');
-          images.forEach((img) => {
-            img.crossOrigin = 'anonymous';
-          });
-        }
-      });
-
-      // Check if canvas has content
-      if (canvas.width === 0 || canvas.height === 0) {
-        console.error('Canvas is empty');
-        return;
-      }
-
-      const dataUrl = canvas.toDataURL('image/png', 1.0);
-
-      // Create and trigger download
-      const link = document.createElement('a');
-      link.href = dataUrl;
-      link.download = `${selectedItem.Name.replace(/[^a-zA-Z0-9]/g, '_')}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      await navigator.clipboard.writeText(
+        `${selectedItem.Name} [${desc}]${overview ? `\n\n${selectedItem.Overview}` : ''}`
+      );
     } catch (error) {
-      console.error('Error generating image:', error);
+      console.error('Error copying title:', error);
+    }
+  };
+
+  const handleShare = async (desc: string, overview: boolean) => {
+    if (!hiddenPreviewRef.current || !selectedItem) return;
+
+    handleCopyTitle(desc, overview);
+
+    const canvas = await html2canvas(hiddenPreviewRef.current, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#000'
+    });
+
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
+
+    if (!blob) return;
+
+    const file = new File([blob], `${selectedItem.Name}.png`, {
+      type: 'image/png'
+    });
+
+    if (navigator.share && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: selectedItem.Name
+      });
     }
   };
 
@@ -77,6 +75,7 @@ export default function useSocialPost() {
     hiddenPreviewRef,
     handleItemClick,
     getHighResImageUrl,
-    handleDownload
+    handleCopyTitle,
+    handleShare
   };
 }

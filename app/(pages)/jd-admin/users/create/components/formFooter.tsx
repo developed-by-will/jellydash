@@ -41,7 +41,7 @@ export default function FormFooter(props: Readonly<Props>) {
       {isError && <Badge variant="destructive">{errorMessage}</Badge>}
 
       <div className="text-center text-sm">
-        If you don't provide a password, the user will be created with a random one.
+        If you don&apos;t provide a password, the user will be created with a random one.
       </div>
 
       {isSuccess && Pw && passwordButton && !isPending && (

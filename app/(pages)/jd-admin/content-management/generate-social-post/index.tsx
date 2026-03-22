@@ -13,7 +13,7 @@ import FormFields from './components/formFields';
 import { formValidationRules, SearchItemPayloadType } from './formValidations';
 
 import HighResPoster from './components/highResPoster';
-import Items from './components/items';
+import Items from './components/Items';
 import Preview from './components/preview';
 import { texts } from './configs';
 import useSocialPost from './hooks/useSocialPosts';
@@ -24,7 +24,7 @@ export default function GenerateSocialPost() {
   const [lastSearchedTerm, setLastSearchedTerm] = useState('');
   const [text, setText] = useState(texts.find((item) => item.default)?.value ?? '');
 
-  const { selectedItem, hiddenPreviewRef, handleItemClick, getHighResImageUrl, handleDownload } =
+  const { selectedItem, hiddenPreviewRef, handleItemClick, getHighResImageUrl, handleShare } =
     useSocialPost();
 
   const form = useForm<SearchItemPayloadType>({
@@ -36,7 +36,7 @@ export default function GenerateSocialPost() {
   const { control, handleSubmit, watch } = form;
   const currentSearchTerm = watch('searchTerm');
 
-  const { data, isFetching } = useQueryHandler<PosterType>({
+  const { data, isFetching } = useQueryHandler<PosterType[]>({
     queryKey: ['search-item', searchQuery],
     endpoint: `items/search?userId=${session?.user.JellyfinSession?.User.Id}&searchTerm=${searchQuery}`,
     enabled: !!searchQuery
@@ -58,7 +58,7 @@ export default function GenerateSocialPost() {
           setText={setText}
           selectedItem={selectedItem}
           getHighResImageUrl={getHighResImageUrl}
-          handleDownload={handleDownload}
+          handleShare={handleShare}
         />
       </Card>
 

@@ -1,5 +1,5 @@
 import { catchError, requestApi } from '@/app/api/helpers';
-import { JellyfinResponse } from '@/app/api/types';
+import { JellyfinItemsResponse } from '@/app/api/types';
 import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
@@ -44,7 +44,6 @@ function writeProcessedItem(itemType: string, itemId: string) {
   }
 }
 
-// eslint-disable-next-line typescript/S3776
 export async function PATCH(request: NextRequest) {
   try {
     const itemType = request.nextUrl.searchParams.get('IncludeItemTypes');
@@ -79,7 +78,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const data: JellyfinResponse = await getItems.json();
+    const data: JellyfinItemsResponse = await getItems.json();
     const allItems = data.Items;
     const totalItems = allItems.length;
 

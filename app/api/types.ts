@@ -28,6 +28,7 @@ export type User = {
   Policy: {
     IsAdministrator: boolean;
     IsHidden: boolean;
+    MaxParentalRating: number;
     EnableCollectionManagement: boolean;
     EnableSubtitleManagement: boolean;
     EnableLyricManagement: boolean;
@@ -102,26 +103,26 @@ export type JellyfinMediaSource = {
   Path: string;
 };
 
-type JellyfinItem = {
+export type JellyfinItem = {
   Name: string;
   Id: string;
-  ServerId: string;
-  PremiereDate: string;
-  Type: string;
+  PremiereDate?: string;
+  Type?: string;
   MediaSources?: JellyfinMediaSource[];
   MediaStreams?: JellyfinMediaStream[];
   OfficialRating?: string;
+  DateCreated?: string;
   ImageTags?: {
     Primary: string;
   };
-  ImageBlurHashes: {
+  ImageBlurHashes?: {
     Primary: {
       [key: string]: string;
     };
   };
 };
 
-export type JellyfinResponse = {
+export type JellyfinItemsResponse = {
   Items: JellyfinItem[];
   TotalRecordCount: number;
   StartIndex?: number;
@@ -225,6 +226,8 @@ export type RemoteImagesType = {
 export type SearchItemType = {
   Id: string;
   Name: string;
+  OfficialRating: string;
+  Overview?: string;
   ImageTags: {
     Primary: string;
   };
@@ -251,3 +254,196 @@ type ConversionState = {
 };
 
 export const runningConversions = new Map<string, ConversionState>();
+
+export type VirtualFolderType = {
+  Name: string;
+  Locations: string[];
+  ItemId: string;
+  LibraryOptions: {
+    Enabled: boolean;
+    TypeOptions: {
+      Type: 'Series' | 'Movie';
+    }[];
+  };
+};
+
+export type M3UResponseType = {
+  Id: string;
+  Url: string;
+  Type: string;
+  ImportFavoritesOnly: boolean;
+  AllowHWTranscoding: boolean;
+  AllowFmp4TranscodingContainer: boolean;
+  AllowStreamSharing: boolean;
+  FallbackMaxStreamingBitrate: number;
+  EnableStreamLooping: boolean;
+  TunerCount: number;
+  IgnoreDts: boolean;
+  ReadAtNativeFramerate: boolean;
+};
+
+export type M3UListReponseType = {
+  Items: [
+    {
+      Name: string;
+      ServerId: string;
+      Id: string;
+      ChannelId: null;
+      Number: string;
+      ChannelNumber: string;
+      IsFolder: boolean;
+      Type: string;
+      UserData: {
+        PlaybackPositionTicks: number;
+        PlayCount: number;
+        IsFavorite: boolean;
+        Played: boolean;
+        Key: string;
+        ItemId: string;
+      };
+      ImageTags: {
+        Primary: string;
+      };
+      BackdropImageTags: [];
+      ImageBlurHashes: object;
+      LocationType: string;
+      MediaType: string;
+      ChannelType: string;
+    }
+  ];
+};
+
+export type ChannelPayloadType = {
+  Id: string;
+  Name: string;
+  OriginalTitle: string;
+  ForcedSortName: string;
+  CommunityRating: string;
+  CriticRating: string;
+  IndexNumber: number | null;
+  AirsBeforeSeasonNumber: string;
+  AirsAfterSeasonNumber: string;
+  AirsBeforeEpisodeNumber: string;
+  ParentIndexNumber: number | null;
+  DisplayOrder: string;
+  Album: string;
+  AlbumArtists: string[];
+  ArtistItems: unknown[];
+  Overview: string;
+  Status: string;
+  AirDays: string[];
+  AirTime: string;
+  Genres: string[];
+  Tags: string[];
+  Studios: string[];
+  PremiereDate: string | null;
+  DateCreated: string;
+  EndDate: string | null;
+  ProductionYear: string;
+  Height: string;
+  AspectRatio: string;
+  Video3DFormat: string;
+  OfficialRating: string;
+  CustomRating: string;
+  People: unknown[];
+  LockData: boolean;
+  LockedFields: string[];
+  ProviderIds: {
+    ExternalServiceId: string;
+    [key: string]: string;
+  };
+  PreferredMetadataLanguage: string;
+  PreferredMetadataCountryCode: string;
+  Taglines: string[];
+};
+
+export type ChannelResponseType = {
+  Id: string;
+  Name: string;
+  ServerId: string;
+  Etag: string;
+  DateCreated: string;
+  CanDelete: boolean;
+  CanDownload: boolean;
+  PreferredMetadataLanguage: string;
+  PreferredMetadataCountryCode: string;
+  SortName: string;
+  ForcedSortName: string;
+  ExternalUrls: unknown[];
+  MediaSources: {
+    Protocol: string;
+    Id: string;
+    Type: string;
+    Name: string;
+    IsRemote: boolean;
+    ReadAtNativeFramerate: boolean;
+    IgnoreDts: boolean;
+    IgnoreIndex: boolean;
+    GenPtsInput: boolean;
+    SupportsTranscoding: boolean;
+    SupportsDirectStream: boolean;
+    SupportsDirectPlay: boolean;
+    IsInfiniteStream: boolean;
+    UseMostCompatibleTranscodingProfile: boolean;
+    RequiresOpening: boolean;
+    RequiresClosing: boolean;
+    RequiresLooping: boolean;
+    SupportsProbing: boolean;
+    MediaStreams: unknown[];
+    MediaAttachments: unknown[];
+    Formats: unknown[];
+    RequiredHttpHeaders: Record<string, string>;
+    TranscodingSubProtocol: string;
+    HasSegments: boolean;
+  }[];
+  EnableMediaSourceDisplay: boolean;
+  CustomRating: string;
+  ChannelId: string | null;
+  Overview: string;
+  Taglines: string[];
+  Genres: string[];
+  PlayAccess: string;
+  Number: string;
+  ChannelNumber: string;
+  RemoteTrailers: unknown[];
+  ProviderIds: {
+    ExternalServiceId: string;
+    [key: string]: string;
+  };
+  IsFolder: boolean;
+  ParentId: string;
+  Type: string;
+  People: unknown[];
+  Studios: unknown[];
+  GenreItems: unknown[];
+  LocalTrailerCount: number;
+  UserData: {
+    PlaybackPositionTicks: number;
+    PlayCount: number;
+    IsFavorite: boolean;
+    Played: boolean;
+    Key: string;
+    ItemId: string;
+  };
+  SpecialFeatureCount: number;
+  DisplayPreferencesId: string;
+  Tags: string[];
+  PrimaryImageAspectRatio: number;
+  MediaStreams: unknown[];
+  ImageTags: {
+    Primary: string;
+    [key: string]: string;
+  };
+  BackdropImageTags: string[];
+  ImageBlurHashes: Record<string, string>;
+  LocationType: string;
+  MediaType: string;
+  LockedFields: string[];
+  LockData: boolean;
+  ChannelType: string;
+};
+
+export type M3UList = {
+  Id: string;
+  AssignedUsername: string;
+};

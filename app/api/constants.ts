@@ -73,33 +73,10 @@ export const tvDisplayPrefs: CustomPreferencesAndroidTV = {
   Client: 'jellyfin-androidtv'
 };
 
-export const MPARatings = [
-  {
-    label: 'All Ages',
-    value: 'P'
-  },
-  {
-    label: 'M/3',
-    value: 'M/3'
-  },
-  {
-    label: 'M/6',
-    value: 'M/6'
-  },
-  {
-    label: 'M/12',
-    value: 'M/12'
-  },
-  {
-    label: 'M/14',
-    value: 'M/14'
-  },
-  {
-    label: 'M/16',
-    value: 'M/16'
-  },
-  {
-    label: 'M/18',
-    value: 'M/18'
-  }
+export const Ratings = [
+  { label: 'Todos', value: 'M/3' },
+  { label: 'M/12', value: 'M/12' },
+  { label: 'M/14', value: 'M/14' },
+  { label: 'M/16', value: 'M/16' },
+  { label: 'M/18', value: 'M/18' }
 ];

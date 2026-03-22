@@ -11,7 +11,7 @@ export const formValidationRules = z.object({
     .min(8, { message: 'At least 8 characters' })
 });
 
-const LoginResponse = z.object({ AccessToken: z.string() });
-
 export type LoginPayloadType = z.infer<typeof formValidationRules>;
-export type LoginResponseType = z.infer<typeof LoginResponse>;
+export type LoginResponseType = {
+  AccessToken: string;
+};

@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get movie posters
-    const moviesEndpoint = `/Items?userId=${userId}&limit=100&recursive=true&searchTerm=${searchTerm}&fields=PrimaryImageAspectRatio,CanDelete,MediaSourceCount&includeItemTypes=Movie&imageTypeLimit=1&enableTotalRecordCount=false`;
+    const moviesEndpoint = `/Items?userId=${userId}&limit=100&recursive=true&searchTerm=${searchTerm}&fields=PrimaryImageAspectRatio,CanDelete,MediaSourceCount,Overview&includeItemTypes=Movie&imageTypeLimit=1&enableTotalRecordCount=false`;
 
     const getMoviePosters = await requestApi(moviesEndpoint, request, {
       method: 'GET',
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     const posters: SearchItemsType = await getMoviePosters.json();
 
     // Get show posters
-    const showsEndpoint = `/Items?userId=${userId}&limit=100&recursive=true&searchTerm=${searchTerm}&fields=PrimaryImageAspectRatio,CanDelete,MediaSourceCount&includeItemTypes=Series&imageTypeLimit=1&enableTotalRecordCount=false`;
+    const showsEndpoint = `/Items?userId=${userId}&limit=100&recursive=true&searchTerm=${searchTerm}&fields=PrimaryImageAspectRatio,CanDelete,MediaSourceCount,Overview&includeItemTypes=Series&imageTypeLimit=1&enableTotalRecordCount=false`;
 
     const getShowsPosters = await requestApi(showsEndpoint, request, {
       method: 'GET',
@@ -45,7 +45,9 @@ export async function GET(request: NextRequest) {
         Name: item.Name,
         Poster: posterId ?? null,
         BlurHash: posterId ? (item.ImageBlurHashes?.Primary?.[posterId] ?? null) : null,
-        Src: posterId ? `Items/${item.Id}/Images/Primary` : null
+        Src: posterId ? `Items/${item.Id}/Images/Primary` : null,
+        OfficialRating: item.OfficialRating,
+        Overview: item.Overview
       };
     });
 

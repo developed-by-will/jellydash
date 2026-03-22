@@ -1,6 +1,10 @@
+'use client';
+
 import { PosterType } from '@/app/api/types';
+import Image from 'next/image';
 import { useState } from 'react';
 import { canvasStyle, customText, posterStyle, templateStyle, textStyle } from '../configs';
+import { OfficialRatingHighResBadge } from './constants';
 
 type Props = {
   text: string;
@@ -9,9 +13,15 @@ type Props = {
   hiddenPreviewRef: React.RefObject<HTMLDivElement>;
 };
 
-export default function HighResPoster(props: Readonly<Props>) {
-  const { text, selectedItem, getHighResImageUrl, hiddenPreviewRef } = props;
+export default function HighResPoster({
+  text,
+  selectedItem,
+  getHighResImageUrl,
+  hiddenPreviewRef
+}: Readonly<Props>) {
   const [templateError, setTemplateError] = useState(false);
+
+  if (!selectedItem) return null;
 
   return (
     <div
@@ -20,50 +30,59 @@ export default function HighResPoster(props: Readonly<Props>) {
         position: 'absolute',
         top: '-9999px',
         left: '-9999px',
-        width: '1440px',
-        height: '2160px'
+        width: 1440,
+        height: 2160
       }}
     >
-      {selectedItem && (
-        <div style={canvasStyle}>
-          {/* Poster Image */}
-          <img
-            src={getHighResImageUrl()}
-            alt={selectedItem.Name}
-            style={posterStyle}
+      <div style={canvasStyle}>
+        {/* Poster Image */}
+        <Image
+          src={getHighResImageUrl()}
+          alt={selectedItem.Name}
+          width={1440}
+          height={2160}
+          unoptimized
+          crossOrigin="anonymous"
+          style={posterStyle}
+          priority
+        />
+
+        {/* Template Overlay */}
+        {!templateError ? (
+          <Image
+            src="/social-post-template.png"
+            alt="Social post template"
+            width={1440}
+            height={2160}
+            unoptimized
             crossOrigin="anonymous"
+            style={templateStyle}
+            onError={() => setTemplateError(true)}
           />
+        ) : (
+          <div
+            style={{
+              ...templateStyle,
+              backgroundColor: '#f44336',
+              color: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '2rem',
+              fontWeight: 'bold'
+            }}
+          >
+            Template not found
+          </div>
+        )}
 
-          {/* Template Overlay */}
-          {templateError ? (
-            <div
-              style={{
-                ...templateStyle,
-                backgroundColor: '#f44336',
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '2rem',
-                fontWeight: 'bold'
-              }}
-            >
-              Template not found
-            </div>
-          ) : (
-            <img
-              src="/social-post-template.png"
-              alt="Social post template"
-              style={templateStyle}
-              crossOrigin="anonymous"
-              onError={() => setTemplateError(true)}
-            />
-          )}
+        {/* Text Overlay */}
+        {customText.hasCustomText && <div style={textStyle}>{text}</div>}
 
-          {/* Text Overlay */}
-          {customText.hasCustomText && <div style={textStyle}>{text}</div>}
-        </div>
-      )}
+        {selectedItem.OfficialRating && (
+          <div style={OfficialRatingHighResBadge}>{selectedItem.OfficialRating}</div>
+        )}
+      </div>
     </div>
   );
 }

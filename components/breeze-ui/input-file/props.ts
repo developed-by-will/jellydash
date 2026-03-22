@@ -1,7 +1,9 @@
-import { UseFormReturn } from 'react-hook-form';
-import { BasePropsType } from '../BasePropsType';
+import { Control, Path, UseFormReturn } from 'react-hook-form';
 
-export type PropsType<T extends Record<string, any>> = BasePropsType<T> & {
+export type PropsType<T extends Record<string, any>> = {
   label: string;
+  name: Path<T>;
+  control: Control<T>;
   form: UseFormReturn<T>;
+  error?: string;
 };

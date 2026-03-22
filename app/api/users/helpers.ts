@@ -1,16 +1,17 @@
-// app/api/users/update-display-prefs/route.ts
+// app/api/users/helpers.ts
 import { catchError, requestApi } from '@/app/api/helpers';
 import { CustomPreferencesBase } from '@/app/api/types';
 import { getLibraries, libraries } from '@/app/db/packages';
 import { getServerSession } from 'next-auth';
-import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '../../auth/authoptions';
-import { tvDisplayPrefs } from '../../constants';
+import { NextRequest } from 'next/server';
+import { authOptions } from '../auth/authoptions';
+import { tvDisplayPrefs } from '../constants';
 
 /**
- * Internal helper — DO NOT export
+ * Updates display preferences for all users.
+ * Can be used in API routes or internal logic.
  */
-async function updateUserDisplayPreferences(
+export async function updateUserDisplayPreferences(
   displayPreferences: CustomPreferencesBase,
   request: NextRequest
 ) {
@@ -22,16 +23,19 @@ async function updateUserDisplayPreferences(
       tv: '/DisplayPreferences'
     };
 
+    // Get standard libraries
     const libraryIds = getLibraries(libraries.standard)
       .map((id) => id.trim())
       .filter(Boolean);
 
+    // Fetch all users
     const usersResponse = await requestApi('/Users', request, {
       method: 'GET',
       requiresAuth: true
     });
     const users = await usersResponse.json();
 
+    // Apply mobile preferences for each user
     for (const user of users) {
       const customPrefs: Record<string, any> = { ...displayPreferences.CustomPrefs };
       for (const libId of libraryIds) {
@@ -46,6 +50,7 @@ async function updateUserDisplayPreferences(
       });
     }
 
+    // Apply TV preferences for each library
     const viewsResponse = await requestApi(`/UserViews?includeHidden=false`, request, {
       method: 'GET',
       requiresAuth: true
@@ -66,25 +71,5 @@ async function updateUserDisplayPreferences(
     return { ok: true, message: 'Preferences updated for all users' };
   } catch (error) {
     return catchError(error);
-  }
-}
-
-/**
- * POST route handler
- */
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { displayPreferences } = body;
-
-    const response = await updateUserDisplayPreferences(displayPreferences, request);
-
-    return NextResponse.json(response, { status: 200 });
-  } catch (error: any) {
-    console.error('Error updating display preferences:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to update display preferences' },
-      { status: 500 }
-    );
   }
 }

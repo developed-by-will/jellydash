@@ -11,9 +11,7 @@ type UseQueryHandlerProps = {
 
 type Headers = Record<string, string>;
 
-export default function useQueryHandler<T>(
-  props: UseQueryHandlerProps
-): UseQueryResult<T[], Error> {
+export default function useQueryHandler<T>(props: UseQueryHandlerProps): UseQueryResult<T, Error> {
   const {
     queryKey,
     endpoint,
@@ -25,7 +23,7 @@ export default function useQueryHandler<T>(
   const { data: session } = useSession();
   const queryClient = useQueryClient();
 
-  return useQuery<T[]>({
+  return useQuery<T>({
     queryKey: Array.isArray(queryKey) ? queryKey : [queryKey],
     queryFn: async () => {
       const headers: Headers = {};

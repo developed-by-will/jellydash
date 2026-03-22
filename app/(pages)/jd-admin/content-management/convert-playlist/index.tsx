@@ -16,7 +16,7 @@ export default function GenerateSocialPost() {
   const form = useForm<z.infer<typeof formValidationRules>>({
     resolver: zodResolver(formValidationRules),
     mode: 'onSubmit',
-    defaultValues: { picture: undefined }
+    defaultValues: { playlist: undefined }
   });
 
   const { control, handleSubmit, reset } = form;
@@ -27,19 +27,32 @@ export default function GenerateSocialPost() {
     try {
       const formData = new FormData();
 
-      if (data.picture[0]) {
-        formData.append('picture', data.picture[0]);
-      } else {
+      if (!data.playlist?.[0]) {
         throw new Error('No file selected');
       }
 
-      const res = await fetch('/api/set-social-post-template', {
+      formData.append('playlist', data.playlist[0]);
+
+      const res = await fetch('/api/convert-playlist', {
         method: 'POST',
         body: formData
       });
 
-      const result = await res.json();
-      console.log(result);
+      if (!res.ok) {
+        throw new Error('Failed to generate playlist');
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'playlist.xml';
+      document.body.appendChild(a);
+      a.click();
+
+      a.remove();
+      window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error(err);
     } finally {
@@ -60,13 +73,13 @@ export default function GenerateSocialPost() {
             >
               <InputFile
                 control={control}
-                name="picture"
-                label="Picture"
+                name="playlist"
+                label="Symfonium Playlist"
                 form={form}
-                error={form.formState.errors.picture?.message as string | undefined}
+                error={form.formState.errors.playlist?.message as string | undefined}
               />
               <Button type="submit" disabled={isUploading} className="mt-6">
-                {isUploading ? 'Uploading...' : 'Upload'}
+                {isUploading ? 'Converting...' : 'Convert'}
               </Button>
             </form>
           </Form>

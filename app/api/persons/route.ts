@@ -75,7 +75,7 @@ export async function PATCH(request: NextRequest) {
     } else {
       personsToProcess = allPersons
         .filter(
-          (person: { ImageTags: {}; Id: string }) =>
+          (person: { ImageTags: object; Id: string }) =>
             (!person.ImageTags || Object.keys(person.ImageTags).length === 0) &&
             !processedPersons.has(person.Id)
         )
