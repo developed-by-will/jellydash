@@ -29,7 +29,8 @@ export async function GET(request: NextRequest) {
               Policy: {
                 MaxParentalRating: user.Policy.MaxParentalRating,
                 IsDisabled: user.Policy.IsDisabled,
-                EnableLiveTvAccess: user.Policy.EnableLiveTvAccess
+                EnableLiveTvAccess: user.Policy.EnableLiveTvAccess,
+                IsAdministrator: user.Policy.IsAdministrator
               },
               LastActivityDate: user.LastActivityDate,
               LastLoginDate: user.LastLoginDate

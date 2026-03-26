@@ -1,16 +1,23 @@
 'use client';
 
 import { User } from '@/app/api/types';
+import { bgSuccess } from '@/app/constants';
 import { AUTENTICATED_POST, DELETE } from '@/app/utils/requestHandler';
 import { DataTableColumnHeader } from '@/components/breeze-ui/data-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { useQueryClient } from '@tanstack/react-query';
@@ -20,12 +27,11 @@ import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { formatDate } from './helpers';
 
-const success = 'bg-emerald-600 hover:bg-emerald-700 text-sm';
-
 function ActionsCell(user: Readonly<User>) {
   const { data: session } = useSession();
   const token = session?.user.JellyfinSession?.AccessToken ?? '';
   const [isLoading, setIsLoading] = useState(false);
+  const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const handleStatusToggle = async () => {
@@ -50,43 +56,84 @@ function ActionsCell(user: Readonly<User>) {
     setIsLoading(false);
   };
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  <Dialog open={open} onOpenChange={setOpen}>
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Are you absolutely sure?</DialogTitle>
+        <DialogDescription>
+          This action cannot be undone. This will permanently delete your account and remove your
+          data from our servers.
+        </DialogDescription>
+      </DialogHeader>
+    </DialogContent>
+  </Dialog>;
+
   return (
-    <DropdownMenu modal={false}>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0" disabled={isLoading}>
-          <span className="sr-only">Open menu</span>
-          {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <MoreHorizontal className="h-4 w-4" />
-          )}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuItem
-          onClick={() => navigator.clipboard.writeText(user.Id)}
-          className="cursor-pointer"
-        >
-          Copy ID
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={handleStatusToggle}
-          disabled={isLoading}
-          className="cursor-pointer"
-        >
-          {user.Policy.IsDisabled ? 'Enable User' : 'Disable User'}
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={handleUserRemove}
-          disabled={isLoading}
-          className="cursor-pointer"
-        >
-          Remove User
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0" disabled={isLoading}>
+            <span className="sr-only">Open menu</span>
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <MoreHorizontal className="h-4 w-4" />
+            )}
+          </Button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent align="end" className="flex gap-2 flex-col">
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
+          <DropdownMenuItem onClick={() => copyToClipboard(user.Id)} className={'cursor-pointer'}>
+            Copy ID
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            onClick={handleStatusToggle}
+            disabled={isLoading || user.Policy.IsAdministrator}
+            className={'cursor-pointer'}
+          >
+            {user.Policy.IsDisabled ? 'Enable User' : 'Disable User'}
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+              setOpen(true);
+            }}
+            disabled={isLoading || user.Policy.IsAdministrator}
+            className={'cursor-pointer'}
+          >
+            Remove User
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete this user.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleUserRemove} disabled={isLoading}>
+              {isLoading ? <Loader2 className="animate-spin" /> : 'Delete'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
@@ -120,7 +167,7 @@ export const columns: ColumnDef<User>[] = [
           Disabled
         </Badge>
       ) : (
-        <Badge variant="default" className={success}>
+        <Badge variant="default" className={bgSuccess}>
           Active
         </Badge>
       );
