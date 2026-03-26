@@ -4,6 +4,7 @@ import {
   Drama,
   ImagePlay,
   LayoutTemplate,
+  ListMusic,
   MessageCircleReply,
   MessageSquareShare,
   MonitorPlay,
@@ -31,7 +32,7 @@ export const content: NavItem = {
     {
       title: 'Convert Playlist',
       url: baseUrl + '/convert-playlist',
-      icon: <Baby className={classes} />,
+      icon: <ListMusic className={classes} />,
       canAccess: true
     },
     {

@@ -41,9 +41,12 @@ const renderIcon = (icon: any) => {
 };
 
 // Helper component for conditional links
-const ConditionalLink = ({ item, isSubItem = false }: { item: any; isSubItem?: boolean }) => {
+const ConditionalLink = ({ item, isSubItem = false }: any) => {
   const canAccess = item.canAccess !== false;
-  const className = `flex gap-2 items-center w-full ${isSubItem ? 'px-2 py-1' : ''} ${!canAccess ? 'opacity-50 cursor-not-allowed' : ''}`;
+  const className = `flex gap-2 items-center w-full ${isSubItem ? 'px-2 py-1' : ''} ${
+    !canAccess ? 'opacity-50 cursor-not-allowed' : ''
+  }`;
+  const { isMobile, setOpenMobile } = useSidebar();
 
   if (!canAccess) {
     return (
@@ -56,7 +59,19 @@ const ConditionalLink = ({ item, isSubItem = false }: { item: any; isSubItem?: b
   }
 
   return (
-    <Link href={`/jd-admin/${item.url}`} className={className}>
+    <Link
+      href={`/jd-admin/${item.url}`}
+      className={className}
+      onClick={() => {
+        if (isMobile) {
+          setOpenMobile(false);
+
+          setTimeout(() => {
+            document.body.style.pointerEvents = '';
+          }, 600);
+        }
+      }}
+    >
       {renderIcon(item.icon)}
       <span>{item.title}</span>
     </Link>
