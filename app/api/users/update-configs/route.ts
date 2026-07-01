@@ -16,24 +16,22 @@ async function updateUserConfigurations(request: NextRequest) {
     // Get all standard libraries
     const standardLibraries = parseLibraries(libraries.standard);
 
-    // Convert to "id->name" strings for comparison
-    const standardLibraryStrings = standardLibraries.map((lib) => `${lib.id}->${lib.name}`);
-
-    // Find missing libraries
-    const missingLibraries = standardLibraryStrings.filter(
-      (libString) => !OrderedViews.includes(libString)
+    // Extract IDs from OrderedViews (supports both "id->name" and plain IDs)
+    const orderedViewIds = OrderedViews.map((view: string) =>
+      view.includes('->') ? view.split('->')[0] : view
     );
 
-    if (missingLibraries.length > 0) {
-      const missingLibraryObjects = missingLibraries.map((libString) => {
-        const [id, name] = libString.split('->');
-        return { id, name };
-      });
+    // Find missing libraries using only IDs
+    const missingLibraries = standardLibraries.filter((lib) => !orderedViewIds.includes(lib.id));
 
+    if (missingLibraries.length > 0) {
       return NextResponse.json(
         {
           message: 'Some libraries are missing',
-          missingLibraries: missingLibraryObjects.map((lib) => lib.name)
+          missingLibraries: missingLibraries.map((lib) => ({
+            id: lib.id,
+            name: lib.name
+          }))
         },
         { status: 400 }
       );
@@ -63,7 +61,9 @@ async function updateUserConfigurations(request: NextRequest) {
             requiresAuth: true
           });
 
-          if (!userDetailsResponse.ok) throw new Error('Failed to fetch user details');
+          if (!userDetailsResponse.ok) {
+            throw new Error('Failed to fetch user details');
+          }
 
           const userDetails = await userDetailsResponse.json();
           const isAdmin = userDetails.Policy.IsAdministrator === true;

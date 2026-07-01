@@ -7,7 +7,7 @@ export const previewWrapper = {
 export const preview = {
   width: 'w-[92%]',
   height: 'h-[92%]',
-  scale: 'scale-90'
+  scale: 'scale-91'
 };
 
 type CustomTextType = {
@@ -26,7 +26,7 @@ export const customText: CustomTextType = {
   hasCustomText: true,
   fontSize: '16px',
   position: {
-    mt: 'mt-[11.5%]',
+    mt: 'mt-[6%]',
     ms: 'ms-[0%]',
     me: 'me-[0%]'
   },
@@ -96,10 +96,10 @@ export const canvasStyle = {
 export const posterStyle = {
   position: 'absolute' as const,
   left: '50%',
-  top: '51.5%',
+  top: '50%',
   transform: 'translate(-50%, -50%)',
   width: '1183px',
-  height: '1775px',
+  height: '1900px',
   objectFit: 'cover' as const
 };
 
@@ -113,8 +113,8 @@ export const templateStyle = {
 
 export const textStyle = {
   position: 'absolute' as const,
-  top: '7.7%',
-  left: '-1%',
+  top: '4%',
+  left: '0%',
   width: '100%',
   color: 'white',
   fontSize: '70px',

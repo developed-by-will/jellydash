@@ -114,19 +114,19 @@ export default function Preview(props: Readonly<Props>) {
         )}
       </div>
 
-      <Button
+      {/* <Button
         onClick={() => handleShare(text, false)}
         disabled={!selectedItem}
         className="mt-4 w-full"
       >
         Share without Overview
-      </Button>
+      </Button> */}
       <Button
         onClick={() => handleShare(text, true)}
         disabled={!selectedItem}
         className="mt-4 w-full"
       >
-        Share with Overview
+        Share
       </Button>
     </>
   );

@@ -226,6 +226,7 @@ export type RemoteImagesType = {
 export type SearchItemType = {
   Id: string;
   Name: string;
+  OriginalTitle: string;
   OfficialRating: string;
   Overview?: string;
   ImageTags: {

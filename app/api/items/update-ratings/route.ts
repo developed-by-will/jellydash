@@ -1,6 +1,6 @@
 import { catchError, requestApi } from '@/app/api/helpers';
+import { JellyfinItem } from '@/app/api/types';
 import { NextRequest, NextResponse } from 'next/server';
-import { JellyfinItem } from '../../types';
 
 type RatingUpdate = {
   ItemId: string;

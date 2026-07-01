@@ -61,28 +61,14 @@ export default function CreateUser() {
     if (createUser.isSuccess) {
       updateUserConfigs.mutate({
         OrderedViews: [
-          '23055d604501c80c14c4039a7be70681->Destaques',
           'af92f2d68eea947c7f9df41836afb987->Filmes',
           'd565273fd114d77bdf349a2896867069->Séries',
-          '1018a0db3df0561dc2e48ba8dbfbafb9->Séries PT',
           '3f1cdfa851070dc04e40b43ec5927636->Animação',
+          '1018a0db3df0561dc2e48ba8dbfbafb9->Séres PT',
           'a3c1924c44cd056b3dbb7f61d0c57db9->Documentários',
-          '565359d57d7119229df3b615bd177ba2->Animação Adulta',
           'ca0de50d2c11073f53df7c82dc3fe2a4->Animes',
-          '6853e7ebc0e86f0ff3ecbbfa33afae5b->Ação e Aventura',
-          '75f08b7187c9bd46db075cb4ca8b53cf->Comédia',
-          '41bb2f6972b4bba3c88dbdee508e1ce0->Crime',
-          '907db89c0f1154dd7be54e924be3b123->Drama',
-          'c7e03f936c79e44852c6d4feee9fd1e8->Família',
-          '1de99dfa495bb752dbd1a2652769177c->Fantasia',
-          'c2c1004a870c68ed2094095ba829122f->Ficção Científica',
-          '584cdd118eceee4fa94237ecf0df282a->Horror e Terror',
-          'ac832d81c9b55382be5f58bb06131636->Mistério e Thriller',
-          '4d97b71b4da03b37ee3dc8fee0d7782d->Musicais',
-          '252844775c6daf18b3278b50ef25e344->Romance',
-          '9bec90d4afd070984ee68c273324e9a1->Sobrenatural',
-          '2b68116379a3285ff75282f3924d8e11->Super-Heróis',
-          '7e64e319657a9516ec78490da03edccb->Music',
+          'cb7c5f4cc4fdd65994af1a681dfffcd3->Séries Documentários',
+          '7e64e319657a9516ec78490da03edccb->Vir7uaLMusic',
           'a4a7d3c943f3cdc73001448f67aa3235->TixaMusic'
         ],
         SubtitleLanguagePreference: 'por'
@@ -111,8 +97,8 @@ export default function CreateUser() {
         ScrollDirection: 'Horizontal'
       });
     }
-    // eslint-disable-next-line
-  }, [updateUserConfigs]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateUserConfigs.isSuccess]);
 
   useEffect(() => {
     if (!updateDisplayPrefs.isPending || updateDisplayPrefs.isSuccess) setIsPending(false);

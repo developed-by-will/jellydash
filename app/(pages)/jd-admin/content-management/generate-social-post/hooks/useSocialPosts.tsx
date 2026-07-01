@@ -33,10 +33,15 @@ export default function useSocialPost() {
   const handleCopyTitle = async (desc: string, overview: boolean) => {
     if (!selectedItem) return;
 
+    const portugueseTitle = selectedItem.Name; // Portuguese title
+    const englishTitle = selectedItem.OriginalTitle; // or whatever your field is called
+
+    const text = `${selectedItem.Name} [${desc}]${overview ? `\n\n${selectedItem.Overview}` : ''}
+  
+#${portugueseTitle.replace(/\s+/g, '')} #${englishTitle.replace(/\s+/g, '')} #homeflix`;
+
     try {
-      await navigator.clipboard.writeText(
-        `${selectedItem.Name} [${desc}]${overview ? `\n\n${selectedItem.Overview}` : ''}`
-      );
+      await navigator.clipboard.writeText(text);
     } catch (error) {
       console.error('Error copying title:', error);
     }

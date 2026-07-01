@@ -11,15 +11,15 @@ export const ageBadgeStyle: React.CSSProperties = {
 
 export const OfficialRatingPreviewBadge = {
   ...ageBadgeStyle,
-  top: 60,
-  left: 36,
+  top: 38,
+  left: 32,
   padding: '8px',
   fontSize: '14px'
 };
 
 export const OfficialRatingHighResBadge = {
   ...ageBadgeStyle,
-  top: 280,
+  top: 200,
   left: 160,
   padding: '0px 25px 50px 25px',
   fontSize: '56px'

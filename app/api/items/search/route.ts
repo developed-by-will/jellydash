@@ -34,15 +34,53 @@ export async function GET(request: NextRequest) {
       requiresAuth: true
     });
 
+    if (!getShowsPosters.ok) {
+      const errText = await getShowsPosters.text();
+      throw new Error(`Failed to fetch show posters: ${errText}`);
+    }
+
     const showsPosters: SearchItemsType = await getShowsPosters.json();
 
     posters.Items.push(...showsPosters.Items);
 
-    const results = posters.Items.map((item) => {
+    // Fetch OriginalTitle for each item
+    const itemsWithOriginalTitle = await Promise.all(
+      posters.Items.map(async (item) => {
+        try {
+          const response = await requestApi(`/Users/${userId}/Items/${item.Id}`, request, {
+            method: 'GET',
+            requiresAuth: true
+          });
+
+          if (!response.ok) {
+            return {
+              ...item,
+              OriginalTitle: null
+            };
+          }
+
+          const details = await response.json();
+
+          return {
+            ...item,
+            OriginalTitle: details.OriginalTitle ?? null
+          };
+        } catch {
+          return {
+            ...item,
+            OriginalTitle: null
+          };
+        }
+      })
+    );
+
+    const results = itemsWithOriginalTitle.map((item) => {
       const posterId = item.ImageTags.Primary;
+
       return {
         Id: item.Id,
         Name: item.Name,
+        OriginalTitle: item.OriginalTitle,
         Poster: posterId ?? null,
         BlurHash: posterId ? (item.ImageBlurHashes?.Primary?.[posterId] ?? null) : null,
         Src: posterId ? `Items/${item.Id}/Images/Primary` : null,
@@ -54,9 +92,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(results, { status: 200 });
   } catch (error) {
     console.error('Error in /api/items/search:', error);
-    catchError(error); // still keep your helper
+    catchError(error);
+
     return NextResponse.json(
-      { message: 'Failed to fetch search results', error: String(error) },
+      {
+        message: 'Failed to fetch search results',
+        error: String(error)
+      },
       { status: 500 }
     );
   }
