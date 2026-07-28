@@ -13,6 +13,13 @@ export const JELLYFIN_MOBILE_VERSION = process.env.JELLYFIN_MOBILE_VERSION as st
 export const JELLYFIN_TV_VERSION = process.env.JELLYFIN_TV_VERSION as string;
 export const BASE_URL = `${PROTOCOL}://${HOSTNAME}`;
 
+export const JELLYFIN_ADMIN_API_KEY = process.env.JELLYFIN_ADMIN_API_KEY as string;
+export const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET as string;
+export const WATCHLIST_MOVIES_POSTER_PATH = process.env.WATCHLIST_MOVIES_POSTER_PATH as string;
+export const WATCHLIST_MOVIES_THUMB_PATH = process.env.WATCHLIST_MOVIES_THUMB_PATH as string;
+export const WATCHLIST_PLAYLIST_NAME = 'Filmes & Documentários';
+export const WATCHLIST_PLAYLIST_SORT_NAME = '0';
+
 export const mobileDisplayPrefs: CustomPreferencesBase = {
   SortBy: 'SortName',
   RememberIndexing: false,

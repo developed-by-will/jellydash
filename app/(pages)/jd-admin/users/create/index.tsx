@@ -61,6 +61,7 @@ export default function CreateUser() {
     if (createUser.isSuccess) {
       updateUserConfigs.mutate({
         OrderedViews: [
+          '4b94e5cbf58c7a5ea5a2c7bbd0a1e781->Playlists',
           'af92f2d68eea947c7f9df41836afb987->Filmes',
           'd565273fd114d77bdf349a2896867069->Séries',
           '3f1cdfa851070dc04e40b43ec5927636->Animação',
@@ -68,7 +69,7 @@ export default function CreateUser() {
           'a3c1924c44cd056b3dbb7f61d0c57db9->Documentários',
           'ca0de50d2c11073f53df7c82dc3fe2a4->Animes',
           'cb7c5f4cc4fdd65994af1a681dfffcd3->Séries Documentários',
-          '7e64e319657a9516ec78490da03edccb->Vir7uaLMusic',
+          '32a136310f2a3484f827fb94c141b69b->Vir7uaLMusic',
           'a4a7d3c943f3cdc73001448f67aa3235->TixaMusic'
         ],
         SubtitleLanguagePreference: 'por'
