@@ -1,9 +1,17 @@
-import { catchError, fetchApi } from '@/app/api/helpers';
-import { JellyfinResponse } from '@/app/api/types';
+import { catchError, requestApi } from '@/app/api/helpers';
+import { JellyfinItemsResponse } from '@/app/api/types';
 import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
+import path from 'path';
 
 const PROCESSED_ITEMS_FILE = 'app/db';
+
+const ensureDirectoryExists = (filePath: string) => {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
 
 // Helper function to read items from a file
 function readProcessedItems(itemType: string): Set<string> {
@@ -28,13 +36,14 @@ function readProcessedItems(itemType: string): Set<string> {
 function writeProcessedItem(itemType: string, itemId: string) {
   try {
     const filePath = `${PROCESSED_ITEMS_FILE}/${itemType.toLowerCase()}-dates`;
+    ensureDirectoryExists(filePath);
     fs.appendFileSync(filePath, `${itemId}\n`);
   } catch (error) {
     console.error(`Error writing to processed ${itemId}:`, error);
+    throw error; // Re-throw to be caught by the outer catch
   }
 }
 
-// eslint-disable-next-line typescript/S3776
 export async function PATCH(request: NextRequest) {
   try {
     const itemType = request.nextUrl.searchParams.get('IncludeItemTypes');
@@ -51,10 +60,14 @@ export async function PATCH(request: NextRequest) {
     const processedItems = readProcessedItems(itemType);
 
     // Get all items
-    const getItems = await fetchApi(`/Items?IncludeItemTypes=${itemType}&Recursive=true`, request, {
-      method: 'GET',
-      requiresAuth: true
-    });
+    const getItems = await requestApi(
+      `/Items?IncludeItemTypes=${itemType}&Recursive=true`,
+      request,
+      {
+        method: 'GET',
+        requiresAuth: true
+      }
+    );
 
     if (!getItems.ok) {
       return NextResponse.json(
@@ -65,7 +78,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const data: JellyfinResponse = await getItems.json();
+    const data: JellyfinItemsResponse = await getItems.json();
     const allItems = data.Items;
     const totalItems = allItems.length;
 
@@ -83,7 +96,7 @@ export async function PATCH(request: NextRequest) {
     for (const item of itemsToProcess) {
       try {
         // Get complete item data
-        const itemData = await fetchApi(`/Items/${item.Id}`, request, {
+        const itemData = await requestApi(`/Items/${item.Id}`, request, {
           method: 'GET',
           requiresAuth: true
         });
@@ -98,7 +111,7 @@ export async function PATCH(request: NextRequest) {
 
         // Update DateCreated if needed
         if (fullItemData.DateCreated !== fullItemData.PremiereDate) {
-          await fetchApi(`/Items/${fullItemData.Id}`, request, {
+          await requestApi(`/Items/${fullItemData.Id}`, request, {
             method: 'POST',
             body: JSON.stringify({ ...fullItemData, DateCreated: fullItemData.PremiereDate }),
             requiresAuth: true

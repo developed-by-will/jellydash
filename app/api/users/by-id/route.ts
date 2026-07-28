@@ -1,4 +1,4 @@
-import { catchError, fetchApi } from '@/app/api/helpers';
+import { catchError, requestApi } from '@/app/api/helpers';
 import { User } from '@/app/api/types';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: 'User ID is required' }, { status: 400 });
     }
 
-    const getUser = await fetchApi(endpoint, request, {
+    const getUser = await requestApi(endpoint, request, {
       method: 'GET',
       requiresAuth: true
     });

@@ -1,4 +1,4 @@
-import { catchError, fetchApi } from '@/app/api/helpers';
+import { catchError, requestApi } from '@/app/api/helpers';
 import { User } from '@/app/api/types';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -6,23 +6,36 @@ export async function GET(request: NextRequest) {
   try {
     const endpoint = '/Users';
 
-    const getUsers = await fetchApi(endpoint, request, {
+    const getUsers = await requestApi(endpoint, request, {
       method: 'GET',
       requiresAuth: true
     });
 
     const users: User[] = await getUsers.json();
 
+    // Order by Last Activity Date
+    users.sort(
+      (a: User, b: User) =>
+        new Date(b.LastActivityDate).getTime() - new Date(a.LastActivityDate).getTime()
+    );
+
     if (users.length > 0) {
       return NextResponse.json(
-        users.map((user: User) => ({
-          Name: user.Name,
-          Id: user.Id,
-          IsDisabled: user.Policy.IsDisabled,
-          Policy: {
-            BlockedTags: user.Policy.BlockedTags
-          }
-        })),
+        users.map(
+          (user: User) =>
+            ({
+              Name: user.Name,
+              Id: user.Id,
+              Policy: {
+                MaxParentalRating: user.Policy.MaxParentalRating,
+                IsDisabled: user.Policy.IsDisabled,
+                EnableLiveTvAccess: user.Policy.EnableLiveTvAccess,
+                IsAdministrator: user.Policy.IsAdministrator
+              },
+              LastActivityDate: user.LastActivityDate,
+              LastLoginDate: user.LastLoginDate
+            }) as User
+        ),
         { status: 200 }
       );
     }

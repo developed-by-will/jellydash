@@ -1,11 +1,11 @@
-import { catchError, fetchApi, getAdminLibrariesIds } from '@/app/api/helpers';
+import { catchError, getAdminLibrariesIds, requestApi } from '@/app/api/helpers';
 import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
 import { LibraryItem } from '../../types';
 
 export async function PATCH(request: NextRequest) {
   try {
-    const getLibraries = await fetchApi('/Library/VirtualFolders', request, {
+    const getLibraries = await requestApi('/Library/VirtualFolders', request, {
       method: 'GET',
       requiresAuth: true
     });

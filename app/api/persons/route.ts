@@ -1,8 +1,16 @@
-import { catchError, fetchApi } from '@/app/api/helpers';
+import { catchError, requestApi } from '@/app/api/helpers';
 import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
+import path from 'path';
 
 const PROCESSED_PERSONS_FILE = 'app/db/faceless';
+
+const ensureDirectoryExists = (filePath: string) => {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
 
 // Helper function to read processed persons from file
 function readProcessedPersons(): Set<string> {
@@ -25,9 +33,11 @@ function readProcessedPersons(): Set<string> {
 // Helper function to write processed persons to file
 function writeProcessedPerson(personId: string) {
   try {
+    ensureDirectoryExists(PROCESSED_PERSONS_FILE);
     fs.appendFileSync(PROCESSED_PERSONS_FILE, `${personId}\n`);
   } catch (error) {
     console.error('Error writing to processed persons file:', error);
+    throw error;
   }
 }
 
@@ -40,7 +50,7 @@ export async function PATCH(request: NextRequest) {
     const processedPersons = forceFlag ? new Set<string>() : readProcessedPersons();
 
     // Get all persons
-    const personsResponse = await fetchApi('/Persons', request, {
+    const personsResponse = await requestApi('/Persons', request, {
       method: 'GET',
       requiresAuth: true
     });
@@ -65,7 +75,7 @@ export async function PATCH(request: NextRequest) {
     } else {
       personsToProcess = allPersons
         .filter(
-          (person: { ImageTags: {}; Id: string }) =>
+          (person: { ImageTags: object; Id: string }) =>
             (!person.ImageTags || Object.keys(person.ImageTags).length === 0) &&
             !processedPersons.has(person.Id)
         )
@@ -80,7 +90,7 @@ export async function PATCH(request: NextRequest) {
     // Process persons sequentially
     for (const person of personsToProcess) {
       try {
-        const response = await fetchApi(`/Users/${userId}/Items/${person.Id}`, request, {
+        const response = await requestApi(`/Users/${userId}/Items/${person.Id}`, request, {
           method: 'GET',
           requiresAuth: true
         });
@@ -148,7 +158,6 @@ export async function PATCH(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Endpoint error:', error);
     return catchError(error);
   }
 }

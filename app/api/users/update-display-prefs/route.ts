@@ -1,99 +1,90 @@
-import { catchError, fetchApi } from '@/app/api/helpers';
-import { CustomPreferences } from '@/app/api/types';
+// app/api/users/update-display-prefs/route.ts
+import { catchError, requestApi } from '@/app/api/helpers';
+import { CustomPreferencesBase } from '@/app/api/types';
 import { getLibraries, libraries } from '@/app/db/packages';
+import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { authOptions } from '../../auth/authoptions';
+import { tvDisplayPrefs } from '../../constants';
 
-export async function updateUserDisplayPreferences(request: NextRequest, userId?: string) {
+/**
+ * Internal helper — DO NOT export
+ */
+async function updateUserDisplayPreferences(
+  displayPreferences: CustomPreferencesBase,
+  request: NextRequest
+) {
   try {
-    const endpoint = '/DisplayPreferences/usersettings';
-    const displayPreferences: CustomPreferences = await request.json();
+    const session = await getServerSession(authOptions);
 
-    // Add library-specific preferences
-    getLibraries(libraries.standard).forEach((libraryId) => {
-      const cleanId = libraryId.trim();
-      if (!cleanId) return;
+    const endpoints = {
+      mobile: '/DisplayPreferences/usersettings',
+      tv: '/DisplayPreferences'
+    };
 
-      (displayPreferences.CustomPrefs as any)[`${cleanId}-series`] =
-        '{"SortBy":"PremiereDate,SortName","SortOrder":"Descending"}';
-      (displayPreferences.CustomPrefs as any)[`${cleanId}-movies`] =
-        '{"SortBy":"PremiereDate,SortName,ProductionYear","SortOrder":"Descending"}';
-      (displayPreferences.CustomPrefs as any)[`${cleanId}-Folder-sortorder`] = 'Descending';
-      (displayPreferences.CustomPrefs as any)[`${cleanId}-Folder-sortby`] =
-        'ProductionYear,PremiereDate,SortName';
-    });
+    const libraryIds = getLibraries(libraries.standard)
+      .map((id) => id.trim())
+      .filter(Boolean);
 
-    if (userId) {
-      await fetchApi(`${endpoint}?userId=${userId}&client=emby`, request, {
-        method: 'POST',
-        requiresAuth: true,
-        body: JSON.stringify(displayPreferences)
-      });
-
-      return NextResponse.json({ status: 200 });
-    }
-
-    // Get all users
-    const usersResponse = await fetchApi('/Users', request, {
+    const usersResponse = await requestApi('/Users', request, {
       method: 'GET',
       requiresAuth: true
     });
     const users = await usersResponse.json();
 
-    if (!Array.isArray(users) || users.length === 0) {
-      return NextResponse.json({ message: 'No users found' }, { status: 404 });
-    }
-
-    // Process users sequentially
-    const results: Array<{
-      userId: string;
-      username: string;
-      success: boolean;
-      status?: number;
-      error?: string;
-    }> = [];
-
     for (const user of users) {
-      try {
-        const response = await fetchApi(`${endpoint}?userId=${user.Id}&client=emby`, request, {
-          method: 'POST',
-          requiresAuth: true,
-          body: JSON.stringify(displayPreferences)
-        });
-
-        results.push({
-          userId: user.Id,
-          username: user.Name,
-          success: response.ok,
-          status: response.status
-        });
-
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        results.push({
-          userId: user.Id,
-          username: user.Name,
-          success: false,
-          error: errorMessage
-        });
+      const customPrefs: Record<string, any> = { ...displayPreferences.CustomPrefs };
+      for (const libId of libraryIds) {
+        customPrefs[`items-${libId}-Folder-sortby`] = 'ProductionYear,PremiereDate,SortName';
+        customPrefs[`items-${libId}-Folder-sortorder`] = 'Descending';
       }
+
+      await requestApi(`${endpoints.mobile}?userId=${user.Id}&client=emby`, request, {
+        method: 'POST',
+        requiresAuth: true,
+        body: JSON.stringify({ ...displayPreferences, CustomPrefs: customPrefs })
+      });
     }
 
-    return NextResponse.json(
-      {
-        message: 'Display preferences update completed',
-        totalUsers: users.length,
-        processedUsers: results.length,
-        results
-      },
-      { status: 200 }
-    );
+    const viewsResponse = await requestApi(`/UserViews?includeHidden=false`, request, {
+      method: 'GET',
+      requiresAuth: true
+    });
+    const viewsData = await viewsResponse.json();
+    const displayPrefsIds = viewsData.Items.map((lib: any) => lib.UserData?.Key).filter(Boolean);
+
+    for (const libGuid of displayPrefsIds) {
+      await requestApi(`/DisplayPreferences/${libGuid}?client=jellyfin-androidtv`, request, {
+        method: 'POST',
+        requiresAuth: false,
+        accessToken: session?.user.JellyfinSession?.AccessToken,
+        headersOverride: { deviceId: session?.user.JellyfinSession?.SessionInfo.DeviceId },
+        body: tvDisplayPrefs
+      });
+    }
+
+    return { ok: true, message: 'Preferences updated for all users' };
   } catch (error) {
-    console.error('Endpoint error:', error);
     return catchError(error);
   }
 }
 
+/**
+ * POST route handler
+ */
 export async function POST(request: NextRequest) {
-  return updateUserDisplayPreferences(request);
+  try {
+    const body = await request.json();
+    const { displayPreferences } = body;
+
+    const response = await updateUserDisplayPreferences(displayPreferences, request);
+
+    return NextResponse.json(response, { status: 200 });
+  } catch (error: any) {
+    console.error('Error updating display preferences:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to update display preferences' },
+      { status: 500 }
+    );
+  }
 }

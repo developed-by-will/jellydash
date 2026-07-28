@@ -36,3 +36,8 @@ yarn-error.log*
 next-env.d.ts
 
 .env
+
+app/db
+app/login-page/price-table.html
+app/login-page/premium-card.html
+public/social-post-template.png

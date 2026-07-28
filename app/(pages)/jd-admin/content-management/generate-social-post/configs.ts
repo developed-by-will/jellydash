@@ -1,0 +1,125 @@
+import { aristaFont } from '@/app/Hydrate';
+
+export const previewWrapper = {
+  aspectRatio: 'aspect-[1440/2160]'
+};
+
+export const preview = {
+  width: 'w-[92%]',
+  height: 'h-[92%]',
+  scale: 'scale-91'
+};
+
+type CustomTextType = {
+  hasCustomText: boolean;
+  fontSize: string;
+  position: {
+    mt: string;
+    ms: string;
+    me: string;
+  };
+  color: string;
+  align: 'text-start' | 'text-center' | 'text-end';
+};
+
+export const customText: CustomTextType = {
+  hasCustomText: true,
+  fontSize: '16px',
+  position: {
+    mt: 'mt-[6%]',
+    ms: 'ms-[0%]',
+    me: 'me-[0%]'
+  },
+  color: 'text-white',
+  align: 'text-center'
+};
+
+export const texts = [
+  {
+    text: 'Novidade',
+    value: 'Novidade',
+    default: true
+  },
+  {
+    text: 'Série Completa',
+    value: 'Série Completa'
+  },
+  {
+    text: 'Novo Episódio',
+    value: 'Novo Episódio'
+  },
+  {
+    text: 'Final Temporada',
+    value: 'Final Temporada'
+  },
+  {
+    text: 'Fim da Série',
+    value: 'Fim da Série'
+  },
+  {
+    text: 'Grande Estreia',
+    value: 'Grande Estreia'
+  },
+  {
+    text: 'Nova Temporada',
+    value: 'Nova Temporada'
+  },
+  {
+    text: 'Exclusivo',
+    value: 'Exclusivo'
+  },
+  {
+    text: 'Prepara-te',
+    value: 'Prepara-te'
+  },
+  {
+    text: 'Top ano passado',
+    value: 'Top ano passado'
+  },
+  {
+    text: 'Anime completa',
+    value: 'Anime completa'
+  },
+  {
+    text: 'Nomeado',
+    value: 'Nomeado'
+  }
+];
+
+export const canvasStyle = {
+  width: '1440px',
+  height: '2160px',
+  background: 'black',
+  position: 'relative' as const
+};
+
+export const posterStyle = {
+  position: 'absolute' as const,
+  left: '50%',
+  top: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '1183px',
+  height: '1900px',
+  objectFit: 'cover' as const
+};
+
+export const templateStyle = {
+  position: 'absolute' as const,
+  top: 0,
+  left: 0,
+  width: '1440px',
+  height: '2160px'
+};
+
+export const textStyle = {
+  position: 'absolute' as const,
+  top: '4%',
+  left: '0%',
+  width: '100%',
+  color: 'white',
+  fontSize: '70px',
+  textAlign: 'center' as const,
+  fontFamily: aristaFont.style.fontFamily,
+  textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+  padding: '0 20px'
+};

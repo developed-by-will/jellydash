@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
 import { libraries } from '../db/packages';
-import { DEVICE_ID, SERVER_URL } from './constants';
+import { DEBUG_JELLYFIN_ENDPOINT, DEVICE_ID, REQUEST_LOGS, SERVER_URL } from './constants';
 import { ApiConfig, Library } from './types';
 
 export function catchError(error: unknown): NextResponse {
@@ -13,36 +13,57 @@ export function catchError(error: unknown): NextResponse {
     { status: 500 }
   );
 }
+export const getHeaders = (
+  accessToken?: string | null,
+  opts?: {
+    deviceId?: string;
+  }
+) => {
+  const deviceID = opts?.deviceId ?? DEVICE_ID;
 
-export const getHeaders = (token?: string | null) => ({
-  'Content-Type': 'application/json',
-  Authorization: `MediaBrowser Client="HomeflixAPI", Device="Homeflix API", DeviceId="${DEVICE_ID}", Version="10.10.3"${token ? `, Token="${token}"` : ''}`
-});
+  return {
+    'Content-Type': 'application/json',
+    'User-Agent': 'HomeflixAPI',
+    Authorization: `MediaBrowser Client="HomeflixAPI", Device="Homeflix API", DeviceId="${deviceID}", Version="10.10.3'"${accessToken ? `, Token="${accessToken}"` : ''}`
+  };
+};
 
-export async function fetchApi(
+export async function requestApi(
   endpoint: string,
   request: NextRequest,
-  config: ApiConfig
+  config: ApiConfig & {
+    headersOverride?: Parameters<typeof getHeaders>[1];
+    accessToken?: string;
+  }
 ): Promise<Response> {
   try {
-    const token = config.requiresAuth ? request.headers.get('server_token') : undefined;
+    // Determine the token to use
+    const token =
+      config.accessToken ?? (config.requiresAuth ? request.headers.get('access_token') : undefined);
 
+    // If auth is required but token is missing, throw 401
     if (config.requiresAuth && !token) {
       return NextResponse.json({ message: 'No server token provided' }, { status: 401 });
     }
 
+    // Build fetch options
     const fetchOptions: RequestInit = {
       method: config.method,
-      headers: getHeaders(token)
+      headers: getHeaders(token, config.headersOverride)
     };
 
+    // Attach body if present
     if ('body' in config && config.body !== undefined) {
       fetchOptions.body =
         typeof config.body === 'string' ? config.body : JSON.stringify(config.body);
     }
 
     const requestEndpoint = SERVER_URL + endpoint;
-    //console.log(requestEndpoint, fetchOptions);
+
+    // Optional debug logging
+    if (REQUEST_LOGS === 'true' && endpoint.includes(DEBUG_JELLYFIN_ENDPOINT)) {
+      console.log(requestEndpoint, fetchOptions);
+    }
 
     return await fetch(requestEndpoint, fetchOptions);
   } catch (error) {
@@ -99,8 +120,6 @@ export function generateLibrarySortingPrefs(libraryIds: string[]): Record<string
     prefs[`items-${cleanId}-Folder-sortorder`] = 'Descending';
     prefs[`items-${cleanId}-Folder-sortby`] = 'ProductionYear,PremiereDate,SortName';
   });
-
-  console.log('Generated preferences:', prefs); // Debug log
   return prefs;
 }
 
@@ -123,19 +142,6 @@ export function parseLibraries(filePath: string): Library[] {
 
 export function getLibraryIdsByName(libraries: Library[], names: string[]): string[] {
   return libraries.filter((lib) => names.some((name) => lib.name === name)).map((lib) => lib.id);
-}
-
-export function getExcludedLibraryNames(): string[] {
-  try {
-    return fs
-      .readFileSync(libraries.excluded, 'utf-8')
-      .split('\n')
-      .map((name) => name.trim())
-      .filter((name) => name !== '');
-  } catch (error) {
-    console.error('Error reading excluded libraries:', error);
-    return [];
-  }
 }
 
 export function getAdminLibrariesIds(): string[] {

@@ -1,49 +1,44 @@
-import {
-  catchError,
-  fetchApi,
-  getExcludedLibraryNames,
-  getLibrariesIds,
-  getLibraryIdsByName,
-  parseLibraries
-} from '@/app/api/helpers';
+// app/api/users/update-configs/route.ts
+import { catchError, getLibrariesIds, parseLibraries, requestApi } from '@/app/api/helpers';
 import { User } from '@/app/api/types';
 import { libraries } from '@/app/db/packages';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function updateUserConfigurations(request: NextRequest) {
+/**
+ * Internal helper function to update user configurations.
+ * Not exported to avoid TypeScript errors with route handler checks.
+ */
+async function updateUserConfigurations(request: NextRequest) {
   try {
     const body = await request.json();
     const { OrderedViews, SubtitleLanguagePreference } = body;
 
-    // Get all standard libraries from the file
+    // Get all standard libraries
     const standardLibraries = parseLibraries(libraries.standard);
 
-    // Convert standard libraries to the same format as OrderedViews ("id->name")
-    const standardLibraryStrings = standardLibraries.map((lib) => `${lib.id}->${lib.name}`);
-
-    // Check if all standard libraries are present in OrderedViews
-    const missingLibraries = standardLibraryStrings.filter(
-      (libString) => !OrderedViews.includes(libString)
+    // Extract IDs from OrderedViews (supports both "id->name" and plain IDs)
+    const orderedViewIds = OrderedViews.map((view: string) =>
+      view.includes('->') ? view.split('->')[0] : view
     );
 
-    if (missingLibraries.length > 0) {
-      // Convert back to objects for the response
-      const missingLibraryObjects = missingLibraries.map((libString) => {
-        const [id, name] = libString.split('->');
-        return { id, name };
-      });
+    // Find missing libraries using only IDs
+    const missingLibraries = standardLibraries.filter((lib) => !orderedViewIds.includes(lib.id));
 
+    if (missingLibraries.length > 0) {
       return NextResponse.json(
         {
           message: 'Some libraries are missing',
-          missingLibraries: missingLibraryObjects.map((lib) => lib.name)
+          missingLibraries: missingLibraries.map((lib) => ({
+            id: lib.id,
+            name: lib.name
+          }))
         },
         { status: 400 }
       );
     }
 
-    // Get all users
-    const getUsersResponse = await fetchApi('/Users', request, {
+    // Fetch all users
+    const getUsersResponse = await requestApi('/Users', request, {
       method: 'GET',
       requiresAuth: true
     });
@@ -61,8 +56,7 @@ export async function updateUserConfigurations(request: NextRequest) {
     const updateResults = await Promise.all(
       users.map(async (user) => {
         try {
-          // Get user details to check if they're an admin
-          const userDetailsResponse = await fetchApi(`/Users/${user.Id}`, request, {
+          const userDetailsResponse = await requestApi(`/Users/${user.Id}`, request, {
             method: 'GET',
             requiresAuth: true
           });
@@ -74,14 +68,6 @@ export async function updateUserConfigurations(request: NextRequest) {
           const userDetails = await userDetailsResponse.json();
           const isAdmin = userDetails.Policy.IsAdministrator === true;
 
-          // Get appropriate libraries based on admin status
-          const standardLibraries = parseLibraries(libraries.standard);
-          const adminLibraries = isAdmin ? parseLibraries(libraries.admin) : [];
-          const userLibraries = [...standardLibraries, ...adminLibraries];
-
-          const excludedNames = getExcludedLibraryNames();
-          const excludeFromHome = getLibraryIdsByName(userLibraries, excludedNames);
-
           const userConfiguration = {
             PlayDefaultAudioTrack: true,
             SubtitleLanguagePreference: SubtitleLanguagePreference ?? 'eng',
@@ -91,7 +77,6 @@ export async function updateUserConfigurations(request: NextRequest) {
             DisplayCollectionsView: false,
             EnableLocalPassword: false,
             OrderedViews: getLibrariesIds(OrderedViews),
-            LatestItemsExcludes: excludeFromHome,
             MyMediaExcludes: [],
             HidePlayedInLatest: true,
             RememberAudioSelections: true,
@@ -99,7 +84,7 @@ export async function updateUserConfigurations(request: NextRequest) {
             EnableNextEpisodeAutoPlay: true
           };
 
-          const updateResponse = await fetchApi(`/Users/${user.Id}/Configuration`, request, {
+          const updateResponse = await requestApi(`/Users/${user.Id}/Configuration`, request, {
             method: 'POST',
             body: JSON.stringify(userConfiguration),
             requiresAuth: true
@@ -123,13 +108,13 @@ export async function updateUserConfigurations(request: NextRequest) {
       })
     );
 
-    // Count successful updates
-    const successfulUpdates = updateResults.filter((result) => result.success).length;
-    const failedUpdates = updateResults.filter((result) => !result.success);
+    // Summarize results
+    const successfulUpdates = updateResults.filter((r) => r.success).length;
+    const failedUpdates = updateResults.filter((r) => !r.success);
 
     return NextResponse.json(
       {
-        message: `Configuration update completed`,
+        message: 'Configuration update completed',
         details: {
           totalUsers: users.length,
           successfulUpdates,
@@ -149,6 +134,9 @@ export async function updateUserConfigurations(request: NextRequest) {
   }
 }
 
+/**
+ * POST route handler for updating user configurations.
+ */
 export async function POST(request: NextRequest) {
   return updateUserConfigurations(request);
 }

@@ -1,4 +1,4 @@
-import { fetchApi } from '@/app/api/helpers';
+import { catchError, requestApi } from '@/app/api/helpers';
 import { NextRequest, NextResponse } from 'next/server';
 import { baseLibraryConfig } from './baseLibraryOptions';
 import { allowedSubtitleValues } from './types';
@@ -25,7 +25,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   try {
-    const remove = await fetchApi(
+    const remove = await requestApi(
       `/Library/VirtualFolders?refreshLibrary=true&name=${library}`,
       request,
       {
@@ -38,7 +38,7 @@ export async function PATCH(request: NextRequest) {
       const encodedLibraryName = encodeURIComponent(library);
       const normalizedPaths = PathInfos.map((path: string) => ({ Path: path }));
 
-      const add = await fetchApi(
+      const add = await requestApi(
         `/Library/VirtualFolders?refreshLibrary=true&name=${encodedLibraryName}`,
         request,
         {
@@ -63,10 +63,6 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ message: `Request failed, check payload.` }, { status: 400 });
   } catch (error) {
-    console.error('Error:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal Server Error' },
-      { status: 500 }
-    );
+    return catchError(error);
   }
 }
