@@ -17,7 +17,12 @@ export const formValidationRules = z.object({
       {
         message: 'Only .m3u or .m3u8 files are allowed'
       }
-    )
+    ),
+  musicPath: z
+    .string()
+    .trim()
+    .min(1, { message: 'Music folder path is required' }),
+  jellyfinPath: z.string().trim().optional()
 });
 
 export type FormValidationRules = z.infer<typeof formValidationRules>;

@@ -4,13 +4,13 @@ import {
   Drama,
   ImagePlay,
   LayoutTemplate,
-  ListMusic,
   MessageCircleReply,
   MessageSquareShare,
   MonitorPlay,
   NotepadTextDashed,
   PersonStanding,
-  Popcorn
+  Popcorn,
+  Trash2
 } from 'lucide-react';
 import { NavItem } from '.';
 
@@ -30,9 +30,9 @@ export const content: NavItem = {
       canAccess: true
     },
     {
-      title: 'Convert Playlist',
-      url: baseUrl + '/convert-playlist',
-      icon: <ListMusic className={classes} />,
+      title: 'Delete Playlist Songs',
+      url: baseUrl + '/delete-songs',
+      icon: <Trash2 className={classes} />,
       canAccess: true
     },
     {
