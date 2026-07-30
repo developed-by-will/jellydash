@@ -1,253 +1,160 @@
-# 🎬 **Jellydash** – A Jellyfin Management Dashboard
+# 🎬 **Jellydash** – A Jellyfin Management Dashboard
 
-**Jellydash** is a dashboard designed to **enhance and simplify** the management of your Jellyfin server, filling the gaps left by the default Jellyfin dashboard.
+**Jellydash** is a self-hosted web dashboard that **enhances and simplifies** the management of your Jellyfin server, filling the gaps left by the default Jellyfin dashboard.
 
-## ❓ **Why Jellydash?**
-
-Jellyfin’s default dashboard lacks several key features for **granular control**, such as:
-
-- **No built-in user role system** (e.g., "Kids," "Adults," "Admins").
-
-- **No global user config updates** (every change must be manual).
-- **Limited sorting options** (defaults to "Date Added," which isn’t always ideal).
-
-With **Jellydash**, you regain control—**without needing external databases** (everything is stored locally).
+It ships as a full Next.js web app — log in with your existing Jellyfin admin account and manage users, libraries, and content straight from the browser. No separate accounts, no external database.
 
 ---
 
-## ✨ **Key Features**
+## ❓ **Why Jellydash?**
 
-### 🔹 **User & Access Management**
+Jellyfin's default dashboard lacks several key features for **granular control**, such as:
 
-- **Create Packages (Roles)** – Assign access to specific libraries (e.g., "CHILDREN" only shows the content you want children to have access).
-- **Bulk-apply settings** – New users inherit their Package’s restrictions automatically.
+- **No built-in user role system** (e.g., "Kids," "Adults," "Admins").
+- **No global user config updates** (every change must be manual).
+- **Limited sorting options** (defaults to "Date Added," which isn't always ideal).
 
-### 🔹 **Media & Metadata Control**
-
-- **Force-load Cast & Crew pictures** – No more missing pictures!
-- **Block tags globally** (e.g., hide "Horror" for users with CHILDREN package).
-
-### 🔹 **Login Page & UI Tweaks**
-
-- **Fully working dynamic carousel** with your latest content!
-
-<img src="./public/login-page.png">
-
-### 🔹 **Global Customization**
-
-- **Change default sorting** (e.g., sort by content's *Release Date* instead of the date you added the content to your server).
-
-- **Reorder Home libraries for everyone** (e.g., put "TV Shows" before "Movies").
-
-- **Set default subtitle language** for all users.
-
-- **Disable "Latest from…" sections for everyone** – Replace these e.g. for a "Lates from..." for each genre.
+With **Jellydash**, you regain control — **without needing external databases** (everything is stored locally in the project folder).
 
 ---
 
-## 🚀 **Getting Started**
+## ✨ **Key Features**
 
-1. **Import** the provided Postman collection (located in root`).
-2. **Install dependencies**:
+These are live and reachable from the sidebar today:
+
+### 🔹 **User Management**
+
+- **Browse all Jellyfin users** in a searchable table.
+- **Create new users** with a **Package** aka **role** (`STANDARD` | `CHILDREN` | `PREMIUM` | `ADMIN`) that controls which libraries and permissions they get, plus an auto-generated secure password.
+
+### 🔹 **Content Management**
+
+- **Parental Ratings** – Paginated grid of every Movie/Show, letting you fix wrong titles, posters, and official ratings in bulk.
+- **Delete Playlist Songs** – Upload an **`.m3u8` playlist** (from any app — Symfonium, VLC, etc) and permanently delete every listed song from disk.
+- **Social Post** – Shareable social-media poster with custom template option.
+
+---
+
+## 🧩 **Backend Features (API-only, no page yet)**
+
+The sidebar shows a few sections with a 🔒 lock icon — these are placeholders for pages that haven't been built yet:
+
+- **Library sync & management** – import libraries, restrict a library to a Package/role (`/add-to-package`), force Jellyfin to pick up new library paths.
+- **Reorder Home libraries globally** – change the order everyone sees on their Home screen.
+- **Fix missing Cast & Crew photos** in bulk.
+- **Automatic Watchlist playlist** – a Jellyfin webhook listens for favorites and keeps a shared "Watchlist" playlist in sync automatically; a one-off backfill endpoint exists to catch up on favorites that existed before the webhook was wired up.
+- **Re-encode a video file** – streams a file through `ffmpeg` at a given resolution and swaps it in place, with progress reported over SSE.
+
+---
+
+## 🚀 **Getting Started**
+
+1. **Install dependencies**:
 
 ```bash
 npm install
 ```
 
-3. **Configure**:
+2. **Configure your `.env`** (see the **Environment Variables** section below).
 
-   - Create a `.env` file with:
-
-```env
-SERVER_URL={YOUR_JELLYFIN_SERVER_URL}
-```
-
-4. **Run**:
+3. **Run** (the dev server runs on **port 4000**, not 3000):
 
 ```bash
 npm run dev
 ```
 
-5. Configure your **API_URL** on Postman's variables.
+4. Open `http://localhost:4000/login` and sign in with your **Jellyfin admin username and password** — Jellydash authenticates you directly against your Jellyfin server, so there's no separate account to create.
 
-6. Call the **AUTH_BY_NAME** endpoint (you must provide your credentials on the payload), this will add the necessary Jellyfin headers to Postman's global variables so you can make the calls.
-
----
-
-## 🔐 **Authentication First**
-
-⚠️ **Troubleshooting** → Getting `401 Unauthorized`?  
-**Run this first to get your access token:**
-
-```http
-POST /users/authenticate-by-name
-Payload: {"Username": "YourAdmin", "Pw": "YourPassword"}
-```
-
-✅ **Success**: Saves `ACCESS_TOKEN` automatically for future calls.
+5. _(Optional, for the locked/API-only features above)_ **Import** the provided Postman collection from the repo root, set the `API_URL` variable to your Jellydash app's URL, then call `AUTH_BY_NAME` (see **Authentication** below) so you can call the rest of the endpoints directly.
 
 ---
 
-## ✨ **Key Features Setup**
+## 🔧 **Environment Variables**
 
-### 🖼️ **1. Dynamic Login Page Carousels**
+```env
+# Your actual Jellyfin server
+SERVER_URL={YOUR_JELLYFIN_SERVER_URL}
 
-```http
-PATCH /login-page
+# NextAuth (Jellydash's own login session)
+NEXTAUTH_SECRET={RANDOM_SECRET}
+NEXTAUTH_URL={YOUR_JELLYDASH_APP_URL}
+NEXT_SERVER_ACTIONS_ENCRYPTION_KEY={RANDOM_SECRET}
+
+# Admin API key used for server-side/webhook calls to Jellyfin
+JELLYFIN_ADMIN_API_KEY={YOUR_JELLYFIN_API_KEY}
+
+# Shared secret required on incoming Jellyfin webhook calls
+WEBHOOK_SECRET={RANDOM_SECRET}
+
+# Optional debugging
+REQUEST_LOGS=true
+DEBUG_JELLYFIN_ENDPOINT=/api/webhooks
+
+# Poster image hosting (used to build public image URLs)
+NEXT_PUBLIC_IMAGE_PROTOCOL=https
+NEXT_PUBLIC_IMAGE_HOSTNAME={YOUR_JELLYFIN_HOSTNAME}
+NEXT_PUBLIC_ALLOWED_DEV_ORIGIN={YOUR_DEV_ORIGIN}
+
+# Needed by the media re-encode endpoint below (Windows paths to your Jellyfin server's ffmpeg/ffprobe)
+FFMPEG_PATH=C:\Program Files\Jellyfin\Server\ffmpeg.exe
+FFPROBE_PATH=C:\Program Files\Jellyfin\Server\ffprobe.exe
+
+# Custom poster/thumb used for the auto-generated Watchlist playlist
+WATCHLIST_MOVIES_POSTER_PATH={PATH_TO_IMAGE}
+WATCHLIST_MOVIES_THUMB_PATH={PATH_TO_IMAGE}
 ```
 
-✅ **What it does**:
+## 🔐 **Authentication**
 
-- Adds carousels for *Latest Movies* and *TV Shows* to the Login Page
-- Files: `app/login-page/` (customize styles easily!)
+Signing with an account that has admin permissions, that's all!
 
 ---
 
-### 📚 **2. Library Management**
+### 🎵 **Delete Playlist Songs**
 
-#### 🔄 **Import Libraries**
+Available in the dashboard under **Content Management → Delete Playlist Songs**. Accepts any `.m3u8` playlist file — it doesn't have to come from Symfonium, that's just the app used to originally export the sample playlists. On the page you:
 
-```http
-PATCH /libraries/update-libraries
-```
+1. Pick the **Music Folder Path** with the built-in folder browser (browses folders directly on the server's own disks).
+2. Optionally set the **Jellyfin path**, if the paths inside the `.m3u8` are container paths (e.g. `/media/F/Music/Vir7uaL/...` from a Dockerized Jellyfin) that need translating back to the real path on disk.
+3. Upload the `.m3u8` file and confirm.
 
-📁 **Output**: Saves to `db/libraries/standard`
-
-#### 🔒 **Restrict Library Access (Admin-Only)**
-
-```http
-POST /add-to-package
-Payload: {"id": "lib123", "name": "4K Movies", "package": "ADMIN"}
-```
-
-⚠️ **Warning**: Call `GET /libraries/sync` after to apply changes.
-
-#### 🏠 **Reorder Home Screen Libraries**
-
-1. Fetch current order:
-
-```http
-GET /libraries/all
-```
-
-2. Update globally:
-
-```http
-POST /users/update-configs
-Payload: {"OrderedViews": ["id1->Movies", "id2->TV Shows"]}
-```
-
-⚠️ **Affects all users!**
-
-#### 🔄 **Force Jellyfin to add/update a library with new paths**
-
-When changing library paths to new ones, Jellyfin sometimes might still keep the old ones. This can create all kind of issues like content duplication that won't work when trying to playblack.
-
-```http
-PATCH /force-new-library-paths/?name={libraryName}
-```
-
-Payload example
-
-```json
-{
-  "PreferredMetadataLanguage": "pt",
-  "MetadataCountryCode": "PT",
-  "AllowEmbeddedSubtitles": "AllowNone",
-  "PathInfos": ["A:\\Movies\\MovieGenre", "A:\\Movies\\MovieGenreTwo"]
-}
-```
+Each song is checked against the chosen folder before deletion (anything outside it is skipped, never deleted), and the response reports exactly what was deleted, not found, skipped, or errored.
 
 ---
 
-### 🛡️ **3. Content Filtering**
+### 📣 **Social Post Generator**
 
-#### 🚫 **Block Tags (e.g., for Kids)**
+Available under **Content Management → Social Post**:
 
-```http
-POST /blocked-tags
-Payload: {"tag": "violence"}
-```
-
-✅ **Auto-syncs** to all users with `CHILDREN` package.
+- **Generate Post** – generates a social media ready image to share.
+- **Set template** – upload a template for your social posts (1440x2160)
 
 ---
 
-### 🎭 **4. Media Enhancements**
+## ⚠️ **Critical Notes**
 
-#### 📸 **Fix Missing Cast & Crew Photos**
-
-```http
-PATCH /persons?userId=USER_ID
-```
-
-⏳ **First run**: May take time (processes all missing images).  
-✅ **Optimized**: Skips processed IDs in future runs.
-
-#### 📅 **Update Content Dates**
-
-```http
-PATCH /items/update-date-created?IncludeItemTypes=Movie
-```
-
-**Also available**: Replace `Movie` with `Series` or `Episode`.
+- **Dev server runs on port 4000**, not the Next.js default 3000.
+- **Packages**: `STANDARD` | `CHILDREN` | `PREMIUM` | `ADMIN`, defined in `app/db/packages.ts` (enabled folders per package live in `app/db/libraries/`).
+- **Delete Playlist Songs is destructive and irreversible** — it deletes real files from disk. The folder-path safety guard only stops it from deleting _outside_ the folder you picked; it won't stop you from picking the wrong folder.
+- **First-run delays**: media/photo updates may take time (later calls are faster, since processed IDs are skipped).
 
 ---
 
-### 👥 **5. User Management**
+## 🔮 **Planned Features**
 
-#### ✨ **Create New User**
-
-```http
-POST /users/new
-Payload: {"username": "Bob", "package": "PREMIUM"}
-```
-
-🔑 **Returns**: Auto-generated secure password.
-
-#### ⚙️ **Apply Default Settings**
-
-1. **Configs**:
-
-```http
-POST /users/update-configs
-```
-
-2. **Display Preferences**:
-
-```http
-POST /users/update-display-prefs
-```
+- **User roles management**: CRUD options to mange user roles.
+- **Sync Crew & Cast**: Feature to sync crew and cast member pictures.
+- **Homepage Library order**: Re-order the libraries for all users.
+- **Libraries options**: Sync libraries, exclude libraries from homepage, add library to user role.
+- **Suggest a feature!** (Open an issue or DM me.)
 
 ---
 
-## ⚠️ **Critical Notes**
+## 💡 **Good to Know**
 
-- **`OrderedViews` changes apply globally** → Double-check before saving!
-- **Packages**: `STANDARD` | `CHILDREN` | `PREMIUM` | `ADMIN` (edit in `config/packages.json`).
-- **First-run delays**: Media updates may take time (later calls are faster).
-
----
-
-## 🎨 **Pro Tips**
-
-1. **Customize packages**: Edit `config/packages.json`
-2. **Style login carousels**: Modify `app/login-page/styles.css`
+- **No database required** – All data is stored as files in the project folder (`app/db/`).
+- **Works alongside Jellyfin** – No conflicts with your existing setup; Jellydash just talks to Jellyfin's API.
 
 ---
 
-## 🔮 **Planned Features**
-
-- **Web-based frontend** Develop the frontend for more convenience.
-- **Suggest a feature!** (Open an issue or DM me).
-
----
-
-## 💡 **Good to Know**
-
-- **No database required** – All data is stored in the project folder.
-- **Works alongside Jellyfin** – No conflicts with existing setups.
-
----
-
-**🌟 Love Jellydash?** Star the repo and help it grow!
+**🌟 Love Jellydash?** Star the repo and help it grow!
