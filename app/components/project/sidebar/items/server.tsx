@@ -1,9 +1,7 @@
 import {
   ArrowDownNarrowWide,
-  BicepsFlexed,
   CalendarArrowDown,
   House,
-  Languages,
   MonitorDown,
   ServerCog
 } from 'lucide-react';
@@ -17,19 +15,6 @@ export const server = {
   icon: ServerCog,
   canAccess: false,
   items: [
-    {
-      title: 'Subtitle Language',
-      url: baseUrl + '/default-subtitle-language',
-      icon: <Languages className={classes} />,
-      canAccess: false
-    },
-    {
-      title: 'Force New Library Paths',
-      url: baseUrl + '/force-new-library-paths',
-      icon: <BicepsFlexed className={classes} />,
-      canAccess: false
-    },
-
     {
       title: 'Homepage Settings',
       url: '#',

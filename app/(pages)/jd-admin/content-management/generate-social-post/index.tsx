@@ -13,7 +13,7 @@ import FormFields from './components/formFields';
 import { formValidationRules, SearchItemPayloadType } from './formValidations';
 
 import HighResPoster from './components/highResPoster';
-import Items from './components/Items';
+import Items from './components/items';
 import Preview from './components/preview';
 import { texts } from './configs';
 import useSocialPost from './hooks/useSocialPosts';

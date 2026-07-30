@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import Page from '.';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const title = 'Jellydash - Force New Library Paths';
+  const title = 'Jellydash - Delete Playlist Songs';
 
   return {
     title,
