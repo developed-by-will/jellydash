@@ -1,15 +1,10 @@
 import {
   Baby,
-  CalendarSync,
-  Drama,
   ImagePlay,
-  LayoutTemplate,
   MessageCircleReply,
   MessageSquareShare,
-  MonitorPlay,
   NotepadTextDashed,
   PersonStanding,
-  Popcorn,
   Trash2
 } from 'lucide-react';
 import { NavItem } from '.';
@@ -40,35 +35,6 @@ export const content: NavItem = {
       url: baseUrl + '/sync-crew-and-cast',
       icon: <PersonStanding className={classes} />,
       canAccess: false
-    },
-    {
-      title: 'Sync Login Page',
-      url: baseUrl + '/sync-login-page',
-      icon: <LayoutTemplate className={classes} />,
-      canAccess: false
-    },
-    {
-      title: 'Sync Creation Dates',
-      url: '#',
-      icon: <CalendarSync className={classes} />,
-      canAccess: false,
-      items: [
-        {
-          title: 'Movies',
-          url: baseUrl + '/sync-creation-dates',
-          icon: <Popcorn className={classes} />
-        },
-        {
-          title: 'Shows',
-          url: baseUrl + '/sync-creation-dates',
-          icon: <Drama className={classes} />
-        },
-        {
-          title: 'Episodes',
-          url: baseUrl + '/sync-creation-dates',
-          icon: <MonitorPlay className={classes} />
-        }
-      ]
     },
     {
       title: 'Social Post',
