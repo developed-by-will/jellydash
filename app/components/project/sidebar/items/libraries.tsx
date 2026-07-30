@@ -13,7 +13,7 @@ export const libraries = {
       title: 'Sync',
       url: baseUrl + '/sync',
       icon: <BookDown className={classes} />,
-      canAccess: false
+      canAccess: true
     },
     {
       title: 'Exclude from Home',

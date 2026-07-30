@@ -1,6 +1,5 @@
-import { catchError } from '@/app/api/helpers';
-import { PackageName, PACKAGES } from '@/app/db/packages';
-import fs from 'fs';
+import { appendLibraryLine, catchError, parseLibraries } from '@/app/api/helpers';
+import { PACKAGE_LIBRARY_FILE, PackageName, PACKAGES } from '@/app/db/packages';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -15,39 +14,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: `Package does not exist` }, { status: 400 });
     }
 
-    const file = 'app/db/libraries/' + Package.toLowerCase();
-    const library = `${id}->${name}`;
-
-    // Check if library already exists
-    if (fs.existsSync(file)) {
-      const fileContent = fs.readFileSync(file, 'utf-8');
-
-      if (fileContent.includes(library)) {
-        return NextResponse.json({ message: 'Library already exists' }, { status: 400 });
-      }
-
-      // Appends new library
-      fs.appendFileSync(file, library + '\n');
-
-      return NextResponse.json(librariesList(fileContent), { status: 200 });
+    // PREMIUM has no library file of its own - it always mirrors Standard's list (see
+    // app/db/packages.ts) - so there's nothing to add a library to here.
+    if (!(Package in PACKAGE_LIBRARY_FILE)) {
+      return NextResponse.json(
+        { message: `${Package} has no library list of its own - add to STANDARD instead` },
+        { status: 400 }
+      );
     }
 
-    // Creates new file and writes the library
-    fs.writeFileSync(file, library + '\n');
-    const fileContent = fs.readFileSync(file, 'utf-8');
+    const file = PACKAGE_LIBRARY_FILE[Package as keyof typeof PACKAGE_LIBRARY_FILE];
+    const alreadyPresent = parseLibraries(file).some((lib) => lib.id === id);
 
-    return NextResponse.json(librariesList(fileContent), { status: 200 });
+    if (alreadyPresent) {
+      return NextResponse.json({ message: 'Library already exists' }, { status: 400 });
+    }
+
+    appendLibraryLine(file, id, name);
+
+    return NextResponse.json(parseLibraries(file), { status: 200 });
   } catch (error) {
-    catchError(error);
+    return catchError(error);
   }
 }
-
-const librariesList = (fileContent: string) =>
-  fileContent
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.includes('->'))
-    .map((line) => {
-      const [id, name] = line.split('->').map((part) => part.trim());
-      return { id, name };
-    });

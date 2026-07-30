@@ -144,6 +144,33 @@ export function getLibraryIdsByName(libraries: Library[], names: string[]): stri
   return libraries.filter((lib) => names.some((name) => lib.name === name)).map((lib) => lib.id);
 }
 
+// Appends an `id->name` line to a library file, adding a leading newline first if the file's
+// last line doesn't already end with one (e.g. it was hand-edited) - otherwise the new entry
+// gets glued onto the end of the previous line instead of starting its own.
+export function appendLibraryLine(filePath: string, id: string, name: string): void {
+  const line = `${id}->${name}`;
+
+  if (!fs.existsSync(filePath)) {
+    fs.writeFileSync(filePath, line + '\n');
+    return;
+  }
+
+  const existing = fs.readFileSync(filePath, 'utf-8');
+  const needsLeadingNewline = existing.length > 0 && !existing.endsWith('\n');
+
+  fs.appendFileSync(filePath, (needsLeadingNewline ? '\n' : '') + line + '\n');
+}
+
+// Removes any line for `id` from a library file.
+export function removeLibraryLine(filePath: string, id: string): void {
+  const remaining = parseLibraries(filePath).filter((lib) => lib.id !== id);
+
+  fs.writeFileSync(
+    filePath,
+    remaining.length ? remaining.map((lib) => `${lib.id}->${lib.name}`).join('\n') + '\n' : ''
+  );
+}
+
 export function getAdminLibrariesIds(): string[] {
   try {
     return fs
