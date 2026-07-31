@@ -1,7 +1,8 @@
 'use client';
 
-import { BASE_URL, Ratings } from '@/app/api/constants';
+import { BASE_URL } from '@/app/api/constants';
 import { JellyfinItemsResponse } from '@/app/api/types';
+import { Rating } from '@/app/db/ratings';
 import {
   Select,
   SelectContent,
@@ -11,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import useQueryHandler from '@/hooks/useQueryHandler';
 import ImageWithSkeleton from './ImageWithSkeleton';
 
 type Props = {
@@ -20,6 +22,11 @@ type Props = {
 };
 
 export default function Items({ data, ratings, onRatingChange }: Readonly<Props>) {
+  const { data: availableRatings } = useQueryHandler<Rating[]>({
+    queryKey: 'ratings',
+    endpoint: 'ratings'
+  });
+
   return (
     <div
       className="grid gap-4 w-full mt-5"
@@ -30,7 +37,7 @@ export default function Items({ data, ratings, onRatingChange }: Readonly<Props>
       {data.Items.map((item) => {
         const selectedRating =
           ratings[item.Id] ??
-          Ratings.find(
+          (availableRatings ?? []).find(
             (r) => r.value.trim().toUpperCase() === item.OfficialRating?.trim().toUpperCase()
           )?.value;
 
@@ -55,8 +62,8 @@ export default function Items({ data, ratings, onRatingChange }: Readonly<Props>
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Official Rating</SelectLabel>
-                  {Ratings.map((r) => (
-                    <SelectItem key={r.value} value={r.value}>
+                  {(availableRatings ?? []).map((r) => (
+                    <SelectItem key={r.id} value={r.value}>
                       {r.label}
                     </SelectItem>
                   ))}

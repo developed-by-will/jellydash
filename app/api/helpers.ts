@@ -1,6 +1,5 @@
 import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
-import { libraries } from '../db/packages';
 import { DEBUG_JELLYFIN_ENDPOINT, DEVICE_ID, REQUEST_LOGS, SERVER_URL } from './constants';
 import { ApiConfig, Library } from './types';
 
@@ -169,20 +168,6 @@ export function removeLibraryLine(filePath: string, id: string): void {
     filePath,
     remaining.length ? remaining.map((lib) => `${lib.id}->${lib.name}`).join('\n') + '\n' : ''
   );
-}
-
-export function getAdminLibrariesIds(): string[] {
-  try {
-    return fs
-      .readFileSync(libraries.admin, 'utf-8')
-      .split('\n')
-      .map((name) => name.trim())
-      .filter((line) => line.includes('->'))
-      .map((line) => line.split('->')[0].trim());
-  } catch (error) {
-    console.error('Error reading admin libraries:', error);
-    return [];
-  }
 }
 
 export function getLibrariesIds(libraries: string[]): string[] {

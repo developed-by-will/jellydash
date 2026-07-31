@@ -5,6 +5,7 @@ import {
   MessageSquareShare,
   NotepadTextDashed,
   PersonStanding,
+  Star,
   Trash2
 } from 'lucide-react';
 import { NavItem } from '.';
@@ -20,9 +21,20 @@ export const content: NavItem = {
   items: [
     {
       title: 'Parental Ratings',
-      url: baseUrl + '/parental-ratings',
+      url: '#',
       icon: <Baby className={classes} />,
-      canAccess: true
+      items: [
+        {
+          title: 'Rate Content',
+          url: baseUrl + '/parental-ratings',
+          icon: <Baby className={classes} />
+        },
+        {
+          title: 'Manage Ratings',
+          url: baseUrl + '/manage-ratings',
+          icon: <Star className={classes} />
+        }
+      ]
     },
     {
       title: 'Delete Playlist Songs',

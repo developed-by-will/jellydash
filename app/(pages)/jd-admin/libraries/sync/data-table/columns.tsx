@@ -1,23 +1,25 @@
 'use client';
 
 import { LibraryWithRoles } from '@/app/api/libraries/roles/route';
-import { MembershipList } from '@/app/api/libraries/membership/route';
 import { bgDestructive, bgSuccess } from '@/app/constants';
-import { ToggleableRole } from '@/app/db/packages';
+import { Role } from '@/app/db/packages';
 import { toast } from '@/components/breeze-ui/toast/hooks/use-toast';
 import { DataTableColumnHeader } from '@/components/breeze-ui/data-table';
 import { Badge } from '@/components/ui/badge';
 import { useMutationHandler } from '@/hooks/useMutationHandler';
+import useQueryHandler from '@/hooks/useQueryHandler';
 import { ColumnDef } from '@tanstack/react-table';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 
-// PREMIUM isn't listed here - it has no library list of its own, it just mirrors STANDARD
-// with download permission added on top (see app/db/packages.ts).
-const ALL_ROLES: ToggleableRole[] = ['STANDARD', 'CHILDREN', 'ADMIN'];
-
 function RolesCell({ library }: Readonly<{ library: LibraryWithRoles }>) {
-  const [pendingList, setPendingList] = useState<MembershipList | null>(null);
+  const [pendingList, setPendingList] = useState<string | null>(null);
+
+  // Cached/deduped by react-query across every row - only actually fetched once per page load.
+  const { data: roles } = useQueryHandler<Role[]>({
+    queryKey: 'roles',
+    endpoint: 'roles'
+  });
 
   const { mutateAsync: addToList } = useMutationHandler({
     endpoint: 'libraries/membership',
@@ -33,7 +35,7 @@ function RolesCell({ library }: Readonly<{ library: LibraryWithRoles }>) {
     invalidateQueryKeys: ['libraries-roles']
   });
 
-  const toggle = async (list: MembershipList, active: boolean) => {
+  const toggle = async (list: string, label: string, active: boolean) => {
     setPendingList(list);
 
     try {
@@ -45,7 +47,7 @@ function RolesCell({ library }: Readonly<{ library: LibraryWithRoles }>) {
     } catch (err: any) {
       toast({
         title: 'Failed to update access',
-        description: err?.message ?? `Could not update ${list} for ${library.name}`,
+        description: err?.message ?? `Could not update ${label} for ${library.name}`,
         variant: 'destructive',
         duration: 4000
       });
@@ -55,15 +57,15 @@ function RolesCell({ library }: Readonly<{ library: LibraryWithRoles }>) {
   };
 
   const badges = [
-    ...ALL_ROLES.map((role) => ({
-      list: role as MembershipList,
-      label: role,
-      active: library.roles.includes(role),
+    ...(roles ?? []).map((role) => ({
+      list: role.id,
+      label: role.name,
+      active: library.roles.includes(role.id),
       activeClass: bgSuccess,
       inactiveClass: bgDestructive
     })),
     {
-      list: 'EXCLUDED' as MembershipList,
+      list: 'EXCLUDED',
       label: 'EXCLUDED',
       active: library.excluded,
       activeClass: 'bg-amber-600 hover:bg-amber-700 text-white',
@@ -78,8 +80,8 @@ function RolesCell({ library }: Readonly<{ library: LibraryWithRoles }>) {
 
         return (
           <Badge
-            key={badge.label}
-            onClick={() => !pendingList && toggle(badge.list, badge.active)}
+            key={badge.list}
+            onClick={() => !pendingList && toggle(badge.list, badge.label, badge.active)}
             className={`text-xs cursor-pointer select-none ${badge.active ? badge.activeClass : badge.inactiveClass} ${
               pendingList && !isPending ? 'opacity-50 pointer-events-none' : ''
             }`}

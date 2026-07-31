@@ -1,29 +1,23 @@
 import { appendLibraryLine, catchError, parseLibraries } from '@/app/api/helpers';
-import { PACKAGE_LIBRARY_FILE, PackageName, PACKAGES } from '@/app/db/packages';
+import { getRoleLibraryFile, getRoles } from '@/app/db/packages';
 import { NextRequest, NextResponse } from 'next/server';
 
+// Legacy endpoint kept for the Postman collection - equivalent to POST /api/libraries/membership
+// with `list` renamed to `package`. Roles are looked up by id case-insensitively so old calls
+// using the uppercase names (e.g. "STANDARD") still work against today's lowercase role ids.
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { id, name } = body;
+    const packageId: string = body.package;
 
-    const Package: PackageName = body.package;
+    const role = getRoles().find((r) => r.id.toLowerCase() === String(packageId).toLowerCase());
 
-    // Check if package exists
-    if (!PACKAGES[Package]) {
-      return NextResponse.json({ message: `Package does not exist` }, { status: 400 });
+    if (!role) {
+      return NextResponse.json({ message: `Role "${packageId}" does not exist` }, { status: 400 });
     }
 
-    // PREMIUM has no library file of its own - it always mirrors Standard's list (see
-    // app/db/packages.ts) - so there's nothing to add a library to here.
-    if (!(Package in PACKAGE_LIBRARY_FILE)) {
-      return NextResponse.json(
-        { message: `${Package} has no library list of its own - add to STANDARD instead` },
-        { status: 400 }
-      );
-    }
-
-    const file = PACKAGE_LIBRARY_FILE[Package as keyof typeof PACKAGE_LIBRARY_FILE];
+    const file = getRoleLibraryFile(role.id);
     const alreadyPresent = parseLibraries(file).some((lib) => lib.id === id);
 
     if (alreadyPresent) {

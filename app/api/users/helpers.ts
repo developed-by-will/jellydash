@@ -1,7 +1,7 @@
 // app/api/users/helpers.ts
 import { catchError, requestApi } from '@/app/api/helpers';
 import { CustomPreferencesBase } from '@/app/api/types';
-import { getLibraries, libraries } from '@/app/db/packages';
+import { getLibraries, getRoleLibraryFile } from '@/app/db/packages';
 import { getServerSession } from 'next-auth';
 import { NextRequest } from 'next/server';
 import { authOptions } from '../auth/authoptions';
@@ -24,7 +24,7 @@ export async function updateUserDisplayPreferences(
     };
 
     // Get standard libraries
-    const libraryIds = getLibraries(libraries.standard)
+    const libraryIds = getLibraries(getRoleLibraryFile('standard'))
       .map((id) => id.trim())
       .filter(Boolean);
 

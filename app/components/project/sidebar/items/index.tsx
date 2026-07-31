@@ -1,7 +1,6 @@
 import { LucideIcon } from 'lucide-react';
 import { content } from './content';
 import { libraries } from './libraries';
-import { roles } from './roles';
 import { server } from './server';
 import { users } from './users';
 
@@ -27,4 +26,4 @@ export type NavItem = {
   canAccess?: boolean;
 };
 
-export const items: NavItem[] = [users, server, content, libraries, roles];
+export const items: NavItem[] = [users, server, content, libraries];

@@ -78,11 +78,3 @@ export const tvDisplayPrefs: CustomPreferencesAndroidTV = {
   ShowSidebar: false,
   Client: 'jellyfin-androidtv'
 };
-
-export const Ratings = [
-  { label: 'Todos', value: 'M/3' },
-  { label: 'M/12', value: 'M/12' },
-  { label: 'M/14', value: 'M/14' },
-  { label: 'M/16', value: 'M/16' },
-  { label: 'M/18', value: 'M/18' }
-];

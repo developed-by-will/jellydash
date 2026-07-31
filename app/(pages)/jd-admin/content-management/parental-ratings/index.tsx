@@ -87,7 +87,7 @@ export default function ParentalRatings() {
 
   const Header = (
     <CardHeader className="p-0">
-      <CardTitle>Parental Ratings</CardTitle>
+      <CardTitle>Rate Content</CardTitle>
       <CardDescription>
         Search and update parental ratings for each Movie and TV Show. Use this page also to detect
         wrong titles and posters.

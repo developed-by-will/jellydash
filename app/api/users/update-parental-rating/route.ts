@@ -1,0 +1,37 @@
+import { catchError, requestApi } from '@/app/api/helpers';
+import { User } from '@/app/api/types';
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { Id, MaxParentalRating } = body;
+
+    const getUsersResponse = await requestApi('/Users', request, {
+      method: 'GET',
+      requiresAuth: true
+    });
+    const users: User[] = await getUsersResponse.json();
+
+    if (!users.length) throw new Error('Failed to fetch users');
+
+    const user = users.find((u) => u.Id === Id?.toString());
+
+    if (!user) throw new Error('User not found');
+
+    const policyUpdate = await requestApi(`/Users/${user.Id}/Policy`, request, {
+      method: 'POST',
+      requiresAuth: true,
+      body: {
+        ...user.Policy,
+        MaxParentalRating: MaxParentalRating ?? null
+      }
+    });
+
+    if (!policyUpdate.ok) throw new Error('Failed to update user');
+
+    return NextResponse.json({ message: 'Max Parental Rating updated' });
+  } catch (error) {
+    return catchError(error);
+  }
+}

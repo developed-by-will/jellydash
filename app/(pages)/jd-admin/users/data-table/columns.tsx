@@ -2,8 +2,10 @@
 
 import { User } from '@/app/api/types';
 import { bgSuccess } from '@/app/constants';
+import { Rating } from '@/app/db/ratings';
 import { AUTENTICATED_POST, DELETE } from '@/app/utils/requestHandler';
 import { DataTableColumnHeader } from '@/components/breeze-ui/data-table';
+import { toast } from '@/components/breeze-ui/toast/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,12 +22,104 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import { useMutationHandler } from '@/hooks/useMutationHandler';
+import useQueryHandler from '@/hooks/useQueryHandler';
 import { useQueryClient } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import { Loader2, MoreHorizontal } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { formatDate } from './helpers';
+
+const NO_CAP = '__no-cap__';
+
+// Ratings are managed as label/value pairs (see Parental Ratings → Manage Ratings), but Jellyfin's MaxParentalRating
+// is a plain number. Values like "M/16" carry that number in the string, so we pull it out rather
+// than maintaining a second parallel numeric field.
+function extractRatingNumber(value: string): number | null {
+  const match = value.match(/\d+/);
+  return match ? Number(match[0]) : null;
+}
+
+function MaxRatingCell({ user }: Readonly<{ user: User }>) {
+  const [isSaving, setIsSaving] = useState(false);
+
+  const { data: ratings } = useQueryHandler<Rating[]>({
+    queryKey: 'ratings',
+    endpoint: 'ratings'
+  });
+
+  const { mutateAsync: updateMaxRating } = useMutationHandler({
+    endpoint: 'users/update-parental-rating',
+    method: 'POST',
+    mutationKey: 'users-update-parental-rating',
+    invalidateQueryKeys: ['users-all']
+  });
+
+  if (user.Policy?.IsAdministrator) return '—';
+
+  const currentRatingId =
+    user.Policy?.MaxParentalRating == null
+      ? NO_CAP
+      : ((ratings ?? []).find(
+          (rating) => extractRatingNumber(rating.value) === user.Policy?.MaxParentalRating
+        )?.id ?? NO_CAP);
+
+  const handleChange = async (ratingId: string) => {
+    const selectedRating = (ratings ?? []).find((rating) => rating.id === ratingId);
+    setIsSaving(true);
+
+    try {
+      await updateMaxRating({
+        Id: user.Id,
+        MaxParentalRating: selectedRating ? extractRatingNumber(selectedRating.value) : null
+      });
+    } catch (err: any) {
+      toast({
+        title: 'Failed to update rating',
+        description: err?.message ?? `Could not update Max Parental Rating for ${user.Name}`,
+        variant: 'destructive',
+        duration: 4000
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <Select value={currentRatingId} onValueChange={handleChange} disabled={isSaving}>
+      <SelectTrigger className="w-[140px]">
+        {isSaving ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <SelectValue placeholder="No cap" />
+        )}
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectLabel>Rating</SelectLabel>
+          <SelectItem value={NO_CAP} className="cursor-pointer">
+            No cap
+          </SelectItem>
+          {(ratings ?? []).map((rating) => (
+            <SelectItem key={rating.id} value={rating.id} className="cursor-pointer">
+              {rating.label}
+            </SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  );
+}
 
 function ActionsCell(user: Readonly<User>) {
   const { data: session } = useSession();
@@ -153,7 +247,7 @@ export const columns: ColumnDef<User>[] = [
   {
     id: 'MaxParentalRating',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Max Parental Rating" />,
-    cell: ({ row }) => row.original.Policy?.MaxParentalRating ?? '—'
+    cell: ({ row }) => <MaxRatingCell user={row.original} />
   },
   {
     id: 'status',
