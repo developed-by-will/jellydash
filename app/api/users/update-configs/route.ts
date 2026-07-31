@@ -1,7 +1,7 @@
 // app/api/users/update-configs/route.ts
 import { catchError, getLibrariesIds, parseLibraries, requestApi } from '@/app/api/helpers';
 import { User } from '@/app/api/types';
-import { libraries } from '@/app/db/packages';
+import { getRoleLibraryFile } from '@/app/db/packages';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -14,7 +14,7 @@ async function updateUserConfigurations(request: NextRequest) {
     const { OrderedViews, SubtitleLanguagePreference } = body;
 
     // Get all standard libraries
-    const standardLibraries = parseLibraries(libraries.standard);
+    const standardLibraries = parseLibraries(getRoleLibraryFile('standard'));
 
     // Extract IDs from OrderedViews (supports both "id->name" and plain IDs)
     const orderedViewIds = OrderedViews.map((view: string) =>

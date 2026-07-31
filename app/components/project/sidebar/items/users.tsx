@@ -1,4 +1,4 @@
-import { UserCog, UserRoundPlus, Users } from 'lucide-react';
+import { UserCheck, UserCog, UserRoundPlus, Users } from 'lucide-react';
 
 const baseUrl = '/users';
 
@@ -9,6 +9,7 @@ export const users = {
   isActive: true,
   items: [
     { title: 'Users', url: baseUrl, icon: <Users /> },
-    { title: 'Create', url: baseUrl + '/create', icon: <UserRoundPlus /> }
+    { title: 'Create', url: baseUrl + '/create', icon: <UserRoundPlus /> },
+    { title: 'Roles', url: '/manage-user-roles', icon: <UserCheck /> }
   ]
 };

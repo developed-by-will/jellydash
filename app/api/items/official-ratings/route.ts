@@ -1,14 +1,7 @@
 import { catchError, requestApi } from '@/app/api/helpers';
 import { JellyfinItem, JellyfinItemsResponse, VirtualFolderType } from '@/app/api/types';
+import { getRatings } from '@/app/db/ratings';
 import { NextRequest, NextResponse } from 'next/server';
-
-const Ratings = [
-  { label: 'Todos', value: 'M/3' },
-  { label: 'M/12', value: 'M/12' },
-  { label: 'M/14', value: 'M/14' },
-  { label: 'M/16', value: 'M/16' },
-  { label: 'M/18', value: 'M/18' }
-];
 
 export async function GET(request: NextRequest) {
   try {
@@ -73,7 +66,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Extract allowed rating values for easier checking
-    const allowedRatings = Ratings.map((rating) => rating.value);
+    const allowedRatings = getRatings().map((rating) => rating.value);
 
     // Sort items: first by whether they have allowed ratings, then by DateCreated
     allItems.sort((a, b) => {

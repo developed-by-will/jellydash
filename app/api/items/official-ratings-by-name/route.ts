@@ -1,7 +1,7 @@
 import { catchError, requestApi } from '@/app/api/helpers';
 import { JellyfinItemsResponse } from '@/app/api/types';
+import { getRatings } from '@/app/db/ratings';
 import { NextRequest, NextResponse } from 'next/server';
-import { Ratings } from '../../constants';
 
 export async function GET(request: NextRequest) {
   try {
@@ -34,11 +34,12 @@ export async function GET(request: NextRequest) {
     const allItems = allItemsData.Items ?? [];
 
     const totalCount = allItems.length;
+    const ratings = getRatings();
 
     // Sort items
     const sortedItems = allItems.toSorted((a, b) => {
-      const aHasRating = Ratings.some((r) => r.value === a.OfficialRating);
-      const bHasRating = Ratings.some((r) => r.value === b.OfficialRating);
+      const aHasRating = ratings.some((r) => r.value === a.OfficialRating);
+      const bHasRating = ratings.some((r) => r.value === b.OfficialRating);
 
       if (!aHasRating && bHasRating) return -1;
       if (aHasRating && !bHasRating) return 1;
@@ -64,7 +65,7 @@ export async function GET(request: NextRequest) {
       const finalResults = paginatedItems.map((item) => {
         const meta = metadataMap.get(item.Id) || item;
         const primaryTag = meta?.ImageTags?.Primary ?? null;
-        const hasMatchingRating = Ratings.some((r) => r.value === meta?.OfficialRating);
+        const hasMatchingRating = ratings.some((r) => r.value === meta?.OfficialRating);
 
         return {
           Id: item.Id,

@@ -24,14 +24,21 @@ These are live and reachable from the sidebar today:
 
 ### 🔹 **User Management**
 
-- **Browse all Jellyfin users** in a searchable table.
-- **Create new users** with a **Package** aka **role** (`STANDARD` | `CHILDREN` | `PREMIUM` | `ADMIN`) that controls which libraries and permissions they get, plus an auto-generated secure password.
+- **Browse all Jellyfin users** in a searchable table, with a per-user **Max Parental Rating**, **\*Disable User**, **Remove User** and **Can Download** options.
+- **Create new users** with a **role** that controls which libraries and permissions they get, plus an auto-generated secure password.
+- **Roles** – Create, rename, or delete roles. Each role can optionally have a **Max Parental Rating** cap.
 
 ### 🔹 **Content Management**
 
-- **Parental Ratings** – Paginated grid of every Movie/Show, letting you fix wrong titles, posters, and official ratings in bulk.
+- **Parental Ratings** – parent menu with two pages:
+  - **Rate Content** – Paginated grid of every Movie/Show, letting you fix wrong titles, posters, and official ratings in bulk.
+  - **Manage Ratings** – Add, rename, or remove the ratings offered on the Rate Content page.
 - **Delete Playlist Songs** – Upload an **`.m3u8` playlist** (from any app — Symfonium, VLC, etc) and permanently delete every listed song from disk.
 - **Social Post** – Shareable social-media poster with custom template option.
+
+### 🔹 **Libraries**
+
+- **Sync** – Table of every library Jellyfin reports, with a badge per role (plus an `EXCLUDED` badge) — click a badge to grant or revoke that library for that role on the spot.
 
 ---
 
@@ -39,7 +46,7 @@ These are live and reachable from the sidebar today:
 
 The sidebar shows a few sections with a 🔒 lock icon — these are placeholders for pages that haven't been built yet:
 
-- **Library sync & management** – import libraries, restrict a library to a Package/role (`/add-to-package`), force Jellyfin to pick up new library paths.
+- **Force Jellyfin to pick up new library paths.**
 - **Reorder Home libraries globally** – change the order everyone sees on their Home screen.
 - **Fix missing Cast & Crew photos** in bulk.
 - **Automatic Watchlist playlist** – a Jellyfin webhook listens for favorites and keeps a shared "Watchlist" playlist in sync automatically; a one-off backfill endpoint exists to catch up on favorites that existed before the webhook was wired up.
@@ -110,6 +117,20 @@ Signing with an account that has admin permissions, that's all!
 
 ---
 
+### 📚 **Library Sync**
+
+## Shows every library Jellyfin currently reports in a table (Library, Roles).
+
+### 👤 **Roles**
+
+Lists every role from `app/db/roles.json`:
+
+- **New Role** – creates a role with an empty library file; grant it libraries from the Sync page afterward.
+- **Edit Role** – rename it and/or set a Max Parental Rating, picked from the same list managed on **Parental Ratings → Manage Ratings** (or "No cap"). The role's `id` (and its underlying library file) never changes, even if you rename it.
+- **Delete Role** – removes the role and its library file. Existing users keep whatever permissions they already have.
+
+---
+
 ### 🎵 **Delete Playlist Songs**
 
 Available in the dashboard under **Content Management → Delete Playlist Songs**. Accepts any `.m3u8` playlist file — it doesn't have to come from Symfonium, that's just the app used to originally export the sample playlists. On the page you:
@@ -134,7 +155,8 @@ Available under **Content Management → Social Post**:
 ## ⚠️ **Critical Notes**
 
 - **Dev server runs on port 4000**, not the Next.js default 3000.
-- **Packages**: `STANDARD` | `CHILDREN` | `PREMIUM` | `ADMIN`, defined in `app/db/packages.ts` (enabled folders per package live in `app/db/libraries/`).
+- **Packages/Roles**: Each has its own independent library file under `app/db/libraries/` — granting a library to one role has no effect on the others. Roles themselves live in `app/db/roles.json`, managed from **User Management → Roles**.
+- **Ratings**: The list offered on the Rate Content page lives in `app/db/ratings.json`, managed from **Parental Ratings → Manage Ratings**. Deleting a rating doesn't change items already tagged with it in Jellyfin.
 - **Delete Playlist Songs is destructive and irreversible** — it deletes real files from disk. The folder-path safety guard only stops it from deleting _outside_ the folder you picked; it won't stop you from picking the wrong folder.
 - **First-run delays**: media/photo updates may take time (later calls are faster, since processed IDs are skipped).
 
@@ -142,10 +164,8 @@ Available under **Content Management → Social Post**:
 
 ## 🔮 **Planned Features**
 
-- **User roles management**: CRUD options to mange user roles.
 - **Sync Crew & Cast**: Feature to sync crew and cast member pictures.
 - **Homepage Library order**: Re-order the libraries for all users.
-- **Libraries options**: Sync libraries, exclude libraries from homepage, add library to user role.
 - **Suggest a feature!** (Open an issue or DM me.)
 
 ---

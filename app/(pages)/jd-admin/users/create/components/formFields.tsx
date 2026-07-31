@@ -1,4 +1,4 @@
-import { PACKAGES } from '@/app/db/packages';
+import { Role } from '@/app/db/packages';
 import { Badge } from '@/components/ui/badge';
 import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import useQueryHandler from '@/hooks/useQueryHandler';
 
 type Props = {
   control: any;
@@ -21,12 +22,10 @@ type Props = {
 export default function FormFields(props: Readonly<Props>) {
   const { control, isPending } = props;
 
-  const PACKAGE_LABELS: Record<keyof typeof PACKAGES, string> = {
-    STANDARD: 'Standard',
-    CHILDREN: 'Children',
-    PREMIUM: 'Premium',
-    ADMIN: 'Admin'
-  };
+  const { data: roles } = useQueryHandler<Role[]>({
+    queryKey: 'roles',
+    endpoint: 'roles'
+  });
 
   return (
     <>
@@ -92,9 +91,9 @@ export default function FormFields(props: Readonly<Props>) {
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Packages</SelectLabel>
-                      {Object.entries(PACKAGE_LABELS).map(([key, label]) => (
-                        <SelectItem key={key} value={key} className="cursor-pointer">
-                          {label}
+                      {(roles ?? []).map((role) => (
+                        <SelectItem key={role.id} value={role.id} className="cursor-pointer">
+                          {role.name}
                         </SelectItem>
                       ))}
                     </SelectGroup>

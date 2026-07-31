@@ -1,7 +1,7 @@
 import { CreateUserPayloadType } from '@/app/(pages)/jd-admin/users/create/formValidations';
 import { catchError, generatePassword, requestApi } from '@/app/api/helpers';
 import { CreateUserResponseType, User } from '@/app/api/types';
-import { PackageName, PACKAGES } from '@/app/db/packages';
+import { getRolePolicy, getRoles } from '@/app/db/packages';
 import { NextRequest, NextResponse } from 'next/server';
 import { mobileDisplayPrefs } from '../../constants';
 import { updateUserDisplayPreferences } from '../helpers';
@@ -10,9 +10,11 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { Username, Pw } = body as CreateUserPayloadType;
-    const Package: PackageName = body.Package;
+    const Package: string = body.Package;
 
-    if (!PACKAGES[Package]) {
+    const role = getRoles().find((r) => r.id === Package);
+
+    if (!role) {
       return NextResponse.json({ message: `Package does not exist` }, { status: 400 });
     }
 
@@ -53,7 +55,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: `Could not find newly created user` }, { status: 400 });
     }
 
-    const userInfo: User = { ...newUser, ...PACKAGES[Package] };
+    const userInfo: User = { ...newUser, ...getRolePolicy(role) };
 
     // Update policies
     const policyUpdate = await requestApi(`/Users/${newUser.Id}/Policy`, request, {

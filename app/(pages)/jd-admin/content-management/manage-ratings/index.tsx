@@ -1,6 +1,6 @@
 'use client';
 
-import { Role } from '@/app/db/packages';
+import { Rating } from '@/app/db/ratings';
 import { DataTable } from '@/components/breeze-ui/data-table/data-table';
 import { toast } from '@/components/breeze-ui/toast/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -20,37 +20,39 @@ import { Loader2, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { columns } from './data-table/columns';
 
-export default function ManageUserRoles() {
+export default function ManageRatings() {
   const [createOpen, setCreateOpen] = useState(false);
-  const [name, setName] = useState('');
+  const [label, setLabel] = useState('');
+  const [value, setValue] = useState('');
 
-  const { data, isError, error, isPending } = useQueryHandler<Role[]>({
-    queryKey: 'roles',
-    endpoint: 'roles'
+  const { data, isError, error, isPending } = useQueryHandler<Rating[]>({
+    queryKey: 'ratings',
+    endpoint: 'ratings'
   });
 
-  const { mutateAsync: createRole, isPending: isCreating } = useMutationHandler({
-    endpoint: 'roles',
+  const { mutateAsync: createRating, isPending: isCreating } = useMutationHandler({
+    endpoint: 'ratings',
     method: 'POST',
-    mutationKey: 'roles-create',
-    invalidateQueryKeys: ['roles']
+    mutationKey: 'ratings-create',
+    invalidateQueryKeys: ['ratings']
   });
 
   const handleCreate = async () => {
     try {
-      await createRole({ name });
+      await createRating({ label, value });
       toast({
-        title: 'Role created',
-        description: `${name} is ready - add libraries to it from the Sync page.`,
+        title: 'Rating created',
+        description: `${label} is now available in the Rate Content picker.`,
         variant: 'success',
         duration: 4000
       });
-      setName('');
+      setLabel('');
+      setValue('');
       setCreateOpen(false);
     } catch (err: any) {
       toast({
-        title: 'Failed to create role',
-        description: err?.message ?? 'Could not create role',
+        title: 'Failed to create rating',
+        description: err?.message ?? 'Could not create rating',
         variant: 'destructive',
         duration: 4000
       });
@@ -59,22 +61,22 @@ export default function ManageUserRoles() {
 
   if (isError) {
     console.error(error);
-    return <div>Error loading roles: {error.message}</div>;
+    return <div>Error loading ratings: {error.message}</div>;
   }
 
   return (
     <Card className="flex flex-col w-full gap-5 p-10">
       <CardHeader className="p-0 flex-row items-center justify-between">
         <div>
-          <CardTitle>Roles</CardTitle>
+          <CardTitle>Manage Ratings</CardTitle>
           <CardDescription>
-            Roles determine which libraries a user can access and, optionally, a max parental
-            rating. Manage library access per role from the Sync page.
+            The list of parental ratings offered on the Rate Content page. Label is what&apos;s
+            shown in the picker, Value is what gets written as the item&apos;s official rating.
           </CardDescription>
         </div>
         <Button onClick={() => setCreateOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
-          New Role
+          New Rating
         </Button>
       </CardHeader>
 
@@ -90,25 +92,38 @@ export default function ManageUserRoles() {
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>New Role</DialogTitle>
+            <DialogTitle>New Rating</DialogTitle>
           </DialogHeader>
 
-          <Label htmlFor="new-role-name" className="flex flex-col gap-1">
-            Name
-            <Input
-              id="new-role-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              disabled={isCreating}
-              placeholder="e.g. Family"
-            />
-          </Label>
+          <div className="flex flex-col gap-4">
+            <Label htmlFor="new-rating-label" className="flex flex-col gap-1">
+              Label
+              <Input
+                id="new-rating-label"
+                value={label}
+                onChange={(e) => setLabel(e.target.value)}
+                disabled={isCreating}
+                placeholder="e.g. M/16"
+              />
+            </Label>
+
+            <Label htmlFor="new-rating-value" className="flex flex-col gap-1">
+              Value
+              <Input
+                id="new-rating-value"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                disabled={isCreating}
+                placeholder="e.g. M/16"
+              />
+            </Label>
+          </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)} disabled={isCreating}>
               Cancel
             </Button>
-            <Button onClick={handleCreate} disabled={isCreating || !name.trim()}>
+            <Button onClick={handleCreate} disabled={isCreating || !label.trim() || !value.trim()}>
               {isCreating ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Create'}
             </Button>
           </DialogFooter>

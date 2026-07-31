@@ -9,6 +9,7 @@ import { toast } from '@/components/breeze-ui/toast/hooks/use-toast';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { useMutationHandler } from '@/hooks/useMutationHandler';
+import useQueryHandler from '@/hooks/useQueryHandler';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -23,6 +24,10 @@ const defaultValues = {
   Package: ''
 };
 
+// Playlists always leads the home screen row order - everything else follows in whatever order
+// Jellyfin reports the libraries.
+const PLAYLISTS_VIEW = '4b94e5cbf58c7a5ea5a2c7bbd0a1e781->Playlists';
+
 export default function CreateUser() {
   const [isPending, setIsPending] = useState(false);
   const [password, setPassword] = useState('');
@@ -34,6 +39,11 @@ export default function CreateUser() {
   });
 
   const { control, handleSubmit } = form;
+
+  const { data: compactLibraries } = useQueryHandler<string[]>({
+    queryKey: 'libraries-all-compact',
+    endpoint: 'libraries/all?info=compact'
+  });
 
   const createUser = useMutationHandler<CreateUserPayloadType, CreateUserResponseType>({
     mutationKey: 'users-new',
@@ -59,19 +69,12 @@ export default function CreateUser() {
   useEffect(() => {
     if (createUser.isError) setIsPending(false);
     if (createUser.isSuccess) {
+      const otherViews = (compactLibraries ?? []).filter(
+        (view) => !view.startsWith(`${PLAYLISTS_VIEW.split('->')[0]}->`)
+      );
+
       updateUserConfigs.mutate({
-        OrderedViews: [
-          '4b94e5cbf58c7a5ea5a2c7bbd0a1e781->Playlists',
-          'af92f2d68eea947c7f9df41836afb987->Filmes',
-          'd565273fd114d77bdf349a2896867069->Séries',
-          '3f1cdfa851070dc04e40b43ec5927636->Animação',
-          '1018a0db3df0561dc2e48ba8dbfbafb9->Séres PT',
-          'a3c1924c44cd056b3dbb7f61d0c57db9->Documentários',
-          'ca0de50d2c11073f53df7c82dc3fe2a4->Animes',
-          'cb7c5f4cc4fdd65994af1a681dfffcd3->Séries Documentários',
-          '32a136310f2a3484f827fb94c141b69b->Vir7uaLMusic',
-          'a4a7d3c943f3cdc73001448f67aa3235->TixaMusic'
-        ],
+        OrderedViews: [PLAYLISTS_VIEW, ...otherViews],
         SubtitleLanguagePreference: 'por'
       });
     }
