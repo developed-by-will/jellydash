@@ -1,16 +1,22 @@
-import {
-  JELLYFIN_ADMIN_API_KEY,
-  SERVER_URL,
-  WATCHLIST_MOVIES_POSTER_PATH,
-  WATCHLIST_MOVIES_THUMB_PATH,
-  WATCHLIST_PLAYLIST_NAME,
-  WATCHLIST_PLAYLIST_SORT_NAME
-} from '@/app/api/constants';
+import { JELLYFIN_ADMIN_API_KEY, SERVER_URL, WATCHLIST_PLAYLIST_SORT_NAME } from '@/app/api/constants';
 import { getHeaders, requestApi } from '@/app/api/helpers';
+import {
+  getMoviesPlaylistImagePath,
+  getPlaylistsViewImagePath,
+  getWatchlistSettings
+} from '@/app/db/watchlistSettings';
 import fs from 'fs';
 import { NextRequest } from 'next/server';
 import path from 'path';
-import { getMoviesPlaylistId, getSeriesPlaylistId, setMoviesPlaylistId, setSeriesPlaylistId } from './store';
+import {
+  getAllTrackedPlaylists,
+  getMoviesPlaylistId,
+  getSeriesPlaylistId,
+  removeMoviesPlaylistId,
+  removeSeriesPlaylistId,
+  setMoviesPlaylistId,
+  setSeriesPlaylistId
+} from './store';
 import { FavoriteChange, PlaylistCreationResult } from './types';
 
 type ImageType = 'Primary' | 'Thumb';
@@ -86,6 +92,38 @@ export async function renamePlaylist(
   }
 }
 
+/**
+ * Renames any user-scoped Item (a playlist, a view, ...) via the generic item-update endpoint -
+ * same fetch-full-dto-then-repost pattern as renamePlaylist above. Used for the "Playlists"
+ * home-screen view label. No-ops if the name already matches.
+ */
+async function renameView(
+  request: NextRequest,
+  userId: string,
+  itemId: string,
+  displayName: string
+): Promise<void> {
+  const getRes = await requestApi(`/Users/${userId}/Items/${itemId}`, request, {
+    method: 'GET',
+    requiresAuth: true,
+    accessToken: JELLYFIN_ADMIN_API_KEY
+  });
+  if (!getRes.ok) {
+    return;
+  }
+  const item = await getRes.json();
+  if (item.Name === displayName) {
+    return;
+  }
+
+  await requestApi(`/Items/${itemId}`, request, {
+    method: 'POST',
+    requiresAuth: true,
+    accessToken: JELLYFIN_ADMIN_API_KEY,
+    body: { ...item, Name: displayName }
+  });
+}
+
 async function uploadItemImage(
   itemId: string,
   imageType: ImageType,
@@ -105,14 +143,6 @@ async function uploadItemImage(
   if (!res.ok) {
     throw new Error(`Failed to upload ${imageType} image for ${itemId}: ${res.status}`);
   }
-}
-
-async function deleteItemImage(itemId: string, imageType: ImageType): Promise<void> {
-  // Best-effort - a 404 (nothing to delete) is fine, not an error.
-  await fetch(`${SERVER_URL}/Items/${itemId}/Images/${imageType}`, {
-    method: 'DELETE',
-    headers: getHeaders(JELLYFIN_ADMIN_API_KEY)
-  });
 }
 
 async function fetchItemImage(
@@ -151,10 +181,12 @@ async function playlistStillExists(
  * Each user gets their own distinct "Playlists" home-screen view object (a different Id per
  * user, seemingly only created once that user has at least one playlist) - it is NOT the same
  * shared Id as the underlying playlist storage folder, and it is NOT shared across users either
- * (own Id, own ImageTags). So neither "show Playlists first" nor "give it a proper image" can be
- * set once for everyone; both have to be verified/corrected per user, right after we know they
- * have at least one playlist. Cheap and mostly idempotent (the order check skips the write when
- * already correct; the image upload just re-applies the same bytes, harmless if repeated).
+ * (own Id, own ImageTags, own Name). So the label, image, and "show first" ordering can't be set
+ * once for everyone; all three have to be verified/corrected per user, right after we know they
+ * have at least one playlist - and again later via reapplyWatchlistCustomizations, since Jellyfin's
+ * own library scan periodically regenerates this view's image (and the plain re-upload here is
+ * exactly what undoes that). Cheap and idempotent to repeat (each step no-ops or re-applies the
+ * same bytes/name when already correct).
  */
 async function ensurePlaylistsViewPresentation(request: NextRequest, userId: string): Promise<void> {
   const viewsRes = await requestApi(`/Users/${userId}/Views`, request, {
@@ -173,26 +205,22 @@ async function ensurePlaylistsViewPresentation(request: NextRequest, userId: str
     return;
   }
 
-  // Only Thumb - the home-screen tile widget prefers Primary over Thumb when both are set,
-  // which would squeeze the portrait poster into this landscape tile and distort it. Jellyfin
-  // auto-generates its own composite Primary image asynchronously shortly after this view first
-  // materializes (a background job, not part of this request) - deleting it right away loses the
-  // race. Delete once now, and schedule a delayed second delete (without blocking this webhook's
-  // response - the app runs as a persistent process, not serverless, so this is safe) to catch
-  // that background job once it's done.
-  await deleteItemImage(playlistsView.Id, 'Primary');
+  const settings = getWatchlistSettings();
 
-  const thumbBytes = fs.readFileSync(WATCHLIST_MOVIES_THUMB_PATH);
-  await uploadItemImage(
-    playlistsView.Id,
-    'Thumb',
-    thumbBytes,
-    contentTypeForPath(WATCHLIST_MOVIES_THUMB_PATH)
-  );
+  // Best-effort - if Jellyfin ever rejects renaming this auto-generated view, don't let that
+  // block the image/ordering steps below.
+  await renameView(request, userId, playlistsView.Id, settings.playlistsViewName).catch(() => {});
 
-  setTimeout(() => {
-    deleteItemImage(playlistsView.Id, 'Primary').catch(() => {});
-  }, 5000);
+  // Both Primary and Thumb get the same uploaded image now - Jellyfin will keep regenerating its
+  // own composite Primary on every library scan, but reapplyWatchlistCustomizations re-runs this
+  // same upload afterwards to put ours back.
+  const imagePath = getPlaylistsViewImagePath();
+  if (imagePath) {
+    const bytes = fs.readFileSync(imagePath);
+    const contentType = contentTypeForPath(imagePath);
+    await uploadItemImage(playlistsView.Id, 'Primary', bytes, contentType);
+    await uploadItemImage(playlistsView.Id, 'Thumb', bytes, contentType);
+  }
 
   const userRes = await requestApi(`/Users/${userId}`, request, {
     method: 'GET',
@@ -226,28 +254,20 @@ export async function ensureMoviesPlaylist(request: NextRequest, userId: string)
     return existing;
   }
 
+  const settings = getWatchlistSettings();
+
   const playlistId = await createPlaylist(
     request,
-    WATCHLIST_PLAYLIST_NAME,
+    settings.moviesPlaylistName,
     userId,
     WATCHLIST_PLAYLIST_SORT_NAME
   );
 
-  const posterBytes = fs.readFileSync(WATCHLIST_MOVIES_POSTER_PATH);
-  await uploadItemImage(
-    playlistId,
-    'Primary',
-    posterBytes,
-    contentTypeForPath(WATCHLIST_MOVIES_POSTER_PATH)
-  );
-
-  const thumbBytes = fs.readFileSync(WATCHLIST_MOVIES_THUMB_PATH);
-  await uploadItemImage(
-    playlistId,
-    'Thumb',
-    thumbBytes,
-    contentTypeForPath(WATCHLIST_MOVIES_THUMB_PATH)
-  );
+  const imagePath = getMoviesPlaylistImagePath();
+  if (imagePath) {
+    const bytes = fs.readFileSync(imagePath);
+    await uploadItemImage(playlistId, 'Primary', bytes, contentTypeForPath(imagePath));
+  }
 
   setMoviesPlaylistId(userId, playlistId);
   await ensurePlaylistsViewPresentation(request, userId);
@@ -337,4 +357,155 @@ export async function applyFavoriteChange(
     const playlistId = await ensureMoviesPlaylist(request, userId);
     await addItemToPlaylist(request, playlistId, itemId, userId);
   }
+}
+
+type FavoriteItem = {
+  Id: string;
+  Name: string;
+  Type: string;
+  SeriesId?: string;
+  SeriesName?: string;
+};
+
+type FavoriteItemsResponse = {
+  Items: FavoriteItem[];
+  TotalRecordCount: number;
+};
+
+export type BackfillResult = {
+  totalFavorites: number;
+  processed: number;
+  succeeded: number;
+  failed: number;
+  results: Array<{ id: string; name: string; status: 'added' | 'failed'; error?: string }>;
+};
+
+/**
+ * Finds every favorite a user already has and applies each one via applyFavoriteChange, exactly
+ * as if they'd just favorited it. Used both by the manual backfill endpoint and by the setup
+ * wizard's "Create Watchlists" step, so favorites that predate the webhook (or predate the whole
+ * Watchlist feature) still end up in the right playlist instead of only future favorites.
+ */
+export async function backfillFavoritesForUser(
+  request: NextRequest,
+  userId: string
+): Promise<BackfillResult> {
+  const itemsRes = await requestApi(
+    `/Users/${userId}/Items?Filters=IsFavorite&Recursive=true&IncludeItemTypes=Movie,Series,Season,Episode,Video`,
+    request,
+    { method: 'GET', requiresAuth: true, accessToken: JELLYFIN_ADMIN_API_KEY }
+  );
+  if (!itemsRes.ok) {
+    throw new Error(`Failed to list favorites for ${userId}: ${itemsRes.status}`);
+  }
+
+  const data: FavoriteItemsResponse = await itemsRes.json();
+  const results: BackfillResult['results'] = [];
+
+  for (const item of data.Items) {
+    try {
+      const seriesId = item.Type === 'Series' ? item.Id : item.SeriesId;
+      const seriesName = item.Type === 'Series' ? item.Name : item.SeriesName;
+
+      await applyFavoriteChange(request, {
+        userId,
+        itemId: item.Id,
+        itemType: item.Type,
+        favorite: true,
+        seriesId,
+        seriesName
+      });
+
+      results.push({ id: item.Id, name: item.Name, status: 'added' });
+    } catch (error) {
+      results.push({
+        id: item.Id,
+        name: item.Name,
+        status: 'failed',
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  }
+
+  return {
+    totalFavorites: data.TotalRecordCount,
+    processed: results.length,
+    succeeded: results.filter((r) => r.status === 'added').length,
+    failed: results.filter((r) => r.status === 'failed').length,
+    results
+  };
+}
+
+/**
+ * Re-applies the custom name and Primary image to every movies-watchlist playlist we manage, and
+ * the custom name/Primary/Thumb to every user's "Playlists" home-screen view - across every user.
+ * Jellyfin's own library scan periodically regenerates a playlist's image (and can reset the
+ * "Playlists" view's own image/name) from its current contents - there's no way to stop Jellyfin
+ * from doing that, so instead this is meant to be called right after a scan finishes (wired up as
+ * a second Jellyfin webhook, notification type "Task Completed", pointed at the sibling
+ * jellyfin-task-completed route) to put everything back. Safe to call at any time for any reason -
+ * every step either no-ops or re-applies the same bytes/name it already applied before, so
+ * repeated/redundant calls are harmless. Series playlists are intentionally left alone here - their
+ * images come from the series itself, which Jellyfin has no reason to touch.
+ */
+export async function reapplyWatchlistCustomizations(
+  request: NextRequest
+): Promise<{ fixed: number; failed: Array<{ playlistId: string; error: string }> }> {
+  const tracked = getAllTrackedPlaylists();
+  const settings = getWatchlistSettings();
+  const imagePath = getMoviesPlaylistImagePath();
+  const failed: Array<{ playlistId: string; error: string }> = [];
+  let fixed = 0;
+
+  for (const entry of tracked) {
+    if (entry.kind === 'series') {
+      // Series playlists aren't renamed/re-imaged here, but stale references (deleted by hand)
+      // should still be dropped so a future favorite recreates a fresh playlist instead of
+      // silently pointing at nothing.
+      const stillExists = await playlistStillExists(request, entry.userId, entry.playlistId);
+      if (!stillExists) {
+        removeSeriesPlaylistId(entry.userId, entry.seriesId);
+      }
+      continue;
+    }
+
+    try {
+      const stillExists = await playlistStillExists(request, entry.userId, entry.playlistId);
+      if (!stillExists) {
+        // Playlist was deleted by hand in Jellyfin - drop the stale reference instead of
+        // repeatedly failing on it every time a scan finishes.
+        removeMoviesPlaylistId(entry.userId);
+        continue;
+      }
+
+      await renamePlaylist(
+        request,
+        entry.playlistId,
+        entry.userId,
+        settings.moviesPlaylistName,
+        WATCHLIST_PLAYLIST_SORT_NAME
+      );
+
+      if (imagePath) {
+        const bytes = fs.readFileSync(imagePath);
+        await uploadItemImage(entry.playlistId, 'Primary', bytes, contentTypeForPath(imagePath));
+      }
+
+      fixed += 1;
+    } catch (error) {
+      failed.push({
+        playlistId: entry.playlistId,
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  }
+
+  // ensurePlaylistsViewPresentation already does exactly what a "reapply" needs for the Playlists
+  // view (rename + re-upload image + fix ordering) - just re-run it per distinct user.
+  const userIds = [...new Set(tracked.map((entry) => entry.userId))];
+  for (const userId of userIds) {
+    await ensurePlaylistsViewPresentation(request, userId);
+  }
+
+  return { fixed, failed };
 }

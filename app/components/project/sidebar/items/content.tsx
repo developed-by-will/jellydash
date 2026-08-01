@@ -1,5 +1,6 @@
 import {
   Baby,
+  Clapperboard,
   ImagePlay,
   MessageCircleReply,
   MessageSquareShare,
@@ -40,6 +41,12 @@ export const content: NavItem = {
       title: 'Delete Playlist Songs',
       url: baseUrl + '/delete-songs',
       icon: <Trash2 className={classes} />,
+      canAccess: true
+    },
+    {
+      title: 'Watchlist Settings',
+      url: baseUrl + '/watchlist-settings',
+      icon: <Clapperboard className={classes} />,
       canAccess: true
     },
     {
