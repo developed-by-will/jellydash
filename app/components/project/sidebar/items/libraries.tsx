@@ -23,9 +23,9 @@ export const libraries = {
     },
     {
       title: 'Add Library to Role',
-      url: '/add-library-to-role',
+      url: baseUrl + '/add-library-to-role',
       icon: <BookX className={classes} />,
-      canAccess: false
+      canAccess: true
     }
   ]
 };

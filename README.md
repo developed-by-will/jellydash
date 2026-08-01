@@ -44,11 +44,14 @@ With **Jellydash**, you regain control — **without needing external databases*
   ![alt text](./public/image-7.png)
 - **Social Post** – Shareable social-media poster with custom template option.
   ![alt text](./public/image-8.png)
+- **Sync Crew & Cast** – Refreshes cast/crew photos that are missing from Jellyfin. Tracks what's already been processed so re-runs only touch what's still missing, or force a full re-sync.
 
 ### 🔹 **Libraries**
 
 - **Sync** – Table of every library Jellyfin reports, with a badge per role (plus an `EXCLUDED` badge) — click a badge to grant or revoke that library for that role on the spot.
   ![alt text](./public/image-9.png)
+- **Reorder Home** – Drag-and-drop the home screen's library order, exclude/restore libraries from the same list, and push the new order to every user. The Playlists tile is shown pinned first since Jellyfin forces that position regardless.
+- **Add Library to Role** – Pick a role, then check off which libraries it can access.
 
 ---
 
@@ -69,8 +72,6 @@ npm run dev
 ```
 
 4. Open `http://localhost:4000/login` and sign in with your **Jellyfin admin username and password** — Jellydash authenticates you directly against your Jellyfin server, so there's no separate account to create.
-
-5. _(Optional, for the locked/API-only features above)_ **Import** the provided Postman collection from the repo root, set the `API_URL` variable to your Jellydash app's URL, then call `AUTH_BY_NAME` (see **Authentication** below) so you can call the rest of the endpoints directly.
 
 ---
 
@@ -177,13 +178,14 @@ If `WEBHOOK_SECRET` isn't set in `.env`, one is generated automatically and stor
 - **Watchlist**: Names live in `app/db/watchlist-settings.json`, images in `public/watchlist-*-image.png` - both managed from **Content Management → Watchlist Settings**.
 - **Delete Playlist Songs is destructive and irreversible** — it deletes real files from disk. The folder-path safety guard only stops it from deleting _outside_ the folder you picked; it won't stop you from picking the wrong folder.
 - **First-run delays**: media/photo updates may take time (later calls are faster, since processed IDs are skipped).
+- **Homepage Order**: lives in `app/db/ordered-views`, managed from **Libraries → Reorder Home**. Playlists always shows first.
+- **Sync Crew & Cast**: already-processed people are tracked in `app/db/faceless`, so re-runs only touch what's still missing an image. Use Force to redo everyone.
 
 ---
 
 ## 🔮 **Planned Features**
 
-- **Sync Crew & Cast**: Feature to sync crew and cast member pictures.
-- **Homepage Library order**: Re-order the libraries for all users.
+- **Nothing planned for now**
 - **Suggest a feature!** (Open an issue or DM me.)
 
 ---
