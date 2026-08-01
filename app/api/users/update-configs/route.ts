@@ -1,8 +1,10 @@
 // app/api/users/update-configs/route.ts
 import { catchError, getLibrariesIds, parseLibraries, requestApi } from '@/app/api/helpers';
 import { User } from '@/app/api/types';
+import { PLAYLISTS_VIEW_ID } from '@/app/constants';
 import { getRoleLibraryFile } from '@/app/db/packages';
 import { NextRequest, NextResponse } from 'next/server';
+import { getPlaylistsViewId } from '../../webhooks/jellyfin-favorite/helpers';
 
 /**
  * Internal helper function to update user configurations.
@@ -68,6 +70,17 @@ async function updateUserConfigurations(request: NextRequest) {
           const userDetails = await userDetailsResponse.json();
           const isAdmin = userDetails.Policy.IsAdministrator === true;
 
+          // OrderedViews from the client uses one shared placeholder Id for the Playlists tile,
+          // but that view is actually generated per user with its own distinct Id (see
+          // getPlaylistsViewId) - swap in this user's real one, or drop the entry if Jellyfin
+          // hasn't generated one for them yet (nothing to point at, and a stale/unknown Id in
+          // OrderedViews just gets silently ignored by Jellyfin - which is what let the
+          // placeholder go unnoticed here in the first place).
+          const realPlaylistsViewId = await getPlaylistsViewId(request, user.Id);
+          const resolvedOrderedViews = getLibrariesIds(OrderedViews)
+            .map((id) => (id === PLAYLISTS_VIEW_ID ? realPlaylistsViewId : id))
+            .filter((id): id is string => id !== null);
+
           const userConfiguration = {
             PlayDefaultAudioTrack: true,
             SubtitleLanguagePreference: SubtitleLanguagePreference ?? 'eng',
@@ -76,7 +89,7 @@ async function updateUserConfigurations(request: NextRequest) {
             SubtitleMode: 'Default',
             DisplayCollectionsView: false,
             EnableLocalPassword: false,
-            OrderedViews: getLibrariesIds(OrderedViews),
+            OrderedViews: resolvedOrderedViews,
             MyMediaExcludes: [],
             HidePlayedInLatest: true,
             RememberAudioSelections: true,

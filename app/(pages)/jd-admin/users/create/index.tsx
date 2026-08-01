@@ -5,6 +5,7 @@ import {
   UpdateDisplayPrefsPayloadType,
   UsersUpdateConfigsPayloadType
 } from '@/app/api/types';
+import { DEFAULT_SUBTITLE_LANGUAGE, PLAYLISTS_VIEW_ID, PLAYLISTS_VIEW_NAME } from '@/app/constants';
 import { toast } from '@/components/breeze-ui/toast/hooks/use-toast';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
@@ -26,7 +27,7 @@ const defaultValues = {
 
 // Playlists always leads the home screen row order - everything else follows in whatever order
 // Jellyfin reports the libraries.
-const PLAYLISTS_VIEW = '4b94e5cbf58c7a5ea5a2c7bbd0a1e781->Playlists';
+const PLAYLISTS_VIEW = `${PLAYLISTS_VIEW_ID}->${PLAYLISTS_VIEW_NAME}`;
 
 export default function CreateUser() {
   const [isPending, setIsPending] = useState(false);
@@ -75,7 +76,7 @@ export default function CreateUser() {
 
       updateUserConfigs.mutate({
         OrderedViews: [PLAYLISTS_VIEW, ...otherViews],
-        SubtitleLanguagePreference: 'por'
+        SubtitleLanguagePreference: DEFAULT_SUBTITLE_LANGUAGE
       });
     }
     // eslint-disable-next-line
