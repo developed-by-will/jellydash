@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import Page from '.';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const title = 'Jellydash - Exclude Library from Home';
+  const title = 'Jellydash - Reorder Home Screen';
 
   return {
     title,

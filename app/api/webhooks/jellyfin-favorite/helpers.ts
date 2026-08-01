@@ -181,27 +181,39 @@ async function playlistStillExists(
  * Each user gets their own distinct "Playlists" home-screen view object (a different Id per
  * user, seemingly only created once that user has at least one playlist) - it is NOT the same
  * shared Id as the underlying playlist storage folder, and it is NOT shared across users either
- * (own Id, own ImageTags, own Name). So the label, image, and "show first" ordering can't be set
- * once for everyone; all three have to be verified/corrected per user, right after we know they
- * have at least one playlist - and again later via reapplyWatchlistCustomizations, since Jellyfin's
- * own library scan periodically regenerates this view's image (and the plain re-upload here is
- * exactly what undoes that). Cheap and idempotent to repeat (each step no-ops or re-applies the
- * same bytes/name when already correct).
+ * (own Id, own ImageTags, own Name). Returns null if Jellyfin hasn't generated one for this user
+ * yet (typically: they have no playlists at all), which every caller treats as "nothing to do".
  */
-async function ensurePlaylistsViewPresentation(request: NextRequest, userId: string): Promise<void> {
+export async function getPlaylistsViewId(
+  request: NextRequest,
+  userId: string
+): Promise<string | null> {
   const viewsRes = await requestApi(`/Users/${userId}/Views`, request, {
     method: 'GET',
     requiresAuth: true,
     accessToken: JELLYFIN_ADMIN_API_KEY
   });
   if (!viewsRes.ok) {
-    return;
+    return null;
   }
   const viewsData = await viewsRes.json();
   const playlistsView = (viewsData.Items as Array<{ Id: string; CollectionType?: string }>).find(
     (item) => item.CollectionType === 'playlists'
   );
-  if (!playlistsView) {
+  return playlistsView?.Id ?? null;
+}
+
+/**
+ * Because the Playlists view Id above is per-user (see getPlaylistsViewId), its label, image, and
+ * "show first" ordering can't be set once for everyone; all three have to be verified/corrected
+ * per user, right after we know they have at least one playlist - and again later via
+ * reapplyWatchlistCustomizations, since Jellyfin's own library scan periodically regenerates this
+ * view's image (and the plain re-upload here is exactly what undoes that). Cheap and idempotent to
+ * repeat (each step no-ops or re-applies the same bytes/name when already correct).
+ */
+async function ensurePlaylistsViewPresentation(request: NextRequest, userId: string): Promise<void> {
+  const playlistsViewId = await getPlaylistsViewId(request, userId);
+  if (!playlistsViewId) {
     return;
   }
 
@@ -209,7 +221,7 @@ async function ensurePlaylistsViewPresentation(request: NextRequest, userId: str
 
   // Best-effort - if Jellyfin ever rejects renaming this auto-generated view, don't let that
   // block the image/ordering steps below.
-  await renameView(request, userId, playlistsView.Id, settings.playlistsViewName).catch(() => {});
+  await renameView(request, userId, playlistsViewId, settings.playlistsViewName).catch(() => {});
 
   // Both Primary and Thumb get the same uploaded image now - Jellyfin will keep regenerating its
   // own composite Primary on every library scan, but reapplyWatchlistCustomizations re-runs this
@@ -218,8 +230,8 @@ async function ensurePlaylistsViewPresentation(request: NextRequest, userId: str
   if (imagePath) {
     const bytes = fs.readFileSync(imagePath);
     const contentType = contentTypeForPath(imagePath);
-    await uploadItemImage(playlistsView.Id, 'Primary', bytes, contentType);
-    await uploadItemImage(playlistsView.Id, 'Thumb', bytes, contentType);
+    await uploadItemImage(playlistsViewId, 'Primary', bytes, contentType);
+    await uploadItemImage(playlistsViewId, 'Thumb', bytes, contentType);
   }
 
   const userRes = await requestApi(`/Users/${userId}`, request, {
@@ -234,11 +246,11 @@ async function ensurePlaylistsViewPresentation(request: NextRequest, userId: str
   const config = user.Configuration ?? {};
   const currentOrdered: string[] = config.OrderedViews ?? [];
 
-  if (currentOrdered[0] === playlistsView.Id) {
+  if (currentOrdered[0] === playlistsViewId) {
     return;
   }
 
-  const newOrdered = [playlistsView.Id, ...currentOrdered.filter((id) => id !== playlistsView.Id)];
+  const newOrdered = [playlistsViewId, ...currentOrdered.filter((id) => id !== playlistsViewId)];
 
   await requestApi(`/Users/${userId}/Configuration`, request, {
     method: 'POST',
