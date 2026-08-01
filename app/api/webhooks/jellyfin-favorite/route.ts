@@ -1,5 +1,5 @@
 import { catchError } from '@/app/api/helpers';
-import { WEBHOOK_SECRET } from '@/app/api/constants';
+import { isValidWebhookSecret } from '@/app/db/webhookSecret';
 import { NextRequest, NextResponse } from 'next/server';
 import { applyFavoriteChange } from './helpers';
 import { UserDataSavedPayload } from './types';
@@ -7,7 +7,7 @@ import { UserDataSavedPayload } from './types';
 export async function POST(request: NextRequest) {
   try {
     const secret = request.nextUrl.searchParams.get('secret');
-    if (!WEBHOOK_SECRET || secret !== WEBHOOK_SECRET) {
+    if (!isValidWebhookSecret(secret)) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
