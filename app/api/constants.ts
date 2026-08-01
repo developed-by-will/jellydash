@@ -14,9 +14,8 @@ export const BASE_URL = `${PROTOCOL}://${HOSTNAME}`;
 
 export const JELLYFIN_ADMIN_API_KEY = process.env.JELLYFIN_ADMIN_API_KEY as string;
 export const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET as string;
-export const WATCHLIST_MOVIES_POSTER_PATH = process.env.WATCHLIST_MOVIES_POSTER_PATH as string;
-export const WATCHLIST_MOVIES_THUMB_PATH = process.env.WATCHLIST_MOVIES_THUMB_PATH as string;
-export const WATCHLIST_PLAYLIST_NAME = 'Filmes & Documentários';
+// The watchlist playlist name and its images are managed from the Watchlist Settings page
+// (app/db/watchlist-settings.json + public/watchlist-*-image.png) - not env vars.
 export const WATCHLIST_PLAYLIST_SORT_NAME = '0';
 
 export const mobileDisplayPrefs: CustomPreferencesBase = {

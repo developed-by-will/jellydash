@@ -1,5 +1,6 @@
 import {
   Baby,
+  Clapperboard,
   ImagePlay,
   MessageCircleReply,
   MessageSquareShare,
@@ -43,10 +44,16 @@ export const content: NavItem = {
       canAccess: true
     },
     {
+      title: 'Watchlist Settings',
+      url: baseUrl + '/watchlist-settings',
+      icon: <Clapperboard className={classes} />,
+      canAccess: true
+    },
+    {
       title: 'Sync Crew & Cast',
       url: baseUrl + '/sync-crew-and-cast',
       icon: <PersonStanding className={classes} />,
-      canAccess: false
+      canAccess: true
     },
     {
       title: 'Social Post',
