@@ -66,16 +66,16 @@ function normalizeGuid(guid: string): string {
 
 export async function isWebhookPluginInstalled(request: NextRequest): Promise<boolean> {
   const plugins = await getInstalledPlugins(request);
-  return plugins.some((plugin) => plugin.Id && normalizeGuid(plugin.Id) === normalizeGuid(WEBHOOK_PLUGIN_GUID));
+  return plugins.some(
+    (plugin) => plugin.Id && normalizeGuid(plugin.Id) === normalizeGuid(WEBHOOK_PLUGIN_GUID)
+  );
 }
 
-/** Installs the Webhook plugin from the official Jellyfin repository. Requires a server restart
- * to actually activate (Jellyfin loads plugin assemblies at startup). */
 export async function installWebhookPlugin(request: NextRequest): Promise<void> {
   const res = await requestApi(
     `/Packages/Installed/${WEBHOOK_PLUGIN_PACKAGE_NAME}?AssemblyGuid=${WEBHOOK_PLUGIN_GUID}`,
     request,
-    { method: 'POST', requiresAuth: true, accessToken: JELLYFIN_ADMIN_API_KEY }
+    { method: 'POST', requiresAuth: true, accessToken: JELLYFIN_ADMIN_API_KEY, body: undefined }
   );
   if (!res.ok) {
     throw new Error(`Failed to install Webhook plugin: ${res.status}`);
@@ -88,7 +88,8 @@ export async function restartJellyfinServer(request: NextRequest): Promise<void>
   await requestApi('/System/Restart', request, {
     method: 'POST',
     requiresAuth: true,
-    accessToken: JELLYFIN_ADMIN_API_KEY
+    accessToken: JELLYFIN_ADMIN_API_KEY,
+    body: undefined
   });
 }
 
@@ -105,8 +106,6 @@ async function getWebhookPluginConfig(request: NextRequest): Promise<any> {
 }
 
 async function setWebhookPluginConfig(request: NextRequest, config: any): Promise<void> {
-  // The plugin config endpoint has no requestApi-style JSON helper - it wants the raw
-  // configuration object as the body, same shape GET returned (POST replaces it wholesale).
   const res = await fetch(`${SERVER_URL}/Plugins/${WEBHOOK_PLUGIN_GUID}/Configuration`, {
     method: 'POST',
     headers: { ...getHeaders(JELLYFIN_ADMIN_API_KEY), 'Content-Type': 'application/json' },
@@ -133,12 +132,11 @@ function taskCompletedWebhookUri(): string {
   return `${appUrl()}${TASK_COMPLETED_WEBHOOK_PATH}?secret=${getOrCreateWebhookSecret()}`;
 }
 
-// All destination options share this shape (see Jellyfin.Plugin.Webhook/Destinations/BaseOption.cs)
-// - item type flags are enabled across the board so our own endpoints see every relevant favorite
-// (they do their own filtering), and SendAllProperties=true means the plugin skips its Handlebars
-// template entirely and just posts the full JSON data object, which is exactly the raw
-// UserDataSaved/TaskCompleted payload our routes already expect.
-function buildManagedGenericOption(webhookUri: string, webhookName: string, notificationType: string) {
+function buildManagedGenericOption(
+  webhookUri: string,
+  webhookName: string,
+  notificationType: string
+) {
   return {
     NotificationTypes: [notificationType],
     WebhookName: webhookName,
@@ -193,10 +191,6 @@ export async function checkHooksStatus(
   };
 }
 
-/** Adds (or replaces, if already present) our two managed Generic Destinations. Safe to call
- * repeatedly - existing jellydash-owned entries are matched by URL path and replaced in place, and
- * every other destination the user has configured (Discord, Slack, their own Generic ones, ...) is
- * left completely untouched. */
 export async function applyHooks(
   request: NextRequest
 ): Promise<{ favorite: boolean; taskCompleted: boolean }> {
@@ -204,7 +198,9 @@ export async function applyHooks(
   const existing: Array<{ WebhookUri?: string }> = config.GenericOptions ?? [];
 
   const untouched = existing.filter(
-    (entry) => !isManagedEntry(entry, FAVORITE_WEBHOOK_PATH) && !isManagedEntry(entry, TASK_COMPLETED_WEBHOOK_PATH)
+    (entry) =>
+      !isManagedEntry(entry, FAVORITE_WEBHOOK_PATH) &&
+      !isManagedEntry(entry, TASK_COMPLETED_WEBHOOK_PATH)
   );
 
   const favoriteOption = buildManagedGenericOption(
@@ -226,12 +222,6 @@ export async function applyHooks(
   return { favorite: true, taskCompleted: true };
 }
 
-/** Creates the Watchlist playlist (and fixes up the "Playlists" tile) for every user, even ones
- * with zero favorites yet - ensureMoviesPlaylist only needs a userId, not any favorited items, so
- * this is entirely possible and safe to re-run (no-ops for users who already have one). Also
- * backfills each user's existing favorites into their new playlist, same as the manual backfill
- * endpoint, so anyone who favorited things before this was set up doesn't end up with an empty
- * playlist. */
 export async function createWatchlistsForAllUsers(request: NextRequest): Promise<{
   total: number;
   favoritesAdded: number;

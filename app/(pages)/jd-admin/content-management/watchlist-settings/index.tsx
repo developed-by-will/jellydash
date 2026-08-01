@@ -49,7 +49,9 @@ export default function WatchlistSettings() {
   useEffect(() => {
     if (setupStatus && showWizard === null) {
       const fullyConfigured =
-        setupStatus.pluginInstalled && setupStatus.hooks.favorite && setupStatus.hooks.taskCompleted;
+        setupStatus.pluginInstalled &&
+        setupStatus.hooks.favorite &&
+        setupStatus.hooks.taskCompleted;
       setShowWizard(!fullyConfigured);
     }
   }, [setupStatus, showWizard]);
@@ -137,10 +139,10 @@ export default function WatchlistSettings() {
         <div>
           <CardTitle>Watchlist Settings</CardTitle>
           <CardDescription>
-            Controls the auto-generated Watchlist playlist and the &quot;Playlists&quot;
-            home-screen tile every user gets. Saving applies immediately to every existing playlist
-            and view, not just future ones - and the same values get re-applied automatically after
-            every library scan, since Jellyfin otherwise resets these on its own.
+            Controls the auto-generated Watchlist playlist and the &quot;Playlists&quot; home-screen
+            tile. Saving applies immediately to every existing playlist and view, not just future
+            ones - and the same values get re-applied automatically after every library scan, since
+            Jellyfin otherwise resets these on its own.
           </CardDescription>
         </div>
         <button
@@ -172,7 +174,7 @@ export default function WatchlistSettings() {
             </Label>
 
             <Label htmlFor="playlistsImage" className="flex flex-col gap-1">
-              Thumbnail (also used as the primary image)
+              Thumbnail
               <Input
                 id="playlistsImage"
                 type="file"

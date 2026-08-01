@@ -344,32 +344,36 @@ export default function SetupWizard({
           </CardDescription>
 
           <div className="flex flex-col gap-3 border rounded-lg p-4">
-            <div className="font-medium text-sm">Images (optional)</div>
-            <CardDescription>
-              Set these now if you want, or skip them and set them later from this page.
+            <div className="font-medium text-sm">Watchlist</div>
+
+            <CardDescription className="mb-3">
+              Series are treated differently. Each series will have its own playlist seperate from
+              Movies/Documentaries.
             </CardDescription>
 
-            <Label htmlFor="wizardPlaylistsImage" className="flex flex-col gap-1">
-              &quot;Playlists&quot; tile thumbnail
-              <Input
-                id="wizardPlaylistsImage"
-                type="file"
-                accept="image/png,image/jpeg"
-                onChange={(e) => setPlaylistsImage(e.target.files?.[0] ?? null)}
-                disabled={step4Busy}
-              />
-            </Label>
+            <div className="flex flex-col gap-6">
+              <Label htmlFor="wizardPlaylistsImage" className="flex flex-col gap-1">
+                Homepage Thumbnail
+                <Input
+                  id="wizardPlaylistsImage"
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  onChange={(e) => setPlaylistsImage(e.target.files?.[0] ?? null)}
+                  disabled={step4Busy}
+                />
+              </Label>
 
-            <Label htmlFor="wizardMoviesImage" className="flex flex-col gap-1">
-              Watchlist playlist primary image
-              <Input
-                id="wizardMoviesImage"
-                type="file"
-                accept="image/png,image/jpeg"
-                onChange={(e) => setMoviesImage(e.target.files?.[0] ?? null)}
-                disabled={step4Busy}
-              />
-            </Label>
+              <Label htmlFor="wizardMoviesImage" className="flex flex-col gap-1">
+                Movies / Documentaries Watchlist primary image
+                <Input
+                  id="wizardMoviesImage"
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  onChange={(e) => setMoviesImage(e.target.files?.[0] ?? null)}
+                  disabled={step4Busy}
+                />
+              </Label>
+            </div>
 
             <Button
               variant="secondary"
