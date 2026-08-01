@@ -1,7 +1,6 @@
 import { LucideIcon } from 'lucide-react';
 import { content } from './content';
 import { libraries } from './libraries';
-import { server } from './server';
 import { users } from './users';
 
 type NavSubItem = {
@@ -26,4 +25,4 @@ export type NavItem = {
   canAccess?: boolean;
 };
 
-export const items: NavItem[] = [users, server, content, libraries];
+export const items: NavItem[] = [users, content, libraries];
