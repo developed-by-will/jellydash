@@ -53,7 +53,7 @@ export const content: NavItem = {
       title: 'Sync Crew & Cast',
       url: baseUrl + '/sync-crew-and-cast',
       icon: <PersonStanding className={classes} />,
-      canAccess: false
+      canAccess: true
     },
     {
       title: 'Social Post',
