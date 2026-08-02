@@ -12,7 +12,7 @@ Jellyfin's default dashboard lacks several key features for **granular control**
 
 - **No built-in user role system** (e.g., "Children," "Adults," "Admins").
 - **Ratting content** Ratting content must be done one-by-one.
-- **Lack of Watchlist feature** Users are forced to look for the Favorite filter on each client wich can be cumbersome e.g. TV Client.
+- **Lack of Watchlist feature** Users are forced to look for the Favorite filter on each client which can be cumbersome e.g. TV Client.
 
 And more.
 
