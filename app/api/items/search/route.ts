@@ -91,14 +91,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(results, { status: 200 });
   } catch (error) {
-    console.error('Error in /api/items/search:', error);
-
-    return NextResponse.json(
-      {
-        message: 'Failed to fetch search results',
-        error: String(error)
-      },
-      { status: 500 }
-    );
+    return catchError(error);
   }
 }
