@@ -37,6 +37,6 @@ export async function DELETE(request: NextRequest) {
     );
     return NextResponse.json({ message: `M3U successfuly was removed` }, { status: 200 });
   } catch (error) {
-    catchError(error);
+    return catchError(error);
   }
 }

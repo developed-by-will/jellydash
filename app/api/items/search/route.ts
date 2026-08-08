@@ -92,7 +92,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(results, { status: 200 });
   } catch (error) {
     console.error('Error in /api/items/search:', error);
-    catchError(error);
 
     return NextResponse.json(
       {
