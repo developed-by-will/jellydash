@@ -29,6 +29,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(images, { status: 200 });
   } catch (error) {
-    catchError(error);
+    return catchError(error);
   }
 }

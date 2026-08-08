@@ -11,6 +11,14 @@ export async function GET(request: NextRequest) {
       requiresAuth: true
     });
 
+    if (!getUsers.ok) {
+      const errText = await getUsers.text();
+      return NextResponse.json(
+        { message: 'Jellyfin rejected the /Users request', error: errText },
+        { status: getUsers.status }
+      );
+    }
+
     const users: User[] = await getUsers.json();
 
     // Order by Last Activity Date
@@ -42,6 +50,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ message: `Error getting list of users` }, { status: 400 });
   } catch (error) {
-    catchError(error);
+    return catchError(error);
   }
 }
