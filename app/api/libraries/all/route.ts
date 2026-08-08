@@ -27,6 +27,6 @@ export async function GET(request: NextRequest) {
       );
     }
   } catch (error) {
-    catchError(error);
+    return catchError(error);
   }
 }

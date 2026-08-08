@@ -81,7 +81,7 @@ export default function SyncCrewAndCast() {
       const params = new URLSearchParams({ userId, force: String(force) });
       const res = await fetch(`/api/persons?${params.toString()}`, {
         method: 'PATCH',
-        headers: { access_token: accessToken }
+        headers: { 'x-access-token': accessToken }
       });
 
       const data = await res.json();
