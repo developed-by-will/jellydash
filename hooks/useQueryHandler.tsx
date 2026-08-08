@@ -32,7 +32,7 @@ export default function useQueryHandler<T>(props: UseQueryHandlerProps): UseQuer
         if (!session?.user?.JellyfinSession?.AccessToken) {
           throw new Error('Authentication required but no token available');
         }
-        headers['ACCESS_TOKEN'] = session.user.JellyfinSession.AccessToken;
+        headers['x-access-token'] = session.user.JellyfinSession.AccessToken;
       }
 
       const res = await fetch(`/api/${endpoint}`, { headers });

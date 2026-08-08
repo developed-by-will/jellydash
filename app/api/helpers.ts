@@ -38,7 +38,8 @@ export async function requestApi(
   try {
     // Determine the token to use
     const token =
-      config.accessToken ?? (config.requiresAuth ? request.headers.get('access_token') : undefined);
+      config.accessToken ??
+      (config.requiresAuth ? request.headers.get('x-access-token') : undefined);
 
     // If auth is required but token is missing, throw 401
     if (config.requiresAuth && !token) {

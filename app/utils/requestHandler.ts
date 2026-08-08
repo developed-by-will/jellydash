@@ -30,7 +30,7 @@ export async function AUTENTICATED_POST<TPayload, TResponse>(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      access_token: token
+      'x-access-token': token
     },
     body: JSON.stringify(payload)
   });
@@ -46,7 +46,7 @@ export async function DELETE<TPayload, TResponse>(
   const response = await fetch(url, {
     method: 'DELETE',
     headers: {
-      access_token: token
+      'x-access-token': token
     },
     body: JSON.stringify(payload)
   });

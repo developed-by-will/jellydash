@@ -44,7 +44,7 @@ export function useMutationHandler<TPayload, TResponse>(
         if (!session?.user?.JellyfinSession?.AccessToken) {
           throw new Error('Authentication required but no token available');
         }
-        headers['ACCESS_TOKEN'] = session.user.JellyfinSession?.AccessToken;
+        headers['x-access-token'] = session.user.JellyfinSession?.AccessToken;
       }
 
       const res = await fetch(`/api/${endpoint}`, {
@@ -91,7 +91,7 @@ export function useMutationBlobHandler<TPayload, TResponse>(
         if (!session?.user?.JellyfinSession?.AccessToken) {
           throw new Error('Authentication required but no token available');
         }
-        headers['ACCESS_TOKEN'] = session.user.JellyfinSession.AccessToken;
+        headers['x-access-token'] = session.user.JellyfinSession.AccessToken;
       }
 
       const res = await fetch(`/api/${endpoint}`, {
