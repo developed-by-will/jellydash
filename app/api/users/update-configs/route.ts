@@ -2,7 +2,7 @@
 import { catchError, getLibrariesIds, parseLibraries, requestApi } from '@/app/api/helpers';
 import { User } from '@/app/api/types';
 import { PLAYLISTS_VIEW_ID } from '@/app/constants';
-import { getRoleLibraryFile } from '@/app/db/packages';
+import { EXCLUDED_LIBRARIES_PATH, getRoleLibraryFile } from '@/app/db/packages';
 import { NextRequest, NextResponse } from 'next/server';
 import { getPlaylistsViewId } from '../../webhooks/jellyfin-favorite/helpers';
 
@@ -16,7 +16,20 @@ async function updateUserConfigurations(request: NextRequest) {
     const { OrderedViews, SubtitleLanguagePreference } = body;
 
     // Get all standard libraries
-    const standardLibraries = parseLibraries(getRoleLibraryFile('standard'));
+    const excludedIds = parseLibraries(EXCLUDED_LIBRARIES_PATH).map((lib) => lib.id);
+
+    const virtualFoldersResponse = await requestApi('/Library/VirtualFolders', request, {
+      method: 'GET',
+      requiresAuth: true
+    });
+    const virtualFolders: { ItemId: string }[] = virtualFoldersResponse.ok
+      ? await virtualFoldersResponse.json()
+      : [];
+    const liveLibraryIds = new Set(virtualFolders.map((lib) => lib.ItemId));
+
+    const standardLibraries = parseLibraries(getRoleLibraryFile('standard')).filter(
+      (lib) => !excludedIds.includes(lib.id) && liveLibraryIds.has(lib.id)
+    );
 
     // Extract IDs from OrderedViews (supports both "id->name" and plain IDs)
     const orderedViewIds = OrderedViews.map((view: string) =>
