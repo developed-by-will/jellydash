@@ -13,15 +13,20 @@ export async function POST(request: NextRequest) {
 
     const payload: UserDataSavedPayload = await request.json();
 
-    // UserDataSaved also fires for played-toggle and playback-progress changes (the latter
-    // roughly every 10s during active playback) - favorite/rating changes are the only ones
-    // reported with this SaveReason, so this is the common case, not an error path.
-    if (payload.SaveReason !== 'UpdateUserRating') {
+    const isFavoriteToggle = payload.SaveReason === 'UpdateUserRating';
+    const isMarkedWatched =
+      (payload.SaveReason === 'PlaybackFinished' ||
+        payload.SaveReason === 'TogglePlayed' ||
+        payload.SaveReason === 'UpdateUserPlayedPosition') &&
+      payload.Played === true;
+
+    // Only proceed if the user toggled the favorite status OR marked the item as watched
+    if (!isFavoriteToggle && !isMarkedWatched) {
       return NextResponse.json({ ok: true, skipped: true }, { status: 200 });
     }
 
     console.log(
-      `[jellyfin-favorite] handling ItemType=${payload.ItemType} Favorite=${payload.Favorite} ItemId=${payload.ItemId} UserId=${payload.UserId}`
+      `[jellyfin-favorite] handling ItemType=${payload.ItemType} Favorite=${payload.Favorite} Played=${payload.Played} ItemId=${payload.ItemId} UserId=${payload.UserId}`
     );
 
     // A favorited Series has no SeriesId/SeriesName of its own (those fields are only
@@ -29,11 +34,14 @@ export async function POST(request: NextRequest) {
     const seriesId = payload.ItemType === 'Series' ? payload.ItemId : payload.SeriesId;
     const seriesName = payload.ItemType === 'Series' ? payload.Name : payload.SeriesName;
 
+    // If the item was marked as watched, treat it as an unfavorite action to remove it from the playlist
+    const targetFavoriteState = isMarkedWatched ? false : payload.Favorite;
+
     await applyFavoriteChange(request, {
       userId: payload.UserId,
       itemId: payload.ItemId,
       itemType: payload.ItemType,
-      favorite: payload.Favorite,
+      favorite: targetFavoriteState,
       seriesId,
       seriesName
     });
