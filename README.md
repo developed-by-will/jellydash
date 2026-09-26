@@ -100,6 +100,10 @@ DEBUG_JELLYFIN_ENDPOINT=/api/webhooks
 NEXT_PUBLIC_IMAGE_PROTOCOL=https
 NEXT_PUBLIC_IMAGE_HOSTNAME={YOUR_JELLYFIN_HOSTNAME}
 NEXT_PUBLIC_ALLOWED_DEV_ORIGIN={YOUR_DEV_ORIGIN}
+
+# Path to the Movies watch list
+WATCHLIST_MOVIES_POSTER_PATH={PATH_TO_POSTER}
+WATCHLIST_MOVIES_THUMB_PATH={PATH_TO_THUMBNAIL}
 ```
 
 The Watchlist playlist's name/poster and the "Playlists" tile's name/thumbnail are **not** env vars - they're managed from **Content Management → Watchlist Settings** (see below).
