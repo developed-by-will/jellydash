@@ -1,4 +1,8 @@
-import { JELLYFIN_ADMIN_API_KEY, SERVER_URL, WATCHLIST_PLAYLIST_SORT_NAME } from '@/app/api/constants';
+import {
+  JELLYFIN_ADMIN_API_KEY,
+  SERVER_URL,
+  WATCHLIST_PLAYLIST_SORT_NAME
+} from '@/app/api/constants';
 import { getHeaders, requestApi } from '@/app/api/helpers';
 import {
   getMoviesPlaylistImagePath,
@@ -211,7 +215,10 @@ export async function getPlaylistsViewId(
  * view's image (and the plain re-upload here is exactly what undoes that). Cheap and idempotent to
  * repeat (each step no-ops or re-applies the same bytes/name when already correct).
  */
-async function ensurePlaylistsViewPresentation(request: NextRequest, userId: string): Promise<void> {
+async function ensurePlaylistsViewPresentation(
+  request: NextRequest,
+  userId: string
+): Promise<void> {
   const playlistsViewId = await getPlaylistsViewId(request, userId);
   if (!playlistsViewId) {
     return;
@@ -353,21 +360,89 @@ export async function applyFavoriteChange(
   request: NextRequest,
   change: FavoriteChange
 ): Promise<void> {
-  if (!change.favorite) {
-    return;
-  }
-
-  const { userId, itemId, itemType, seriesId, seriesName } = change;
+  const { userId, itemId, itemType, seriesId, seriesName, favorite } = change;
 
   if (itemType === 'Episode' || itemType === 'Season' || itemType === 'Series') {
     if (!seriesId || !seriesName) {
       return;
     }
     const playlistId = await ensureSeriesPlaylist(request, userId, seriesId, seriesName);
-    await addItemToPlaylist(request, playlistId, seriesId, userId);
+
+    if (favorite) {
+      // Always fetch all episodes to filter out already-watched ones
+      const episodesRes = await requestApi(
+        `/Shows/${seriesId}/Episodes?userId=${userId}&Fields=UserData`,
+        request,
+        {
+          method: 'GET',
+          requiresAuth: true,
+          accessToken: JELLYFIN_ADMIN_API_KEY
+        }
+      );
+
+      if (episodesRes.ok) {
+        const data = await episodesRes.json();
+        const items = data.Items || [];
+        let unwatchedItems = items;
+
+        if (itemType === 'Episode') {
+          const startIndex = items.findIndex((i: { Id: string }) => i.Id === itemId);
+          if (startIndex !== -1) {
+            unwatchedItems = items.slice(startIndex);
+          }
+        }
+
+        // Add only episodes that are not already marked as watched
+        const idsToAdd = unwatchedItems
+          .filter((i: any) => !i.UserData?.Played)
+          .map((i: { Id: string }) => i.Id)
+          .join(',');
+
+        if (idsToAdd) {
+          await addItemToPlaylist(request, playlistId, idsToAdd, userId);
+        }
+      } else {
+        // Fallback if episodes fetch fails
+        await addItemToPlaylist(request, playlistId, itemId, userId);
+      }
+    } else {
+      let isEmpty = false;
+      if (itemType === 'Series' || itemType === 'Season') {
+        // Unfavoriting or marking a full Series/Season as watched clears the entire playlist
+        isEmpty = true;
+      } else {
+        isEmpty = await removeItemFromPlaylist(request, playlistId, itemId, userId);
+      }
+
+      if (isEmpty) {
+        // Delete the empty playlist from Jellyfin
+        await requestApi(`/Items/${playlistId}`, request, {
+          method: 'DELETE',
+          requiresAuth: true,
+          accessToken: JELLYFIN_ADMIN_API_KEY
+        });
+        // Remove from local JSON store
+        removeSeriesPlaylistId(userId, seriesId);
+      }
+    }
   } else {
     const playlistId = await ensureMoviesPlaylist(request, userId);
-    await addItemToPlaylist(request, playlistId, itemId, userId);
+
+    if (favorite) {
+      await addItemToPlaylist(request, playlistId, itemId, userId);
+    } else {
+      const isEmpty = await removeItemFromPlaylist(request, playlistId, itemId, userId);
+      if (isEmpty) {
+        // Delete the empty playlist from Jellyfin
+        await requestApi(`/Items/${playlistId}`, request, {
+          method: 'DELETE',
+          requiresAuth: true,
+          accessToken: JELLYFIN_ADMIN_API_KEY
+        });
+        // Remove from local JSON store
+        removeMoviesPlaylistId(userId);
+      }
+    }
   }
 }
 
@@ -520,4 +595,52 @@ export async function reapplyWatchlistCustomizations(
   }
 
   return { fixed, failed };
+}
+
+export async function removeItemFromPlaylist(
+  request: NextRequest,
+  playlistId: string,
+  itemId: string,
+  userId: string
+): Promise<boolean> {
+  // 1. Fetch playlist items to locate the unique PlaylistItemId (entry ID)
+  const getRes = await requestApi(`/Playlists/${playlistId}/Items?userId=${userId}`, request, {
+    method: 'GET',
+    requiresAuth: true,
+    accessToken: JELLYFIN_ADMIN_API_KEY
+  });
+
+  if (!getRes.ok) {
+    throw new Error(`Failed to fetch items for playlist ${playlistId}: ${getRes.status}`);
+  }
+
+  const data = await getRes.json();
+  const items = data.Items || [];
+  const playlistItem = items.find((i: { Id: string }) => i.Id === itemId);
+
+  // If the item isn't in the playlist, check if it's already empty
+  if (!playlistItem || !playlistItem.PlaylistItemId) {
+    return items.length === 0;
+  }
+
+  // 2. Delete the item from the playlist using its PlaylistItemId
+  const deleteRes = await requestApi(
+    `/Playlists/${playlistId}/Items?entryIds=${playlistItem.PlaylistItemId}`,
+    request,
+    {
+      method: 'DELETE',
+      requiresAuth: true,
+      accessToken: JELLYFIN_ADMIN_API_KEY,
+      body: undefined
+    }
+  );
+
+  if (!deleteRes.ok) {
+    throw new Error(
+      `Failed to remove item ${itemId} from playlist ${playlistId}: ${deleteRes.status}`
+    );
+  }
+
+  // Return true if this was the last item in the playlist
+  return items.length <= 1;
 }

@@ -7,6 +7,7 @@ export interface UserDataSavedPayload {
   UserId: string;
   NotificationUsername?: string;
   Favorite: boolean;
+  Played?: boolean;
   SeriesId?: string;
   SeriesName?: string;
 }

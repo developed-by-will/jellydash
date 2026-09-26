@@ -31,6 +31,8 @@ export function NavUser() {
     deviceName: SessionInfo.DeviceName
   };
 
+  const appVersion = process.env.NEXT_PUBLIC_APP_VERSION || 'dev';
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -72,12 +74,15 @@ export function NavUser() {
               onClick={() => signOut({ callbackUrl: '/' })}
               className="cursor-pointer"
             >
-              <LogOut />
+              <LogOut className="mr-2 size-4" />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
+      <div className="px-2 py-1.5 text-center text-xs text-muted-foreground">
+        Version {appVersion}
+      </div>
     </SidebarMenu>
   );
 }
