@@ -79,18 +79,18 @@ export default function FormFields(props: Readonly<Props>) {
           <FormItem>
             <FormControl>
               <div>
-                Package <span className="text-red-500">*</span>
+                Access Group <span className="text-red-500">*</span>
                 <Select
                   onValueChange={field.onChange}
                   value={field.value || ''}
                   disabled={isPending}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a package" />
+                    <SelectValue placeholder="Select an access group" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectLabel>Packages</SelectLabel>
+                      <SelectLabel>Access Groups</SelectLabel>
                       {(roles ?? []).map((role) => (
                         <SelectItem key={role.id} value={role.id} className="cursor-pointer">
                           {role.name}

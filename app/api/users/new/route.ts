@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     const role = getRoles().find((r) => r.id === Package);
 
     if (!role) {
-      return NextResponse.json({ message: `Package does not exist` }, { status: 400 });
+      return NextResponse.json({ message: `Access Group does not exist` }, { status: 400 });
     }
 
     const endpoints = {

@@ -130,7 +130,7 @@ export default function CreateUser() {
       <div className="flex flex-col gap-10 p-10">
         <CardHeader className="p-0">
           <CardTitle>Create a new user</CardTitle>
-          <CardDescription>Quickly create a new user and select its package</CardDescription>
+          <CardDescription>Quickly create a new user and select its access group</CardDescription>
         </CardHeader>
 
         <Form {...form}>

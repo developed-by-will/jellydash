@@ -6,8 +6,7 @@ import {
   MessageSquareShare,
   NotepadTextDashed,
   PersonStanding,
-  Star,
-  Trash2
+  Star
 } from 'lucide-react';
 import { NavItem } from '.';
 
@@ -36,12 +35,6 @@ export const content: NavItem = {
           icon: <Star className={classes} />
         }
       ]
-    },
-    {
-      title: 'Delete Playlist Songs',
-      url: baseUrl + '/delete-songs',
-      icon: <Trash2 className={classes} />,
-      canAccess: true
     },
     {
       title: 'Watchlist Settings',

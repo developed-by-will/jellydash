@@ -26,7 +26,7 @@ With **Jellydash**, you regain control — **without needing external databases*
 
 - **Browse and manage users** in a searchable table, with a per-user **Max Parental Rating**, **Disable User**, **Remove User** and **Can Download** options.
   ![alt text](./public/image.png)
-- **Create new users** with a **package** that controls which libraries and permissions they get, plus an auto-generated secure password.
+- **Create new users** with an **Access Group** that controls which libraries and permissions they get, plus an auto-generated secure password.
   ![alt text](./public/image-1.png)
 - **Roles** – Create, rename, or delete roles. Each role can optionally have a **Max Parental Rating** cap.
   ![alt text](./public/image-3.png)
@@ -38,8 +38,6 @@ With **Jellydash**, you regain control — **without needing external databases*
     ![alt text](./public/image-4.png)
   - **Manage Ratings** – Add, rename, or remove the ratings offered on the Rate Content page.
     ![alt text](./public/image-5.png)
-- **Delete Playlist Songs** – Upload an **`.m3u8` playlist** (from any app — Symfonium, VLC, etc) and permanently delete every listed song from disk.
-  ![alt text](./public/image-6.png)
 - **Watchlist Settings** – Setup and manage the Watchlist feature for you and your users!
   ![alt text](./public/image-7.png)
 - **Social Post** – Shareable social-media poster with custom template option.
@@ -128,18 +126,6 @@ Lists every role from `app/db/roles.json`:
 
 ---
 
-### 🎵 **Delete Playlist Songs**
-
-Available in the dashboard under **Content Management → Delete Playlist Songs**. Accepts any `.m3u8` playlist file — it doesn't have to come from Symfonium, that's just the app used to originally export the sample playlists. On the page you:
-
-1. Pick the **Music Folder Path** with the built-in folder browser (browses folders directly on the server's own disks).
-2. Optionally set the **Jellyfin path**, if the paths inside the `.m3u8` are container paths (e.g. `/media/F/Music/...` from a Dockerized Jellyfin) that need translating back to the real path on disk.
-3. Upload the `.m3u8` file and confirm.
-
-Each song is checked against the chosen folder before deletion (anything outside it is skipped, never deleted), and the response reports exactly what was deleted, not found, skipped, or errored.
-
----
-
 ### 🎬 **Watchlist Settings**
 
 Available under **Content Management → Watchlist Settings**. Controls two things:
@@ -173,10 +159,9 @@ If `WEBHOOK_SECRET` isn't set in `.env`, one is generated automatically and stor
 ## ⚠️ **Critical Notes**
 
 - **Dev server runs on port 4000**, not the Next.js default 3000.
-- **Packages/Roles**: Each has its own independent library file under `app/db/libraries/` — granting a library to one role has no effect on the others. Roles themselves live in `app/db/roles.json`, managed from **User Management → Roles**.
+- **Access Groups/Roles**: Each has its own independent library file under `app/db/libraries/` — granting a library to one role has no effect on the others. Roles themselves live in `app/db/roles.json`, managed from **User Management → Roles**.
 - **Ratings**: The list offered on the Rate Content page lives in `app/db/ratings.json`, managed from **Parental Ratings → Manage Ratings**. Deleting a rating doesn't change items already tagged with it in Jellyfin.
 - **Watchlist**: Names live in `app/db/watchlist-settings.json`, images in `public/watchlist-*-image.png` - both managed from **Content Management → Watchlist Settings**.
-- **Delete Playlist Songs is destructive and irreversible** — it deletes real files from disk. The folder-path safety guard only stops it from deleting _outside_ the folder you picked; it won't stop you from picking the wrong folder.
 - **First-run delays**: media/photo updates may take time (later calls are faster, since processed IDs are skipped).
 - **Homepage Order**: lives in `app/db/ordered-views`, managed from **Libraries → Reorder Home**. Playlists always shows first.
 - **Sync Crew & Cast**: already-processed people are tracked in `app/db/faceless`, so re-runs only touch what's still missing an image. Use Force to redo everyone.
